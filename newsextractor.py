@@ -44,6 +44,10 @@ class NewsExtractor():
                     entry_list = entry_list + bbc_entries
 
         self.articles_parsed += len(entry_list)
+
+        # INSERT HERE METODS TO ADD FULL TEXT TO ARTICLE FORMAT,
+        # all cnn body text is wrapped in class="zn-body__paragraph"
+        # all bbc body text is wrapped in class="story-body__inner"
         return entry_list
 
     def extract_cnn(self):
