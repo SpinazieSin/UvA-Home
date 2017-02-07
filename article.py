@@ -18,7 +18,7 @@ class Article():
     Btw this initialized like this: article.Article(args)
     """
 
-    def __init__(self="", title="", author="", source="", link="", category="",
+    def __init__(self, title="", author="", source="", link="", category="",
                  keywords=[], published="", summary="", text="", ID=""):
         """Initialize all values."""
         self.title = title
