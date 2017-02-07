@@ -20,13 +20,14 @@ newspapers = {
 def main():
     """Main."""
     d = getFeed('volkskrant')
-    for entry in d.entries:
-        print(entry.title)
+    print(d)
+    # for entry in d.entries:
+    #     print(entry.title)
 
 
 def getFeed(newspaper):
     """Get RSS feed from given newspaper."""
-    d = feedparser.parse(newspaper[newspaper])
+    d = feedparser.parse(newspapers[newspaper])
     return d
 
 
