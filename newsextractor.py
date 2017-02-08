@@ -21,10 +21,10 @@ class NewsExtractor():
 
     Currently only extracts front page entries, also prints all skipped
     entries in news stories. This behaviour might not be preferable in
-    later inplementations. The get_full_article_text method can be used
+    later inplementations. The get_full_article method can be used
     seperately for finding the full text associated with the article,
     this would be computationally intensive to extract on first pass.
-    Use the add_full_article_text_all method to add text to all entries
+    Use the add_full_article_all method to add text to all entries
     in self.news.
     """
 
@@ -121,7 +121,7 @@ class NewsExtractor():
             parsed_entry_list.append(parsed_entry)
         return parsed_entry_list
 
-    def get_full_article_text(self, url, newspaper):
+    def get_full_article(self, url, newspaper):
         """Get the full article text and tags from url.
 
         Computationally intensive, source of the tags is dependend on the
@@ -145,16 +145,17 @@ class NewsExtractor():
             result_text = result_text + " " + div.get_text()
         for li in tag_divs:
             result_tags = result_tags + li.get_text().split()
+            # FIX SOMETHING HERE THAT CAUSES THIS: 'his', 'favorTrump'
         # this next line is actually quite computationally intensive
         return ' '.join(result_text.split()), result_tags
 
-    def add_full_article_text_all(self):
+    def add_full_article_all(self):
         """Add full text to all articles in self.news."""
         for i in range(len(self.news)):
             try:
                 self.news[i].text, self.news[i].keywords = \
-                    self.get_full_article_text(self.news[i].link,
-                                               self.news[i].source)
+                    self.get_full_article(self.news[i].link,
+                                          self.news[i].source)
             except:
                 print(" skipped entry: " + str(i) + ", " + self.news[i].title)
             sys.stdout.write("\r{0}".format("parsed: " + str(i + 1) + "/" +
