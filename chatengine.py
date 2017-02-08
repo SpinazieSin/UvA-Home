@@ -65,7 +65,7 @@ class ChatEngine():
     
     # The NLP equivalent of processCommand
     def process_query(self, query):
-        2
+        pass
 
 if __name__ == "__main__":
     c = ChatEngine()
