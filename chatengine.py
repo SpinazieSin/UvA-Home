@@ -13,20 +13,23 @@ Python Version: 3.6
 
 class ChatEngine():
     """
-    Base class for recieving and communicating messages between classes
-    
-    The engine runs in a mode which determines how it will answer. Possible modes are human and 
-    debug. Human parses queries as natural language (it tries to understand them), and debug calls a 
-    function ("command") assigned to a specific query string
+    Base class for recieving and communicating messages between classes.
+
+    The engine runs in a mode which determines how it will answer. Possible
+    modes are human and debug. Human parses queries as natural language
+    (it tries to understand them), and debug calls a function ("command")
+    assigned to a specific query string
     """
+
     def __init__(self, user="", mode="debug"):
+        """Placeholder."""
         self.user = user
         self.mode = mode
         self.commands = {
-            "topics" : self.get_topics, "switch" : self.switch, "help" : self.print_commands, 
+            "topics" : self.get_topics, "switch" : self.switch, "help" : self.print_commands,
             "quit" : self.quit
          }
-            
+
     def start(self):
         while True:
             q = input("> ")
@@ -39,15 +42,15 @@ class ChatEngine():
         import sys
         print("Goodbye!")
         sys.exit(0)
-    
+
     def print_commands(self):
         for cmd in self.commands:
             print(cmd)
-    
+
     # switch answering mode
     def switch(self, mode):
         self.mode = mode
-    
+
     # dummy method
     def get_topics(self):
         print("Binnenland\nBuitenland\nOorlog")
@@ -62,12 +65,12 @@ class ChatEngine():
         # split the list in first and rest
         cmd, *args = cmd
         self.commands.get(cmd, self.not_found)(*args)
-    
+
     # The NLP equivalent of processCommand
     def process_query(self, query):
+        """Placeholder."""
         pass
 
 if __name__ == "__main__":
     c = ChatEngine()
     c.start()
-
