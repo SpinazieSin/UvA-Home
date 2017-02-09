@@ -2,7 +2,7 @@
 """Article class file for the media understanding 2017 project.
 
 File name: article.py
-Author: Media Undertanding 2017
+Author: Media Understanding 2017
 Date created: 7/2/2017
 Date last modified: 7/2/2017
 Python Version: 3.4
