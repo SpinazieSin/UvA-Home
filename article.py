@@ -18,13 +18,13 @@ class Article():
     Btw this initialized like this: article.Article(args)
     """
 
-    def __init__(self, title="", author="", source="", link="", category="",
+    def __init__(self, title="", author="", source="", url="", category="",
                  keywords=[], published="", summary="", text="", ID=""):
         """Initialize all values."""
         self.title = title
         self.author = author
         self.source = source
-        self.link = link
+        self.url = url
         self.keywords = keywords
         self.category = category
         self.published = published

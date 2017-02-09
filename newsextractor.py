@@ -122,11 +122,11 @@ class NewsExtractor():
                 except:
                     print("skipped published in: " + title)
 
-                link = entry.link
+                url = entry.link
                 category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
                 # A NEW RSS FEED.
                 parsed_entry = article.Article(title=title, summary=summary,
-                                               link=link, published=published,
+                                               url=url, published=published,
                                                category=category,
                                                source=source)
                 parsed_entry_list.append(parsed_entry)
@@ -187,11 +187,11 @@ class NewsExtractor():
                 except:
                     print("skipped published in: " + title)
 
-                link = entry.link
+                url = entry.link
                 category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
                 # A NEW RSS FEED.
                 parsed_entry = article.Article(title=title, summary=summary,
-                                               link=link, published=published,
+                                               url=url, published=published,
                                                category=category,
                                                source=source)
                 parsed_entry_list.append(parsed_entry)
@@ -240,17 +240,17 @@ class NewsExtractor():
                 except:
                     print("skipped published in: " + title)
 
-                link = entry.link
+                url = entry.link
                 category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
                 # A NEW RSS FEED.
                 parsed_entry = article.Article(title=title, summary=summary,
-                                               link=link, published=published,
+                                               url=url, published=published,
                                                category=category,
                                                source=source)
                 parsed_entry_list.append(parsed_entry)
         return parsed_entry_list
 
-    def get_full_article(self, url, newspaper):
+    def get_full_article_url(self, url, newspaper):
         """Get the full article text and tags from url.
 
         Computationally intensive, source of the tags is dependend on the
@@ -282,13 +282,18 @@ class NewsExtractor():
         result_text = result_text.replace("\\", "")
         return result_text, result_tags
 
+    def get_full_text(self, article):
+        """Wrapper around get_full_article_url for easier debugging."""
+        text, tags = self.get_full_article_url(article.url, article.source)
+        return text
+
     def add_full_article_all(self):
         """Add full text to all articles in self.news."""
         for i in range(len(self.news)):
             try:
                 self.news[i].text, self.news[i].keywords = \
-                    self.get_full_article(self.news[i].link,
-                                          self.news[i].source)
+                    self.get_full_article_url(self.news[i].url,
+                                              self.news[i].source)
             except:
                 print(" skipped entry: " + str(i) + ", " + self.news[i].title)
             sys.stdout.write("\r{0}".format("parsed: " + str(i + 1) + "/" +
