@@ -13,7 +13,8 @@ import feedparser
 import requests
 import sys
 from bs4 import BeautifulSoup
-
+import wordcounter
+import getkeywords
 
 class NewsExtractor():
     """
