@@ -14,9 +14,11 @@ import requests
 import sys
 import pickle
 import os.path
+import re
 from bs4 import BeautifulSoup
 import wordcounter
 import getkeywords
+
 
 class NewsExtractor():
     """
@@ -111,7 +113,8 @@ class NewsExtractor():
                 summary = ""
                 published = ""
                 try:
-                    summary = entry.summary
+                    dirty_summary = entry.summary
+                    summary = re.sub('<[^>]*>', '', dirty_summary)
                 except:
                     print("skipped summary in: " + title)
                 try:
@@ -175,7 +178,8 @@ class NewsExtractor():
                 summary = ""
                 published = ""
                 try:
-                    summary = entry.summary
+                    dirty_summary = entry.summary
+                    summary = re.sub('<[^>]*>', '', dirty_summary)
                 except:
                     print("skipped summary in: " + title)
                 try:
@@ -227,7 +231,8 @@ class NewsExtractor():
                 summary = ""
                 published = ""
                 try:
-                    summary = entry.summary
+                    dirty_summary = entry.summary
+                    summary = re.sub('<[^>]*>', '', dirty_summary)
                 except:
                     print("skipped summary in: " + title)
                 try:
@@ -299,7 +304,7 @@ class NewsExtractor():
         is present. If a file is present nothing is build and that file is
         loaded instaad.
         """
-        if not os.path.isfile("news.p") or force:
+        if not os.path.isfile("news.pickle") or force:
             self.extract_rss()
             self.add_full_article_all()
         else:
