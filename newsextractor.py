@@ -15,7 +15,8 @@ import sys
 import pickle
 import os.path
 from bs4 import BeautifulSoup
-
+import wordcounter
+import getkeywords
 
 class NewsExtractor():
     """
