@@ -1,24 +1,17 @@
 import re
-import nltk
 
 debug = False
 
 class WordCounter():
-    def __init__(self, text):
-        self.text = text
+    def __init__(self, stopwords):
+        self.num_keywords = 10
         # Define stopwords
         self.stopword_filepath = "SmartStoplist.txt"
-        self.stopwords = self.get_stopwords(self.stopword_filepath)
-        self.wordcount = self.get(self.text)
+        self.stopwords = stopwords
 
     def get(self, text):
-        keyword = self.keywords(text)
-        print(keyword)
+        return self.keywords(text, self.num_keywords)
 
-    def get_stopwords(self, stopword_filepath):
-        with open(stopword_filepath, 'r') as f:
-            return set([w.strip() for w in f.readlines()])
-    
     def split_words(self, text):
         """Split a string into array of words
         """
@@ -28,13 +21,12 @@ class WordCounter():
         except TypeError:
             return None
 
-    def keywords(self, text):
+    def keywords(self, text, num_keywords):
         """Get the top 10 keywords and their frequency scores ignores blacklisted
         words in stopwords, counts the number of occurrences of each word, and
         sorts them in reverse natural order (so descending) by number of
         occurrences.
         """
-        NUM_KEYWORDS = 10
         text = self.split_words(text)
         # of words before removing blacklist words
         if text:
@@ -47,7 +39,7 @@ class WordCounter():
                 else:
                     freq[word] = 1
 
-            min_size = min(NUM_KEYWORDS, len(freq))
+            min_size = min(num_keywords, len(freq))
             keywords = sorted(freq.items(),
                               key=lambda x: (x[1], x[0]),
                               reverse=True)
