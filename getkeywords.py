@@ -2,7 +2,7 @@
 """Keyword extraction class for the media understanding 2017 project.
 
 https://www.airpair.com/nlp/keyword-extraction-tutorial
-
+    
 File name: test.py
 Author: Media Undertanding 2017
 Date created: 7/2/2017
@@ -20,9 +20,15 @@ class GetKeyWords():
         self.keys = self.get(text)
 
     def get(self, text):
-        return r.run(self.text)
+        scored_keywords = r.run(self.text)
+        keyword_list = []
+        for keyword in scored_keywords:
+            keyword_list.append(keyword[0])
+        return scored_keywords[:15]
 
 if debug:
-    text = "The long-string instrument is a musical instrument in which the string is of such a length that the ... One example of a long-string instrument was invented by the American composer Ellen Fullman. It is tuned in just intonation and played by"
+    # text = "The long-string instrument is a musical instrument in which the string is of such a length that the ... One example of a long-string instrument was invented by the American composer Ellen Fullman. It is tuned in just intonation and played by"
+    with open('test_article.txt', 'r') as myfile:
+        text = myfile.read().replace('\n', '')
     keys = GetKeyWords(text)
-    print(keys.keys)
+    print(keys.keys[:10])
