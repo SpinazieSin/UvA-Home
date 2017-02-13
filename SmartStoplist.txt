@@ -1,3 +1,4 @@
+^I
 a
 able
 about
@@ -218,7 +219,6 @@ he'd
 he'll
 hello
 help
-    
 hence
 her
 here
@@ -277,6 +277,7 @@ k
 keep
 keeps
 kept
+knew
 know
 known
 knows
@@ -439,7 +440,6 @@ saying
 says
 second
 secondly
-    
 see
 seeing
 seem

@@ -14,6 +14,7 @@ import requests
 import sys
 import pickle
 import os.path
+
 import re
 from bs4 import BeautifulSoup
 import wordcounter
@@ -324,3 +325,4 @@ class NewsExtractor():
         """Print supported newspapers  and total parsed articles."""
         return "<Supported newspapers: " + str(self.supported_news_papers) \
                + ", parsed articles: " + str(self.articles_parsed) + ">"
+
