@@ -2,7 +2,7 @@
 """Article class file for the media understanding 2017 project.
 
 File name: article.py
-Author: Media Undertanding 2017
+Author: Media Understanding 2017
 Date created: 7/2/2017
 Date last modified: 7/2/2017
 Python Version: 3.4
@@ -18,13 +18,13 @@ class Article():
     Btw this initialized like this: article.Article(args)
     """
 
-    def __init__(self, title="", author="", source="", link="", category="",
+    def __init__(self, title="", author="", source="", url="", category="",
                  keywords=[], published="", summary="", text="", ID=""):
         """Initialize all values."""
         self.title = title
         self.author = author
         self.source = source
-        self.link = link
+        self.url = url
         self.keywords = keywords
         self.category = category
         self.published = published
