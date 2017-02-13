@@ -81,14 +81,14 @@ class NewsExtractor():
     def extract_cnn_rss(self):
         """Extract and return the news entries of the cnn rss feeds."""
         rss_category_list = [
-            ("top stories", "http://rss.cnn.com/rss/edition.rss"),
+            ("top_stories", "http://rss.cnn.com/rss/edition.rss"),
             ("world", "http://rss.cnn.com/rss/edition_world.rss"),
             ("africa", "http://rss.cnn.com/rss/edition_africa.rss"),
             ("americas", "http://rss.cnn.com/rss/edition_americas.rss"),
             ("asia", "http://rss.cnn.com/rss/edition_asia.rss"),
             ("europe", "http://rss.cnn.com/rss/edition_europe.rss"),
             ("middle east", "http://rss.cnn.com/rss/edition_meast.rss"),
-            ("us", "http://rss.cnn.com/rss/edition_us.rss"),
+            ("north_america", "http://rss.cnn.com/rss/edition_us.rss"),
             ("money", "http://rss.cnn.com/rss/money_news_international.rss"),
             ("technology", "http://rss.cnn.com/rss/edition_technology.rss"),
             ("science", "http://rss.cnn.com/rss/edition_space.rss"),
@@ -136,7 +136,7 @@ class NewsExtractor():
     def extract_bbc_rss(self):
         """Extract and return the news entries of the bbc rss feeds."""
         rss_category_list = [
-            ("top stories", "http://feeds.bbci.co.uk/news/rss.xml"),
+            ("top_stories", "http://feeds.bbci.co.uk/news/rss.xml"),
             ("world", "http://feeds.bbci.co.uk/news/world/rss.xml"),
             ("africa", "http://feeds.bbci.co.uk/news/world/africa/rss.xml"),
             ("asia", "http://feeds.bbci.co.uk/news/world/asia/rss.xml"),
@@ -145,7 +145,7 @@ class NewsExtractor():
                 "http://feeds.bbci.co.uk/news/world/latin_america/rss.xml"),
             ("middle east",
                 "http://feeds.bbci.co.uk/news/world/middle_east/rss.xml"),
-            ("us canada",
+            ("north_america",
                 "http://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml"),
             ("uk", "http://feeds.bbci.co.uk/news/uk/rss.xml"),
             ("england", "http://feeds.bbci.co.uk/news/england/rss.xml"),
@@ -201,7 +201,7 @@ class NewsExtractor():
     def extract_reuters_rss(self):
         """Extract and return the news entries of the reuters rss feeds."""
         rss_category_list = [
-            ("top stories", "http://feeds.reuters.com/reuters/topNews"),
+            ("top_stories", "http://feeds.reuters.com/reuters/topNews"),
             ("art", "http://feeds.reuters.com/news/artsculture"),
             ("business", "http://feeds.reuters.com/reuters/businessNews"),
             ("companies", "http://feeds.reuters.com/reuters/companyNews"),
@@ -216,7 +216,7 @@ class NewsExtractor():
             ("science", "http://feeds.reuters.com/reuters/scienceNews"),
             ("sport", "http://feeds.reuters.com/reuters/sportsNews"),
             ("technology", "http://feeds.reuters.com/reuters/technologyNews"),
-            ("us", "http://feeds.reuters.com/Reuters/domesticNews"),
+            ("north_america", "http://feeds.reuters.com/Reuters/domesticNews"),
             ("world", "http://feeds.reuters.com/Reuters/worldNews"),
             ("odd", "http://feeds.reuters.com/reuters/oddlyEnoughNews")
                             ]
@@ -325,4 +325,3 @@ class NewsExtractor():
         """Print supported newspapers  and total parsed articles."""
         return "<Supported newspapers: " + str(self.supported_news_papers) \
                + ", parsed articles: " + str(self.articles_parsed) + ">"
-
