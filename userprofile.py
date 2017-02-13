@@ -19,11 +19,12 @@ class UserProfile():
     interests dict.
     """
 
-    def __init__(self, username="NAMELESS"):
+    def __init__(self, username="NAMELESS", facial_features="FILENAME"):
         """Initialize all values."""
         self.keywords = []
-        self.user = username
+        self.username = username
         self.interests = {}
+        self.facial_features = facial_features
         self.interests["top_stories"] = 1.0
         self.interests["world"] = 0.5
         self.interests["africa"] = 0.5
@@ -62,4 +63,4 @@ class UserProfile():
 
     def __repr__(self):
         """Print user name."""
-        return "<User name: " + str(self.user) + ">"
+        return "<Username: " + str(self.username) + ">"
