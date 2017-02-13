@@ -219,7 +219,6 @@ he'd
 he'll
 hello
 help
-	
 hence
 her
 here
@@ -441,7 +440,6 @@ saying
 says
 second
 secondly
-	
 see
 seeing
 seem
