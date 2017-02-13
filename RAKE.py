@@ -23,6 +23,10 @@ class Rake():
         sorted_keywords = sorted(keyword_candidates.items(), key=operator.itemgetter(1), reverse=True)
         return sorted_keywords
 
+    def run_noscore(self, text):
+        sentence_list = self.split_sentences(text)
+
+        return self.generate_candidate_keywords(sentence_list, self.stop_words_pattern)
 
     def is_number(self, s):
         try:
