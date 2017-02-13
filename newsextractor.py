@@ -17,8 +17,6 @@ import os.path
 
 import re
 from bs4 import BeautifulSoup
-import wordcounter
-import getkeywords
 
 
 class NewsExtractor():
@@ -116,11 +114,11 @@ class NewsExtractor():
                 try:
                     dirty_summary = entry.summary
                     summary = re.sub('<[^>]*>', '', dirty_summary)
-                except:
+                except BaseException:
                     print("skipped summary in: " + title)
                 try:
                     published = entry.published
-                except:
+                except BaseException:
                     print("skipped published in: " + title)
 
                 url = entry.link
@@ -181,11 +179,11 @@ class NewsExtractor():
                 try:
                     dirty_summary = entry.summary
                     summary = re.sub('<[^>]*>', '', dirty_summary)
-                except:
+                except BaseException:
                     print("skipped summary in: " + title)
                 try:
                     published = entry.published
-                except:
+                except BaseException:
                     print("skipped published in: " + title)
 
                 url = entry.link
@@ -227,18 +225,18 @@ class NewsExtractor():
             for entry in d.entries:
                 title = entry.title
                 source = "reuters"
-                # summaries and dates are missing sometimes, an empty strings
+                # summaries and dates are missing sometimes, an empty string
                 # is returned when this happens.
                 summary = ""
                 published = ""
                 try:
                     dirty_summary = entry.summary
                     summary = re.sub('<[^>]*>', '', dirty_summary)
-                except:
+                except BaseException:
                     print("skipped summary in: " + title)
                 try:
                     published = entry.published
-                except:
+                except BaseException:
                     print("skipped published in: " + title)
 
                 url = entry.link
@@ -295,7 +293,7 @@ class NewsExtractor():
                 self.news[i].text, self.news[i].keywords = \
                     self.get_full_article_url(self.news[i].url,
                                               self.news[i].source)
-            except:
+            except BaseException:
                 print(" skipped entry: " + str(i) + ", " + self.news[i].title)
             sys.stdout.write("\r{0}".format("parsed: " + str(i + 1) + "/" +
                                             str(len(self.news)) + " articles"))
