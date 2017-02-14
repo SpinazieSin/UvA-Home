@@ -89,13 +89,13 @@ class Rake():
             word_list = self.separate_words(phrase, 0)
             word_list_length = len(word_list)
             word_list_degree = word_list_length - 1
-            #if word_list_degree > 3: word_list_degree = 3 #exp.
+            # if word_list_degree > 3: word_list_degree = 3 #exp.
             for word in word_list:
                 word_frequency.setdefault(word, 0)
                 word_frequency[word] += 1
                 word_degree.setdefault(word, 0)
                 word_degree[word] += word_list_degree  #orig.
-                #word_degree[word] += 1/(word_list_length*1.0) #exp.
+                # word_degree[word] += 1/(word_list_length*1.0) #exp.
         for item in word_frequency:
             word_degree[item] = word_degree[item] + word_frequency[item]
 
@@ -104,7 +104,7 @@ class Rake():
         for item in word_frequency:
             word_score.setdefault(item, 0)
             word_score[item] = word_degree[item] / (word_frequency[item] * 1.0)  #orig.
-        #word_score[item] = word_frequency[item]/(word_degree[item] * 1.0) #exp.
+            # word_score[item] = word_frequency[item]/(word_degree[item] * 1.0) #exp.
         return word_score
 
 
