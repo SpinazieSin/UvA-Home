@@ -14,6 +14,7 @@ import requests
 import sys
 import pickle
 import os.path
+import getkeywords
 
 import re
 from bs4 import BeautifulSoup
@@ -363,7 +364,6 @@ class NewsExtractor():
             tag_divs = []
 
         result_text = ""
-        result_tags = []
         for div in text_divs:
             result_text = result_text + " " + div.get_text()
         for li in tag_divs:
@@ -372,6 +372,8 @@ class NewsExtractor():
         # these next lines are pretty computationally intensive
         result_text = " ".join(result_text.split())
         result_text = result_text.replace("\\", "")
+
+        result_tags = getkeywords.GetKeyWords().get(result_text)
         return result_text, result_tags
 
     def get_full_article_text(self, article):

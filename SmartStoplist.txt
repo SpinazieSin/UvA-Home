@@ -1,4 +1,6 @@
 ^I
+-- 
+…
 a
 able
 about
@@ -20,7 +22,6 @@ all
 allow
 allows
 almost
-alone
 along
 alongside
 already
@@ -74,6 +75,8 @@ been
 before
 beforehand
 begin
+began
+begun
 behind
 being
 believe
@@ -195,6 +198,7 @@ get
 gets
 getting
 given
+give
 gives
 go
 goes
@@ -250,8 +254,6 @@ i'm
 immediate
 in
 inasmuch
-inc
-inc.
 indeed
 indicate
 indicated
@@ -491,6 +493,7 @@ take
 taken
 taking
 tell
+told
 tends
 th
 than
@@ -544,6 +547,7 @@ thru
 thus
 till
 to
+told
 together
 too
 took
@@ -581,6 +585,7 @@ usually
 v
 value
 various
+ve
 versus
 very
 via
