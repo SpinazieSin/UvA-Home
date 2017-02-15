@@ -2,7 +2,7 @@
 """Keyword extraction class for the media understanding 2017 project.
 
 https://www.airpair.com/nlp/keyword-extraction-tutorial
-    
+
 File name: test.py
 Author: Media Undertanding 2017
 Date created: 7/2/2017
@@ -18,7 +18,9 @@ import time
 
 debug = False
 
+
 class GetKeyWords():
+    """Get Keywords class."""
     def __init__(self):
         # "SmartStoplist.txt" is the stopword filepath
         self.stopwords = self.get_stopwords("SmartStoplist.txt")
@@ -35,7 +37,7 @@ class GetKeyWords():
             for top_key in top_keys:
                 if top_key[0] in rake_key[0]:
                     key_score += top_key[1]
-            key_list[rake_key[0]] = key_score + math.log(rake_key[1])  
+            key_list[rake_key[0]] = key_score + math.log(rake_key[1])
         final_keys = []
         previous_key = ['000', 0.0]
         for key in sorted(key_list.items(), key=operator.itemgetter(1)):
