@@ -14,6 +14,7 @@ import requests
 import sys
 import pickle
 import os.path
+import getkeywords
 
 import re
 from bs4 import BeautifulSoup
@@ -38,10 +39,10 @@ class NewsExtractor():
     circumvent this.
     """
 
-    def __init__(self, newspapers=["cnn", "bbc", "reuters"]):
+    def __init__(self, newspapers=["cnn", "bbc", "reuters", "nytimes"]):
         """Initialize all values."""
         self.newspapers = newspapers
-        self.supported_news_papers = ["cnn", "bbc", "reuters"]
+        self.supported_news_papers = ["cnn", "bbc", "reuters", "nytimes"]
         self.articles_parsed = 0
         self.news = []
 
@@ -65,6 +66,9 @@ class NewsExtractor():
                 if newspaper == "reuters":
                     reuters_entries = self.extract_reuters_rss()
                     entry_list = entry_list + reuters_entries
+                if newspaper == "nytimes":
+                    nytimes_entries = self.extract_nytimes_rss()
+                    entry_list = entry_list + nytimes_entries
             else:
                 print("the source: " + str(newspaper) + ", is not supported.")
 
@@ -85,7 +89,7 @@ class NewsExtractor():
             ("americas", "http://rss.cnn.com/rss/edition_americas.rss"),
             ("asia", "http://rss.cnn.com/rss/edition_asia.rss"),
             ("europe", "http://rss.cnn.com/rss/edition_europe.rss"),
-            ("middle east", "http://rss.cnn.com/rss/edition_meast.rss"),
+            ("middle_east", "http://rss.cnn.com/rss/edition_meast.rss"),
             ("north_america", "http://rss.cnn.com/rss/edition_us.rss"),
             ("money", "http://rss.cnn.com/rss/money_news_international.rss"),
             ("technology", "http://rss.cnn.com/rss/edition_technology.rss"),
@@ -115,11 +119,11 @@ class NewsExtractor():
                     dirty_summary = entry.summary
                     summary = re.sub('<[^>]*>', '', dirty_summary)
                 except BaseException:
-                    print("skipped summary in: " + title)
+                    print("skipped summary in: " + source + " title: " + title)
                 try:
                     published = entry.published
                 except BaseException:
-                    print("skipped published in: " + title)
+                    print("skipped date in: " + source + " title: " + title)
 
                 url = entry.link
                 category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
@@ -139,15 +143,15 @@ class NewsExtractor():
             ("africa", "http://feeds.bbci.co.uk/news/world/africa/rss.xml"),
             ("asia", "http://feeds.bbci.co.uk/news/world/asia/rss.xml"),
             ("europe", "http://feeds.bbci.co.uk/news/world/europe/rss.xml"),
-            ("latin america",
+            ("latin_america",
                 "http://feeds.bbci.co.uk/news/world/latin_america/rss.xml"),
-            ("middle east",
+            ("middle_east",
                 "http://feeds.bbci.co.uk/news/world/middle_east/rss.xml"),
             ("north_america",
                 "http://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml"),
             ("uk", "http://feeds.bbci.co.uk/news/uk/rss.xml"),
             ("england", "http://feeds.bbci.co.uk/news/england/rss.xml"),
-            ("northern ireland",
+            ("northern_ireland",
                 "http://feeds.bbci.co.uk/news/northern_ireland/rss.xml"),
             ("scotland", "http://feeds.bbci.co.uk/news/scotland/rss.xml"),
             ("wales", "http://feeds.bbci.co.uk/news/wales/rss.xml"),
@@ -180,11 +184,11 @@ class NewsExtractor():
                     dirty_summary = entry.summary
                     summary = re.sub('<[^>]*>', '', dirty_summary)
                 except BaseException:
-                    print("skipped summary in: " + title)
+                    print("skipped summary in: " + source + " title: " + title)
                 try:
                     published = entry.published
                 except BaseException:
-                    print("skipped published in: " + title)
+                    print("skipped date in: " + source + " title: " + title)
 
                 url = entry.link
                 category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
@@ -233,11 +237,97 @@ class NewsExtractor():
                     dirty_summary = entry.summary
                     summary = re.sub('<[^>]*>', '', dirty_summary)
                 except BaseException:
-                    print("skipped summary in: " + title)
+                    print("skipped summary in: " + source + " title: " + title)
                 try:
                     published = entry.published
                 except BaseException:
-                    print("skipped published in: " + title)
+                    print("skipped date in: " + source + " title: " + title)
+
+                url = entry.link
+                category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
+                # A NEW RSS FEED.
+                parsed_entry = article.Article(title=title, summary=summary,
+                                               url=url, published=published,
+                                               category=category,
+                                               source=source)
+                parsed_entry_list.append(parsed_entry)
+        return parsed_entry_list
+
+    def extract_nytimes_rss(self):
+        """Extract and return the news entries of the cnn rss feeds."""
+        rss_category_list = [
+            ("top_stories",
+             "http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"),
+            ("world",
+             "http://rss.nytimes.com/services/xml/rss/nyt/World.xml"),
+            ("africa",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Africa.xml"),
+            ("americas",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Americas.xml"),
+            ("asia",
+             "http://rss.nytimes.com/services/xml/rss/nyt/AsiaPacific.xml"),
+            ("europe",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Europe.xml"),
+            ("middle_east",
+             "http://rss.nytimes.com/services/xml/rss/nyt/MiddleEast.xml"),
+            ("north_america",
+             "http://rss.nytimes.com/services/xml/rss/nyt/US.xml"),
+            ("education",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Education.xml"),
+            ("politics",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Politics.xml"),
+            ("business",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Business.xml"),
+            ("environment",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Environment.xml"),
+            ("economy",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Economy.xml"),
+            ("money",
+             "http://rss.nytimes.com/services/xml/rss/nyt/YourMoney.xml"),
+            ("technology",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Technology.xml"),
+            ("sport",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Sports.xml"),
+            ("baseball",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Baseball.xml"),
+            ("golf",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Golf.xml"),
+            ("american_football",
+             "http://rss.nytimes.com/services/xml/rss/nyt/ProFootball.xml"),
+            ("football",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Soccer.xml"),
+            ("tennis",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Tennis.xml"),
+            ("basketball",
+             "http://rss.nytimes.com/services/xml/rss/nyt/ProBasketball.xml"),
+            ("science",
+                "http://rss.nytimes.com/services/xml/rss/nyt/Science.xml"),
+            ("health",
+                "http://rss.nytimes.com/services/xml/rss/nyt/Health.xml"),
+            ("art", "http://rss.nytimes.com/services/xml/rss/nyt/Arts.xml"),
+            ("travel",
+             "http://rss.nytimes.com/services/xml/rss/nyt/Travel.xml")
+                            ]
+
+        parsed_entry_list = []
+        for cat, url in rss_category_list:
+            d = feedparser.parse(url)
+            for entry in d.entries:
+                title = entry.title
+                source = "nytimes"
+                # summaries and dates are missing sometimes, an empty strings
+                # is returned when this happens.
+                summary = ""
+                published = ""
+                try:
+                    dirty_summary = entry.summary
+                    summary = re.sub('<[^>]*>', '', dirty_summary)
+                except BaseException:
+                    print("skipped summary in: " + source + " title: " + title)
+                try:
+                    published = entry.published
+                except BaseException:
+                    print("skipped date in: " + source + " title: " + title)
 
                 url = entry.link
                 category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
@@ -259,8 +349,8 @@ class NewsExtractor():
         soup = BeautifulSoup(page.content, "html.parser")
         if newspaper == "cnn":
             text_divs = soup.find_all("div", {"class": "zn-body__paragraph"})
-            tag_divs = soup.find_all("ul",
-                                     {"class": "el__storyhighlights__list"})
+            tag_divs = soup.find_all(
+                       "ul", {"class": "el__storyhighlights__list"})
         if newspaper == "bbc":
             text_divs = soup.find_all("div", {"class": "story-body__inner"})
             tag_divs = soup.find_all("ul", {"class": "tags-list"})
@@ -268,6 +358,10 @@ class NewsExtractor():
             text_divs = soup.find_all("span", {"id": "article-text"})
             tag_divs = []
             # nothing that resembles tags present in reuters pages :(
+        if newspaper == "nytimes":
+            text_divs = soup.find_all(
+                        "p", {"class": "story-body-text story-content"})
+            tag_divs = []
 
         result_text = ""
         result_tags = []
@@ -279,9 +373,12 @@ class NewsExtractor():
         # these next lines are pretty computationally intensive
         result_text = " ".join(result_text.split())
         result_text = result_text.replace("\\", "")
+
+        algorithm_tags = getkeywords.GetKeyWords().get(result_text)
+        result_tags = result_tags + algorithm_tags
         return result_text, result_tags
 
-    def get_full_text(self, article):
+    def get_full_article_text(self, article):
         """Wrapper around get_full_article_url for easier debugging."""
         text, tags = self.get_full_article_url(article.url, article.source)
         return text
