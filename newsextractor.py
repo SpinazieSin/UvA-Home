@@ -14,13 +14,15 @@ import requests
 import sys
 import pickle
 import os.path
-import getkeywords
+import keywords as k
+# set global so file is read only once
+keywords = k.KeyWords()
 
 import re
 from bs4 import BeautifulSoup
 
 
-class NewsExtractor():
+class NewsExtractor(object):
     """
     Extraction class for newspapers.
 
@@ -373,8 +375,10 @@ class NewsExtractor():
         # these next lines are pretty computationally intensive
         result_text = " ".join(result_text.split())
         result_text = result_text.replace("\\", "")
+        # load stopwordlist
+        global keywords
+        algorithm_tags = keywords.extract(result_text)
 
-        algorithm_tags = getkeywords.GetKeyWords().get(result_text)
         result_tags = result_tags + algorithm_tags
         return result_text, result_tags
 
