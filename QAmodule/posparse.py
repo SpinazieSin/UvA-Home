@@ -35,9 +35,9 @@ class POSParse():
         print(nps)
         # see if Nps contain places
         sources = [np for np in nps if np in self.source_ents]
-        places = [np for np in nps if np in self.place_ents]
+        places = [np for np in nps if " ".join(np) in self.place_ents]
         print("sources:", sources)
-        print("", places)
+        print("places", places)
         
     # Function that asks the news extractor for it's sources
     def source_entities(self):
