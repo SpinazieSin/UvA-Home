@@ -9,8 +9,8 @@ Python Version: 3.6
 """
 
 from nltk.parse.stanford import StanfordParser
-from nltk.tag import StanfordNERTagger
-from .. import newsextractor
+if __name__ != "__main__":
+    from .. import newsextractor
 
 class POSParse():
     """
@@ -55,9 +55,12 @@ class POSParse():
         
         
 if __name__ == "__main__":
-    with open("QAmodule/testcorpus.txt", "r") as f:
+    with open("testcorpus.txt", "r") as f:
+        import sys
+        sys.path.append('../')
+        import newsextractor
         questions = f.read().splitlines()
-        parser = POSparse()
+        parser = POSParse()
         for q in questions:
             parser.process_query(q)
             
