@@ -23,7 +23,7 @@ class ChatEngine():
     assigned to a specific query string
     """
 
-    def __init__(self, user="", mode="debug"):
+    def __init__(self, user="", mode="human"):
         self.user = user
         self.mode = mode
         self.commands = {
