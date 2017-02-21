@@ -29,21 +29,25 @@ class POSParse():
         self.place_ents = self.place_entities()
         
         
-        date_terminals = {"day", "month", "week"}
+        date_terminals = {"days", "months", "weeks"}
         date_words = {"first", "second", "thirth", 
         "fourth","fiveth","sixth","seventh","eighth","nineth", "tenth", 
         "eleventh", "twelveth", "thirtheenth", "fourteenth", "fiveteen", "sixteen", "seventeen"}
-        count_words = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", 
+        count_words = {"two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", 
         "eleven", "twelve", "thirtheen", "fourteen"}
         count_numbers = set(range(1,31))
         months = {"january","february","march","april","may","june","july","august",
         "september","october","november","december"}
-        self.date_phrases = {"yesterday", "today", "last day"}
+        self.date_phrases = {"yesterday", "today", "last day", "last week", "last month",
+        "one day ago", "one month ago", "one week ago", "right now"}
         for m in months:
-            self.date_phrases.update([m + " " + d + "th" for d in date_words])
+            self.date_phrases.update([m + " " + d for d in date_words])
         for c in count_words:
-            self.date_phrases.update([c + " " + d + "ago" for d in date_terminals])
-
+            self.date_phrases.update([c + " " + d + " ago" for d in date_terminals])
+        for d in date_terminals:
+            self.date_phrases.update(["last " + str(c) + " " + d for c in count_numbers])
+            self.date_phrases.update(["last " + c + " " + d for c in count_words])
+        print(self.date_phrases)
 
 
     # The NLP equivalent of processCommand from chatengine.py
@@ -64,10 +68,12 @@ class POSParse():
         nps = [np[4:] if np[:3] == 'the' else np for np in nps]
         print(nps)
         # see if NPs contain places or news sources
-        sources = [np for np in nps if np in self.source_ents]
-        places = [np for np in nps if np in self.place_ents]
-        print("sources:", sources)
-        print("places", places)
+        sources = {np for np in nps if np in self.source_ents}
+        places = {np for np in nps if np in self.place_ents}
+        dates = {np for np in nps if self.find_dates(np)}
+        print("sources:", list(sources))
+        print("places", list(places))
+        print("dates:", list(dates))
         
 
     # Function that asks the news extractor for it's sources
