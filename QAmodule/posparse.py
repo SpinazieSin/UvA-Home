@@ -48,6 +48,8 @@ class POSParse():
             self.date_phrases.update(["last " + str(c) + " " + d for c in count_numbers])
             self.date_phrases.update(["last " + c + " " + d for c in count_words])
 
+        self.non_keywords = {"news", "i", "updates", "me", "you"}
+
     # The NLP equivalent of processCommand from chatengine.py
     def process_query(self, query):
         ptree = list(self.parser.raw_parse(query))[0]
@@ -62,17 +64,20 @@ class POSParse():
             
     def process_tree(self, tree):
         np_trees = self._find_NP_Leaves(tree)
-        nps = [" ".join(t.leaves()).lower() for t in np_trees]
-        nps = [np[4:] if np[:3] == 'the' else np for np in nps]
-        print(nps)
+        nps = {" ".join(t.leaves()).lower() for t in np_trees}
+        nps = {np[4:] if np[:3] == 'the' else np for np in nps}
+        print(list(nps))
         # see if NPs contain places or news sources
         sources = {np for np in nps if np in self.source_ents}
         places = {np for np in nps if np in self.place_ents}
         dates = {np for np in nps if self.find_dates(np)}
+        nps -= sources | dates | places # union
+
+        keywords = {np for np in nps if not len(set(np.split(" ")) & self.non_keywords)} # no commons
         print("sources:", list(sources))
         print("places", list(places))
         print("dates:", list(dates))
-        
+        print("keywords:", list(keywords))
 
     # Function that asks the news extractor for it's sources
     def source_entities(self):
