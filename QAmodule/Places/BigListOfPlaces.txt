@@ -736,7 +736,7 @@ bolivia
 botswana
 bouvet island
 brazil
-british antarctic territory
+british antartic territory
 british indian ocean territory
 british virgin islands
 brunei
