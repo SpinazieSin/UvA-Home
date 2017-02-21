@@ -123,7 +123,7 @@ class NewsExtractor(object):
                 except BaseException:
                     print("skipped summary in: " + source + " title: " + title)
                 try:
-                    published = entry.published
+                    published = list(datefinder.find_dates(entry.published))[0]
                 except BaseException:
                     print("skipped date in: " + source + " title: " + title)
 
@@ -188,7 +188,7 @@ class NewsExtractor(object):
                 except BaseException:
                     print("skipped summary in: " + source + " title: " + title)
                 try:
-                    published = entry.published
+                    published = list(datefinder.find_dates(entry.published))[0]
                 except BaseException:
                     print("skipped date in: " + source + " title: " + title)
 
@@ -241,7 +241,7 @@ class NewsExtractor(object):
                 except BaseException:
                     print("skipped summary in: " + source + " title: " + title)
                 try:
-                    published = entry.published
+                    published = list(datefinder.find_dates(entry.published))[0]
                 except BaseException:
                     print("skipped date in: " + source + " title: " + title)
 
