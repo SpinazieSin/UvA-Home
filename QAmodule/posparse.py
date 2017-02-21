@@ -54,11 +54,11 @@ class POSParse():
     def process_queries(self, queries):
         ptrees = self.parser.raw_parse_sents(queries)
         for ptree, query in zip(ptrees, queries):
+            print("------------")
             print(query)
             self.process_tree(list(ptree)[0])
             
     def process_tree(self, tree):
-        print("------------")
         np_trees = self._find_NP_Leaves(tree)
         nps = [" ".join(t.leaves()).lower() for t in np_trees]
         nps = [np[4:] if np[:3] == 'the' else np for np in nps]
@@ -87,9 +87,6 @@ class POSParse():
             return True
         else: 
             return np in self.date_phrases
-
-        
-           
         
 
     # Private function
