@@ -47,8 +47,6 @@ class POSParse():
         for d in date_terminals:
             self.date_phrases.update(["last " + str(c) + " " + d for c in count_numbers])
             self.date_phrases.update(["last " + c + " " + d for c in count_words])
-        print(self.date_phrases)
-
 
     # The NLP equivalent of processCommand from chatengine.py
     def process_query(self, query):
