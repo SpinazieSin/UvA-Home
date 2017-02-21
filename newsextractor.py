@@ -355,7 +355,6 @@ class NewsExtractor(object):
                        "ul", {"class": "el__storyhighlights__list"})
         if newspaper == "bbc":
             text_divs = soup.find_all("div", {"class": "story-body__inner"})
-            tag_divs = soup.find_all("ul", {"class": "tags-list"})
         if newspaper == "reuters":
             text_divs = soup.find_all("span", {"id": "article-text"})
             tag_divs = []
@@ -366,21 +365,16 @@ class NewsExtractor(object):
             tag_divs = []
 
         result_text = ""
-        result_tags = []
         for div in text_divs:
             result_text = result_text + " " + div.get_text()
-        for li in tag_divs:
-            result_tags = result_tags + li.get_text().split()
-            # FIX SOMETHING HERE THAT CAUSES THIS: "his", "favorTrump"
+        # FIX SOMETHING HERE THAT CAUSES THIS: "his", "favorTrump"
         # these next lines are pretty computationally intensive
         result_text = " ".join(result_text.split())
         result_text = result_text.replace("\\", "")
         # load stopwordlist
         global keywords
         algorithm_tags = keywords.extract(result_text)
-
-        result_tags = result_tags + algorithm_tags
-        return result_text, result_tags
+        return result_text, algorithm_tags
 
     def get_full_article_text(self, article):
         """Wrapper around get_full_article_url for easier debugging."""
