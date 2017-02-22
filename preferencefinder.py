@@ -11,6 +11,8 @@ import numpy as np
 import userprofile
 import articlesearch
 import random
+import speechRecognition.speech as STT
+import pyttsx
 
 
 class PreferenceFinder():
@@ -38,7 +40,12 @@ class PreferenceFinder():
                           "strange or surprising things": "odd",
                           "the media": "media",
                           "latin america": "latin_america",
-                          "business and companies": "business"
+                          "business and companies": "business",
+                          "travelling": "travel",
+                          "lifestyle news": "lifestyle",
+                          "european news": "europe",
+                          "entertainment": "entertainment",
+                          "news about the US:": "north_america"
                           }
         # self.interests["top_stories"] = 1.0
         # self.interests["world"] = 0.5
@@ -83,6 +90,7 @@ class PreferenceFinder():
         questions = 10
         topics = 10
         all_topics = list(self.interests.keys())
+        TTS = pyttsx.init()
 
         random_topics = []
         for _ in range(questions):
@@ -90,14 +98,22 @@ class PreferenceFinder():
             all_topics.remove(key)
             random_topics.append(key)
 
-        name = input("Hi! can you tell me your name?\n")
+        # name = input("Hi! can you tell me your name?\n")
+        TTS.say("Hi! can you tell me your name?\n")
+        TTS.runAndWait()
+        name = STT.wait_for_voice()
         profile = userprofile.UserProfile(username=name)
 
-        response1 = input("Can I ask you some questions about the news? (Y/n)\n")
+        # response1 = input("Can I ask you some questions about the news? (Y/n)\n")
+        print("Can I ask you some questions about the news? (Y/n)\n")
+        response1 = STT.wait_for_voice()
         if self.positive(response1):
             for n in range(questions):
-                response2 = input("Are you generally interested in " +
-                                  str(random_topics[n]) + "\n")
+                # response2 = input("Are you generally interested in " +
+                                #   str(random_topics[n]) + "\n")
+                print("Are you generally interested in " +
+                                  str(random_topics[n]))
+                response2 = STT.wait_for_voice()
                 if self.positive(response2):
                     profile.interests[self.interests[random_topics[n]]] += 0.3
                 else:
@@ -106,10 +122,8 @@ class PreferenceFinder():
         print("I'm now going to ask you about a few current topics, tell me" +
               " if you think they are interesting.")
 
-        print(len(self.newsDB))
         while topics > 0:
             artic = random.choice(self.newsDB)
-            print("checking article.")
             if profile.interests[artic.category] > 0.5:
                 if artic.summary != "":
                     topics -= 1
@@ -122,10 +136,11 @@ class PreferenceFinder():
 
     def positive(self, response):
         """Return true if response was positive."""
-        if response == "Y" or "y" or "yes" or "Yes" or "YES":
+        if response == "y" or response == "yes" or response == "Y":
             return True
         else:
             return False
+
 
     def __repr__(self):
         """Print article name when object is printed."""
