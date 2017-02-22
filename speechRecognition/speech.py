@@ -8,7 +8,6 @@ Date last modified: 22/2/2017
 Python Version: 3.4
 """
 import speech_recognition as sr
-import pyttsx
 
 
 def wait_for_voice():
@@ -29,9 +28,11 @@ def wait_for_voice():
         return(result)
     except sr.UnknownValueError:
         print("Google Speech Recognition could not understand audio")
+        return ""
     except sr.RequestError as e:
         print("Could not request results from Google \
                Speech Recognition service; {0}".format(e))
+        return ""
 
 
 if __name__ == '__main__':

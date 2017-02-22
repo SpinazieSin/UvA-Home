@@ -11,8 +11,9 @@ import numpy as np
 import userprofile
 import articlesearch
 import random
+import os
+import pickle
 import speechRecognition.speech as STT
-import pyttsx
 
 
 class PreferenceFinder():
@@ -90,7 +91,6 @@ class PreferenceFinder():
         questions = 10
         topics = 10
         all_topics = list(self.interests.keys())
-        TTS = pyttsx.init()
 
         random_topics = []
         for _ in range(questions):
@@ -99,10 +99,19 @@ class PreferenceFinder():
             random_topics.append(key)
 
         # name = input("Hi! can you tell me your name?\n")
-        TTS.say("Hi! can you tell me your name?\n")
-        TTS.runAndWait()
+        print("Hi! can you tell me your name?")
         name = STT.wait_for_voice()
+        PATH = "./users/" + name
+
+        while os.path.exists(PATH) or name == "":
+            print("that name is not available!")
+            name = STT.wait_for_voice()
+            PATH = "./users/" + name
+
+        os.makedirs(PATH)
+        print(PATH)
         profile = userprofile.UserProfile(username=name)
+
 
         # response1 = input("Can I ask you some questions about the news? (Y/n)\n")
         print("Can I ask you some questions about the news? (Y/n)\n")
@@ -132,6 +141,10 @@ class PreferenceFinder():
                     if self.positive(responsy):
                         profile.keywords.append(artic.keywords)
 
+        if not os.path.isfile(PATH + "/profile.pickle"):
+            with open('profile.pickle', 'wb') as handle:
+                pickle.dump(profile, handle,
+                            protocol=pickle.HIGHEST_PROTOCOL)
         return profile
 
     def positive(self, response):
