@@ -75,17 +75,20 @@ class POSParse(object):
         sources = {np for np in nps if np in self.source_ents}
         places = {np for np in nps if np in self.place_ents}
         dates = {np for np in nps if self.find_dates(np)}
-        nps -= sources | dates | places # union
+        cats = {np for np in nps if np in self.categories}
+        nps -= sources | dates | places | cats # union
 
         keywords = {np for np in nps if not len(set(np.split(" ")) & self.non_keywords)} # no commons
         print("sources:", list(sources))
         print("places", list(places))
         print("dates:", list(dates))
         print("keywords:", list(keywords))
-        get = lambda l, i: list(l)[i] if len(l) < i else None
+        print("categories:", list(cats))
+        # dictionary get like operator for list
+        get = lambda l, i: None if i > len(l)-1 else list(l)[i] 
 #        return get(keywords,0), get(dates,0), get(dates,1), get(places,0), get(sources,0)
         d = datetime.now() - timedelta(days=3)
-        return get(keywords,0), get(dates,0), get(dates,1), get(places,0), get(sources,0)
+        return get(keywords,0), d, get(dates,1), get(places,0), get(sources,0)
 
     # Function that asks the news extractor for it's sources
     def source_entities(self):
