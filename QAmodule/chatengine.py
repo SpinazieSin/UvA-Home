@@ -11,6 +11,8 @@ Python Version: 3.6
 
 # import other classes here, like NLP class
 
+import posparse
+
 class ChatEngine():
     """
     Base class for recieving and communicating messages between classes.
@@ -21,14 +23,14 @@ class ChatEngine():
     assigned to a specific query string
     """
 
-    def __init__(self, user="", mode="debug"):
-        """Placeholder."""
+    def __init__(self, user="", mode="human"):
         self.user = user
         self.mode = mode
         self.commands = {
             "topics" : self.get_topics, "switch" : self.switch, "help" : self.print_commands,
             "quit" : self.quit
-         }
+        }
+        self.posparser = posparse.POSParse()
 
     def start(self):
         while True:
@@ -36,7 +38,7 @@ class ChatEngine():
             if self.mode == 'debug':
                 self.process_command(q)
             elif self.mode == 'human':
-                self.process_query(q)
+                self.posparser.process_query(q)
 
     def quit(self):
         import sys
@@ -66,10 +68,7 @@ class ChatEngine():
         cmd, *args = cmd
         self.commands.get(cmd, self.not_found)(*args)
 
-    # The NLP equivalent of processCommand
-    def process_query(self, query):
-        """Placeholder."""
-        pass
+
 
 if __name__ == "__main__":
     c = ChatEngine()

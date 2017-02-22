@@ -16,20 +16,20 @@ import wordcounter as w
 import math
 import time
 
-debug = False
+class KeyWords(object):
+    """
+    keywords class
+    """
 
-
-class GetKeyWords():
-    """Get Keywords class."""
-    def __init__(self):
+    def __init__(self, stopword_filepath='SmartStoplist.txt'):
         # "SmartStoplist.txt" is the stopword filepath
-        self.stopwords = self.get_stopwords("SmartStoplist.txt")
+        self.stopwords = self.get_stopwords(stopword_filepath)
         self.raker = r.Rake(self.stopwords)
         self.counter = w.WordCounter(self.stopwords)
 
-    def get(self, text, return_amount=10):
-        rake_keys = self.get_rake(text, True)
-        top_keys = self.get_top(text, True)
+    def extract(self, text, return_amount=10):
+        rake_keys = self.extract_rake(text, False)
+        top_keys = self.extract_top(text, True)
         key_list = {}
         for rake_key in rake_keys:
             key_list[rake_key[0]] = 0
@@ -39,7 +39,7 @@ class GetKeyWords():
                     key_score += top_key[1]
             key_list[rake_key[0]] = key_score + math.log(rake_key[1])
         final_keys = []
-        previous_key = ['000', 0.0]
+        previous_key = ['placehold_keyword', 0.0]
         for key in sorted(key_list.items(), key=operator.itemgetter(1)):
             if previous_key[1] < key[1] and previous_key[0] not in key[0] and key[0] not in previous_key[0]:
                 previous_key = key
@@ -47,7 +47,7 @@ class GetKeyWords():
         return [x[0] for x in sorted(final_keys, key=operator.itemgetter(1), reverse=True)[:return_amount]]
 
 
-    def get_stopwords(self, stopword_filepath, scored=False):
+    def get_stopwords(self, stopword_filepath):
         stopwords = []
         for line in open(stopword_filepath):
             if (line.strip()[0:1] != "#"):
@@ -55,7 +55,7 @@ class GetKeyWords():
                     stopwords.append(word)
         return stopwords
 
-    def get_rake(self, text, scored=False):
+    def extract_rake(self, text, scored=False):
         raked_list = []
         max_raked_word_length = 40
         if scored:
@@ -65,30 +65,14 @@ class GetKeyWords():
                 if len(raked_key[0]) < max_raked_word_length:
                     raked_list.append(raked_key)
         else:
-            return [x for x in self.raker.run_noscore(text) if len(x) < max_raked_word_length]
+            key_index = 0.0
+            for raked_key in self.raker.run_noscore(text):
+                key_index += 0.1
+                raked_list.append([raked_key, key_index])
         return raked_list
 
-    def get_top(self, text, scored=False):
+    def extract_top(self, text, scored=False):
         if scored:
             return [x for x in sorted(self.counter.get(text).items(), key=operator.itemgetter(1), reverse=1)]
         else:
             return [x[0] for x in sorted(self.counter.get(text).items(), key=operator.itemgetter(1), reverse=1)]
-
-if debug:
-    # text = "The long-string instrument is a musical instrument in which the string is of such a length that the ... One example of a long-string instrument was invented by the American composer Ellen Fullman. It is tuned in just intonation and played by"
-    with open('test_article.txt', 'r') as myfile:
-        text = myfile.read().replace('\n', '')
-    x = time.time()
-    keywords = GetKeyWords()
-    # print("TEXT-------------------------------------\n")
-    # print(text)
-    # print("TOP WORDS--------------------------------\n")
-    # keys = keywords.get_top(text, True)
-    # print(keys)
-    # print("RAKE ALGORITHM---------------------------\n")
-    # keys = keywords.get_rake(text, True)
-    # print(keys)
-    # keys = keywords.get(text)
-    # print(time.time()-x)
-    # print("KEYS-------------------------------------\n")
-    # print(keys)

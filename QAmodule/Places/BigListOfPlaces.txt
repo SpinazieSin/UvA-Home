@@ -1,0 +1,992 @@
+aba
+abeokuta
+abidjan
+abu dhabi
+acapulco
+accra
+adana
+ad-dammam
+addis abeba
+adelaide
+aden
+agadir
+agra
+aguascalientes
+ahmadabad
+ahvaz
+ajmer
+al-basrah
+aleppo
+alexandria
+algiers
+aligarh
+allahabad
+al-madinah
+almaty
+al-mawsil
+ampang jaya
+amravati
+amritsar
+amsterdam
+ankara
+ansan
+anshan
+antalya
+antananarivo
+antipolo
+anyang
+anyang
+arak
+arequipa
+asansol
+asgabat
+asmara
+as-sulaymaniyah
+astrakhan
+asunción
+athens
+aurangabad
+austin
+baghdad
+bahawalpur
+baku
+baltimore
+bamako
+bandar lampung
+bandung
+bangalore
+bangkok
+bangui
+banjarmasin
+baoding
+baltic area
+baotou
+barcelona
+bareli
+barnaul
+barquisimeto
+barranquilla
+bayrut
+beira
+bekasi
+belém
+belgrade
+belo horizonte
+bengbu
+benghazi
+benin
+benoni
+benxi
+berlin
+bhavnagar
+bhilai
+bhiwandi
+bhopal
+bhubaneswar
+bikaner
+birmingham
+biskek
+blantyre
+bogor
+bogotá
+bombay
+boston
+bouaké
+brasília
+brazzaville
+bremen
+brisbane
+brussels
+bucaramanga
+bucharest
+budapest
+buenos aires
+bulawayo
+bursa
+cairo
+calcutta
+calgary
+cali
+campinas
+campo grande
+cancún
+cangzhou
+cape town
+caracas
+cartagena
+casablanca
+cebu
+chandigarh
+changchun
+changde
+changsha
+changwon
+changzhi
+changzhou
+charlotte
+chattagam
+chelyabinsk
+chengdu
+chiba
+chicago
+chiclayo
+chihuahua
+chimalhuacán
+chisinau
+chongju
+chongqing
+chonju
+ciudad guayana
+cochabamba
+cologne
+colombo
+columbus
+conakry
+contagem
+copenhagen
+córdoba
+cotonou
+cracow
+cúcuta
+cuiabá
+culiacán
+curitiba
+dakar
+dalian
+dallas
+damascus
+dandong
+dar es salaam
+datong
+davao
+dehra dun
+delhi
+denver
+depok
+detroit
+dhaka
+diyarbakir
+donetsk
+dortmund
+douala
+dubai
+dublin
+duisburg
+duque de caxias
+durban
+durgapur
+dushanbe
+düsseldorf
+ecatepec
+edmonton
+el alto
+el paso
+enugu
+esfahan
+eskisehir
+essen
+faisalabad
+faridabad
+fez
+fortaleza
+fort worth
+foshan
+frankfurt
+freetown
+fukuoka
+funabashi
+fushun
+fuxin
+fuzhou
+gaziantep
+genoa
+ghaziabad
+gizeh
+glasgow
+goiânia
+gold coast
+gorakhpur
+göteborg
+guadalajara
+guadalupe
+guangzhou
+guarulhos
+guatemala
+guayaquil
+guilin
+guiyang
+gujranwala
+guntur
+guwahati
+gwalior
+hachioji
+haikou
+hai phong
+hamadan
+hamamatsu
+hamburg
+hamhung
+hamilton
+handan
+hangzhou
+ha noi
+hanover
+haora
+harare
+harbin
+hargeysa
+havanna
+hefei
+hegang
+helsinki
+hengyang
+hermosillo
+higashiosaka
+hiroshima
+ho chi minh city
+hohhot
+houston
+huaibei
+huainan
+huaiyin
+huangshi
+hubli
+hyderabad
+hyderabad
+ibadan
+ilorin
+inchon
+indianapolis
+indore
+ipoh
+irbil
+irkutsk
+islamabad
+istanbul
+izhevsk
+izmir
+jabalpur
+jaboatão
+jacksonville
+jaipur
+jakarta
+jalandhar
+jamnagar
+jamshedpur
+jerusalem
+jiamusi
+jiangmen
+jiaozuo
+jibuti
+jiddah
+jilin
+jinan
+jinzhou
+jiulong
+joão pessoa
+jodhpur
+johannesburg
+johor bahru
+jos
+juárez
+kabul
+kaduna
+kagoshima
+kaifeng
+kalyan
+kampala
+kano
+kanpur
+kaohsiung
+karachi
+karaj
+kataka
+kathmandu
+kawasaki
+kayseri
+kazan
+kerman
+kermanshah
+khabarovsk
+kharkiv
+khartoum
+khulna
+kiev
+kigali
+kingston
+kinshasa
+kirkuk
+kisangani
+kitakyushu
+klang
+kobe
+kochi
+kolhapur
+kolwezi
+konya
+kota
+koyampattur
+koyang
+krasnodar
+krasnoyarsk
+kryvyy rih
+kuala lumpur
+kuching
+kumamoto
+kumasi
+kunming
+kwangju
+kyoto
+lagos
+lahore
+lakhnau
+langfang
+lanzhou
+la paz
+la plata
+las vegas
+leipzig
+león
+liaoyang
+libreville
+lilongwe
+lima
+lipetsk
+lisbon
+liuzhou
+lódz
+lomé
+london
+lópez mateos
+los angeles
+luancheng
+luanda
+lubumbashi
+ludhiana
+luoyang
+lusaka
+maanshan
+maceió
+madras
+madrid
+madurai
+maiduguri
+maisuru
+makasar
+makhachkala
+málaga
+malang
+managua
+manaus
+mandalay
+manila
+maoming
+maputo
+maracaibo
+mar del plata
+marrakesh
+marseille
+mashhad
+matola
+mbuji-mayi
+mecca
+medan
+medellín
+meknes
+melbourne
+memphis
+mendoza
+mérida
+mersin
+mexicali
+mexico city
+milan
+milwaukee
+minsk
+mira bhayandar
+mirat
+mixco
+mogadishu
+mombasa
+monrovia
+monterrey
+montevideo
+montreal
+moradabad
+morelia
+moscow
+mudanjiang
+multan
+munich
+mykolayiv
+naberezhnyye chelny
+nagoya
+nagpur
+nairobi
+nanchang
+nanjing
+nanning
+nantong
+naples
+nashik
+nashville
+natal
+naucalpan
+navi mumbai
+neijiang
+newcastle
+new york
+nezahualcóyotl
+niamey
+niigata
+ningbo
+niyala
+nizhniy novgorod
+nouakchott
+nova iguaçu
+novokuznetsk
+novosibirsk
+odesa
+ogbomosho
+okayama
+oklahoma city
+omsk
+onitsha
+orenburg
+orumiyeh
+osaka
+osasco
+oshogbo
+oslo
+ottawa
+ouagadougou
+oyo
+padang
+palembang
+palermo
+panjin
+paris
+patna
+pekan baru
+peking
+penza
+perm
+perth
+peshawar
+petaling jaya
+philadelphia
+phnum pénh
+phoenix
+pietermaritzburg
+pimpri
+pingdingshan
+pointe noire
+port-au-prince
+port elizabeth
+port harcourt
+portland
+porto alegre
+port said
+poznan
+prague
+pretoria
+puchon
+puebla
+puente alto
+pune
+pusan
+puyang
+pyongyang
+qingdao
+qinhuangdao
+qiqihar
+qom
+quebec
+querétaro
+quetta
+quito
+rabat
+raipur
+rajkot
+rajshahi
+ranchi
+rangoon
+rasht
+rawalpindi
+recife
+reynosa
+ribeirão preto
+riga
+rio de janeiro
+riyadh
+rome
+rongcheng
+rosario
+rostov-na-donu
+rotterdam
+ryazan
+sagamihara
+saint petersburg
+saitama
+sakai
+salta
+saltillo
+salvador
+samara
+san antonio
+san diego
+san francisco
+sangli-miraj
+san jose
+san luis potosí
+san nicolás de los garza
+san pedro sula
+san salvador
+santa cruz
+santiago
+santiago
+santiago de cuba
+santo andré
+santo domingo
+são bernardo do campo
+são gonçalo
+são josé dos campos
+são luís
+são paulo
+sapporo
+sarajevo
+saratov
+sargodha
+seattle
+selam
+semarang
+sendai
+sevilla
+shah alam
+shanghai
+shantou
+shaoguan
+shaoyang
+sharjah
+shashi
+shatian
+shenyang
+shenzhen
+shihezi
+shihung
+shijiazhuang
+shiliguri
+shiraz
+shizuoka
+sholapur
+shubra-el-khema
+singapore
+siping
+sofia
+sokoto
+songnam
+sorocaba
+soul
+soweto
+srinagar
+stockholm
+stuttgart
+subang jaya
+surabaya
+surakarta
+surat
+suwon
+suzhou
+sydney
+tabriz
+taegu
+taejon
+taian
+taichung
+tainan
+taipei
+taiyuan
+taizhou
+tangerang
+tanggu
+tangier
+tangshan
+tashkent
+tbilisi
+tegucigalpa
+tehran
+tembisa
+teresina
+thana
+thiruvananthapuram
+tianjin
+tijuana
+tiruchchirappalli
+tlalnepantla
+tlaquepaque
+tokyo
+toluca
+tolyatti
+toronto
+torreón
+tripoli
+trujillo
+tucson
+tucumán
+tunis
+turin
+tyumen
+uberlândia
+ufa
+uijongbu
+ulaanbaatar
+ulhasnagar
+ulsan
+ulyanovsk
+umm durman
+urumqi
+vadodara
+valencia
+valencia
+vancouver
+varanasi
+veracruz
+vienna
+vijayawada
+vilnius
+visakhapatnam
+vladivostok
+volgograd
+voronezh
+wahran
+warangal
+warri
+warsaw
+washington
+wenzhou
+winnipeg
+wroclaw
+wuhan
+wuhu
+wuxi
+xiamen
+xian
+xianggangdao
+xiangtan
+xianyang
+xingtai
+xining
+xinxiang
+xinyang
+xuzhou
+yancheng
+yangzhou
+yantai
+yaoundé
+yaroslavl
+yazd
+yekaterinburg
+yerevan
+yingkou
+yogyakarta
+yokohama
+yuanlong
+yueyang
+zagreb
+zahedan
+zapopan
+zaporizhzhya
+zaragoza
+zaria
+zhangdian
+zhangjiakou
+zhangzhou
+zhanjiang
+zhengzhou
+zhenjiang
+zhuhai
+zhunmen
+zhuzhou
+zigong
+afghanistan
+albania
+algeria
+american samoa
+andorra
+angola
+anguilla
+antarctica
+argentina
+armenia
+aruba
+australia
+austria
+azerbaijan
+bahamas
+bahrain
+bangladesh
+barbados
+belarus
+belgium
+belize
+benin
+bermuda
+bhutan
+bolivia
+botswana
+bouvet island
+brazil
+british antartic territory
+british indian ocean territory
+british virgin islands
+brunei
+bulgaria
+burkina faso
+burundi
+cambodia
+cameroon
+canada
+cape verde
+cayman islands
+central african republic
+chad
+chile
+china
+christmas island
+cocos [keeling] islands
+colombia
+comoros
+congo - brazzaville
+congo - kinshasa
+cook islands
+costa rica
+croatia
+cuba
+cyprus
+czech republic
+côte d’ivoire
+denmark
+djibouti
+dominica
+dominican republic
+dronning maud land
+east germany
+ecuador
+egypt
+el salvador
+equatorial guinea
+eritrea
+estonia
+ethiopia
+falkland islands
+faroe islands
+fiji
+finland
+france
+french guiana
+french polynesia
+french southern territories
+gabon
+gambia
+georgia
+germany
+ghana
+gibraltar
+greece
+greenland
+grenada
+guadeloupe
+guam
+guatemala
+guernsey
+guinea
+guinea-bissau
+guyana
+haiti
+honduras
+hong kong sar china
+hungary
+iceland
+india
+indonesia
+iran
+iraq
+ireland
+isle of man
+israel
+italy
+jamaica
+japan
+jersey
+johnston island
+jordan
+kazakhstan
+kenya
+kiribati
+kuwait
+kyrgyzstan
+laos
+latvia
+lebanon
+lesotho
+liberia
+libya
+liechtenstein
+lithuania
+luxembourg
+macau sar china
+macedonia
+madagascar
+malawi
+malaysia
+maldives
+mali
+malta
+marshall islands
+martinique
+mauritania
+mauritius
+mayotte
+metropolitan france
+mexico
+micronesia
+midway islands
+moldova
+monaco
+mongolia
+montenegro
+montserrat
+morocco
+mozambique
+myanmar
+namibia
+nauru
+nepal
+netherlands
+netherlands antilles
+neutral zone
+new caledonia
+new zealand
+nicaragua
+niger
+nigeria
+niue
+norfolk island
+north korea
+north vietnam
+northern mariana islands
+norway
+oman
+pacific islands trust territory
+pakistan
+palau
+panama
+panama canal zone
+papua new guinea
+paraguay
+people's democratic republic of yemen
+peru
+philippines
+pitcairn islands
+poland
+portugal
+puerto rico
+qatar
+romania
+russia
+rwanda
+réunion
+saint barthélemy
+saint helena
+saint lucia
+saint martin
+samoa
+san marino
+saudi arabia
+senegal
+serbia
+seychelles
+sierra leone
+singapore
+slovakia
+slovenia
+solomon islands
+somalia
+south africa
+south korea
+spain
+sri lanka
+sudan
+suriname
+swaziland
+sweden
+switzerland
+syria
+taiwan
+tajikistan
+tanzania
+thailand
+timor-leste
+togo
+tokelau
+tonga
+tunisia
+turkey
+turkmenistan
+tuvalu
+u.s. minor outlying islands
+u.s. miscellaneous pacific islands
+u.s. virgin islands
+uganda
+ukraine
+united arab emirates
+united kingdom
+united states
+uruguay
+uzbekistan
+vanuatu
+vatican city
+venezuela
+vietnam
+wake island
+western sahara
+yemen
+zambia
+zimbabwe
+åland islands
+arabic world
+africa
+north america
+south america
+oceania
+western africa
+central america
+eastern africa
+northern africa
+middle africa
+southern africa
+americas
+northern america
+caribbean
+eastern asia
+southern asia
+south-eastern asia
+southern europe
+australia
+melanesia
+micronesian region
+polynesia
+south-central asia
+outlying oceania
+european union
+asia
+central asia
+western asia
+europe
+eastern europe
+northern europe
+western europe
+commonwealth of independent states
+commonwealth
+czechoslovakia
+channel islands

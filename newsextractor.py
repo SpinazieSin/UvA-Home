@@ -14,13 +14,15 @@ import requests
 import sys
 import pickle
 import os.path
-import getkeywords
+import keywords as k
+# set global so file is read only once
+keywords = k.KeyWords()
 
 import re
 from bs4 import BeautifulSoup
 
 
-class NewsExtractor():
+class NewsExtractor(object):
     """
     Extraction class for newspapers.
 
@@ -121,7 +123,7 @@ class NewsExtractor():
                 except BaseException:
                     print("skipped summary in: " + source + " title: " + title)
                 try:
-                    published = entry.published
+                    published = list(datefinder.find_dates(entry.published))[0]
                 except BaseException:
                     print("skipped date in: " + source + " title: " + title)
 
@@ -186,7 +188,7 @@ class NewsExtractor():
                 except BaseException:
                     print("skipped summary in: " + source + " title: " + title)
                 try:
-                    published = entry.published
+                    published = list(datefinder.find_dates(entry.published))[0]
                 except BaseException:
                     print("skipped date in: " + source + " title: " + title)
 
@@ -239,7 +241,7 @@ class NewsExtractor():
                 except BaseException:
                     print("skipped summary in: " + source + " title: " + title)
                 try:
-                    published = entry.published
+                    published = list(datefinder.find_dates(entry.published))[0]
                 except BaseException:
                     print("skipped date in: " + source + " title: " + title)
 
@@ -353,7 +355,6 @@ class NewsExtractor():
                        "ul", {"class": "el__storyhighlights__list"})
         if newspaper == "bbc":
             text_divs = soup.find_all("div", {"class": "story-body__inner"})
-            tag_divs = soup.find_all("ul", {"class": "tags-list"})
         if newspaper == "reuters":
             text_divs = soup.find_all("span", {"id": "article-text"})
             tag_divs = []
@@ -364,19 +365,16 @@ class NewsExtractor():
             tag_divs = []
 
         result_text = ""
-        result_tags = []
         for div in text_divs:
             result_text = result_text + " " + div.get_text()
-        for li in tag_divs:
-            result_tags = result_tags + li.get_text().split()
-            # FIX SOMETHING HERE THAT CAUSES THIS: "his", "favorTrump"
+        # FIX SOMETHING HERE THAT CAUSES THIS: "his", "favorTrump"
         # these next lines are pretty computationally intensive
         result_text = " ".join(result_text.split())
         result_text = result_text.replace("\\", "")
-
-        algorithm_tags = getkeywords.GetKeyWords().get(result_text)
-        result_tags = result_tags + algorithm_tags
-        return result_text, result_tags
+        # load stopwordlist
+        global keywords
+        algorithm_tags = keywords.extract(result_text)
+        return result_text, algorithm_tags
 
     def get_full_article_text(self, article):
         """Wrapper around get_full_article_url for easier debugging."""
