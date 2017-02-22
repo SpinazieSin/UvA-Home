@@ -30,13 +30,13 @@ class ArticleSearch(object):
         for article in self.article_list:
 
             # filters
-            if not self.date1 <= article <= self.date2:
+            if not self.date1 <= article.published <= self.date2:
                 continue    
             if not article.source in self.sources:
                 continue
             if place is not None:            
                 place_found = False
-                for k in article.keywords:
+                for k in article.keywords: # search the full text maybe?
                     if self.place.substring(k.lower()):
                         place_found = True
                         break
@@ -45,7 +45,7 @@ class ArticleSearch(object):
             
             vec2 = self.text_to_vector(article.title.lower())
             highest_score = self.get_cosine(self.search_term_vec, vec2)
-            for keyword in article.keywords:    
+            for keyword in article.keywords:
                 vec2 = self.text_to_vector(keyword)
                 score = self.get_cosine(self.search_term_vec, vec2)
                 if score > highest_score:

@@ -12,8 +12,9 @@ Python Version: 3.6
 # import other classes here, like NLP class
 
 import posparse
+import ArticleSearch
 
-class ChatEngine():
+class ChatEngine(object):
     """
     Base class for recieving and communicating messages between classes.
 
@@ -23,12 +24,15 @@ class ChatEngine():
     assigned to a specific query string
     """
 
-    def __init__(self, user="", mode="human"):
+    def __init__(self, user="", mode="debug"):
         self.user = user
         self.mode = mode
+        # get all articles
+        NewsExtractor()
+        self.searcher = ArticleSearch()
         self.commands = {
             "topics" : self.get_topics, "switch" : self.switch, "help" : self.print_commands,
-            "quit" : self.quit
+            "quit" : self.quit, "search" : self.searcher.search
         }
         self.posparser = posparse.POSParse()
 
@@ -38,7 +42,8 @@ class ChatEngine():
             if self.mode == 'debug':
                 self.process_command(q)
             elif self.mode == 'human':
-                self.posparser.process_query(q)
+                cmd, args = self.posparser.process_query(q)
+                self.process_command_args(cmd, args)
 
     def quit(self):
         import sys
@@ -59,7 +64,10 @@ class ChatEngine():
 
     def not_found(self):
         print("Command not found!")
-
+        
+    def process_command_args(self, cmd, args):
+        self.commands.get(cmd, self.not_found)(*args)
+        
     # When NLP is done, this will be replaced by a NLP function
     def process_command(self, cmd):
         # TODO capability to do gdb like command synonyms
@@ -67,7 +75,7 @@ class ChatEngine():
         # split the list in first and rest
         cmd, *args = cmd
         self.commands.get(cmd, self.not_found)(*args)
-
+        
 
 
 if __name__ == "__main__":
