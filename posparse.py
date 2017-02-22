@@ -10,10 +10,8 @@ Python Version: 3.6
 
 from nltk.parse.stanford import StanfordParser
 import datefinder
-import userprofile 
-
-if __name__ != "__main__":
-    from .. import newsextractor
+import newsextractor
+import userprofile
 
 class POSParse(object):
     """
@@ -29,7 +27,7 @@ class POSParse(object):
 #        self.tagger = StanfordNERTagger('english.all.3class.distsim.crf.ser.gz')
         self.source_ents = self.source_entities()
         self.place_ents = self.place_entities()
-        self.categories = UserProfile().interests.keys()
+        self.categories = userprofile.UserProfile().interests.keys()
         
         date_terminals = {"days", "months", "weeks"}
         date_words = {"first", "second", "third", 
@@ -56,7 +54,9 @@ class POSParse(object):
     # The NLP equivalent of processCommand from chatengine.py
     def process_query(self, query):
         ptree = list(self.parser.raw_parse(query))[0]
-        self.process_tree(ptree)
+        # search is the command the chat enging has to carry out.
+        return "search", self.process_tree(ptree) 
+         
         
     def process_queries(self, queries):
         ptrees = self.parser.raw_parse_sents(queries)
@@ -81,6 +81,10 @@ class POSParse(object):
         print("places", list(places))
         print("dates:", list(dates))
         print("keywords:", list(keywords))
+        get = lambda l, i: l[i] if len(l) < i else None
+#        return get(keywords,0), get(dates,0), get(dates,1), get(places,0), get(sources,0)
+        d = datetime.now() - datetime.timedelta(days=3)
+        return get(keywords,0), get(dates,0), get(dates,1), get(places,0), get(sources,0)
 
     # Function that asks the news extractor for it's sources
     def source_entities(self):
@@ -106,9 +110,6 @@ class POSParse(object):
 
 if __name__ == "__main__":
     with open("testcorpus.txt", "r") as f:
-        import sys
-        sys.path.append('../')
-        import newsextractor
         questions = f.read().splitlines()
         parser = POSParse()
         parser.process_queries(questions)

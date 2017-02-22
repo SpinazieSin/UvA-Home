@@ -12,7 +12,8 @@ Python Version: 3.6
 # import other classes here, like NLP class
 
 import posparse
-import ArticleSearch
+import newsextractor as extract
+import articlesearch
 
 class ChatEngine(object):
     """
@@ -24,12 +25,13 @@ class ChatEngine(object):
     assigned to a specific query string
     """
 
-    def __init__(self, user="", mode="debug"):
+    def __init__(self, user="", mode="human"):
         self.user = user
         self.mode = mode
         # get all articles
-        NewsExtractor()
-        self.searcher = ArticleSearch()
+        n = extract.NewsExtractor()
+        n.build_all()
+        self.searcher = articlesearch.ArticleSearch(n)
         self.commands = {
             "topics" : self.get_topics, "switch" : self.switch, "help" : self.print_commands,
             "quit" : self.quit, "search" : self.searcher.search
