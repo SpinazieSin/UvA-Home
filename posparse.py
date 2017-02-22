@@ -82,7 +82,7 @@ class POSParse(object):
         print("places", list(places))
         print("dates:", list(dates))
         print("keywords:", list(keywords))
-        get = lambda l, i: l[i] if len(l) < i else None
+        get = lambda l, i: list(l)[i] if len(l) < i else None
 #        return get(keywords,0), get(dates,0), get(dates,1), get(places,0), get(sources,0)
         d = datetime.now() - timedelta(days=3)
         return get(keywords,0), get(dates,0), get(dates,1), get(places,0), get(sources,0)
