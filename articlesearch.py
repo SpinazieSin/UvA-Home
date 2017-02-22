@@ -33,13 +33,14 @@ class ArticleSearch(object):
         for article in self.article_list:
 
             # filters
-            if not self.date1 <= article <= self.date2:
-                continue
+            if not self.date1 <= article.published <= self.date2:
+                continue    
+
             if not article.source in self.sources:
                 continue
             if place is not None:
                 place_found = False
-                for k in article.keywords:
+                for k in article.keywords: # search the full text maybe?
                     if self.place.substring(k.lower()):
                         place_found = True
                         break

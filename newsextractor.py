@@ -14,6 +14,7 @@ import requests
 import sys
 import pickle
 import os.path
+import datefinder
 import keywords as k
 # set global so file is read only once
 keywords = k.KeyWords()

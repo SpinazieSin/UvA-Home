@@ -10,10 +10,12 @@ Python Version: 3.6
 
 from nltk.parse.stanford import StanfordParser
 import datefinder
+import userprofile 
+
 if __name__ != "__main__":
     from .. import newsextractor
 
-class POSParse():
+class POSParse(object):
     """
     Class for studying grammatical categories and their referents within news queries, which is then
     able to select an appropriate response."
@@ -27,10 +29,10 @@ class POSParse():
 #        self.tagger = StanfordNERTagger('english.all.3class.distsim.crf.ser.gz')
         self.source_ents = self.source_entities()
         self.place_ents = self.place_entities()
-        
+        self.categories = UserProfile().interests.keys()
         
         date_terminals = {"days", "months", "weeks"}
-        date_words = {"first", "second", "thirth", 
+        date_words = {"first", "second", "third", 
         "fourth","fiveth","sixth","seventh","eighth","nineth", "tenth", 
         "eleventh", "twelveth", "thirtheenth", "fourteenth", "fiveteen", "sixteen", "seventeen"}
         count_words = {"two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", 
@@ -38,7 +40,7 @@ class POSParse():
         count_numbers = set(range(1,31))
         months = {"january","february","march","april","may","june","july","august",
         "september","october","november","december"}
-        self.date_phrases = {"yesterday", "today", "last day", "last week", "last month",
+        self.date_phrases = {"yesterday", "today", "recent", "last day", "last week", "last month",
         "one day ago", "one month ago", "one week ago", "right now"}
         for m in months:
             self.date_phrases.update([m + " " + d for d in date_words])
@@ -48,6 +50,7 @@ class POSParse():
             self.date_phrases.update(["last " + str(c) + " " + d for c in count_numbers])
             self.date_phrases.update(["last " + c + " " + d for c in count_words])
 
+        # maybe updates is a keywords in some contextes? 
         self.non_keywords = {"news", "i", "updates", "me", "you"}
 
     # The NLP equivalent of processCommand from chatengine.py
@@ -88,9 +91,7 @@ class POSParse():
         with open("Places/BigListOfPlaces.txt", "r") as f:
             return set(f.read().splitlines())
 
-    def find_dates(self, np):
-
-        
+    def find_dates(self, np):    
         dates = list(datefinder.find_dates(np))
         if len(dates) > 0:
             return True
