@@ -13,28 +13,31 @@ class ArticleSearch(object):
     Use like: relevant_articles = ArticleSearch('search term', articles).articles
     """
 
-    def __init__(self, search_term, article_list, date1=None, date2=None, sources=None, place=None):
+    def __init__(self, article_list, sources=None):
+        self.article_list = article_list.news
         if sources is None:
-             self.sources = newsextractor.NewsExtractor().supported_news_papers
-                            
+            self.sources = newsextractor.NewsExtractor().supported_news_papers
+
+    def search(self, search_term, date1=None, date2=None, place=None, sources=None):
+        if sources is None:
+            self.sources = newsextractor.NewsExtractor().supported_news_papers
+
         self.date1 = datetime.datetime.fromtimestamp(0) if date1 is None else date1
         self.date2 = datetime.datetime.now() if date2 is None else date2
         self.place = place
-        
-        self.article_list = article_list.news
+
         self.search_term_vec = self.text_to_vector(search_term.lower())
         self.articles = self.search()
 
-    def search(self):
         scored_articles = []
         for article in self.article_list:
 
             # filters
             if not self.date1 <= article <= self.date2:
-                continue    
+                continue
             if not article.source in self.sources:
                 continue
-            if place is not None:            
+            if place is not None:
                 place_found = False
                 for k in article.keywords:
                     if self.place.substring(k.lower()):
@@ -42,10 +45,10 @@ class ArticleSearch(object):
                         break
                 if not place_found:
                     break
-            
+
             vec2 = self.text_to_vector(article.title.lower())
             highest_score = self.get_cosine(self.search_term_vec, vec2)
-            for keyword in article.keywords:    
+            for keyword in article.keywords:
                 vec2 = self.text_to_vector(keyword)
                 score = self.get_cosine(self.search_term_vec, vec2)
                 if score > highest_score:
@@ -75,4 +78,3 @@ class ArticleSearch(object):
 
     def similar(self, word1, word2):
         return SequenceMatcher(None, word1, word2).ratio()
-        
