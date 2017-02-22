@@ -27,7 +27,6 @@ class ArticleSearch(object):
         self.place = place
 
         self.search_term_vec = self.text_to_vector(search_term.lower())
-        self.articles = self.search()
 
         scored_articles = []
         for article in self.article_list:
