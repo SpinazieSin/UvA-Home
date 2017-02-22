@@ -12,6 +12,7 @@ from nltk.parse.stanford import StanfordParser
 import datefinder
 import newsextractor
 import userprofile
+from datetime import datetime, timedelta
 
 class POSParse(object):
     """
@@ -83,7 +84,7 @@ class POSParse(object):
         print("keywords:", list(keywords))
         get = lambda l, i: l[i] if len(l) < i else None
 #        return get(keywords,0), get(dates,0), get(dates,1), get(places,0), get(sources,0)
-        d = datetime.now() - datetime.timedelta(days=3)
+        d = datetime.now() - timedelta(days=3)
         return get(keywords,0), get(dates,0), get(dates,1), get(places,0), get(sources,0)
 
     # Function that asks the news extractor for it's sources
