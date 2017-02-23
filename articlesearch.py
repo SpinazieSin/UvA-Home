@@ -40,9 +40,8 @@ class ArticleSearch(object):
         scored_articles = []
         for article in self.article_list:
 
-            # filters
-            if not min_date <= article.published <= max_date:
-                continue    
+            if article.published == '' or not (min_date <= article.published <= max_date):
+                continue
 
             if not article.source in sources:
                 continue
