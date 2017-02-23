@@ -41,13 +41,13 @@ class ArticleSearch(object):
 
         scored_articles = []
         for article in self.article_list:
-
             # filters
             try:
                 if not min_date <= article.published <= max_date:
                     continue
             except:
                 continue
+
             if not article.source in sources:
                 continue
             if place is not None:
