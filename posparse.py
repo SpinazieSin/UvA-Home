@@ -59,7 +59,10 @@ class POSParse(object):
     def process_query(self, query):
         ptree = list(self.parser.raw_parse(query))[0]
         # search is the command the chat enging has to carry out.
-        return "search", self.process_tree(ptree)
+        # Maybe add ways to differentiate if the user wants news or not
+        cmd = "present_news"
+        args = self.process_tree(ptree)
+        return cmd, args
 
 
     def process_queries(self, queries):
@@ -69,29 +72,33 @@ class POSParse(object):
             print(query)
             self.process_tree(list(ptree)[0])
 
-    def process_tree(self, tree):
+    def process_tree(self, tree, debug=False):
         np_trees = self._find_NP_Leaves(tree)
         nps = {" ".join(t.leaves()).lower() for t in np_trees}
         nps = {np[4:] if np[:3] == 'the' else np for np in nps}
-        print(list(nps))
+        if debug:
+            print("NPs", list(nps))
         # see if NPs contain places or news sources
         sources = {np for np in nps if np in self.source_ents}
         places = {np for np in nps if np in self.place_ents}
-        dates = {np for np in nps if self.find_dates(np)}
+        dates = {self.to_datetime(np) np for np in nps if self.find_dates(np)}
         cats = {np for np in nps if np in self.categories}
         nps -= sources | dates | places | cats # union
 
         keywords = {np for np in nps if not len(set(np.split(" ")) & self.non_keywords)} # no commons
-        print("sources:", list(sources))
-        print("places", list(places))
-        print("dates:", list(dates))
-        print("keywords:", list(keywords))
-        print("categories:", list(cats))
+        if debug:
+            print("sources:", list(sources))
+            print("places", list(places))
+            print("dates:", list(dates))
+            print("keywords:", list(keywords))
+            print("categories:", list(cats))
         # dictionary get like operator for list
         get = lambda l, i: None if i > len(l)-1 else list(l)[i] 
 #        return get(keywords,0), get(dates,0), get(dates,1), get(places,0), get(sources,0)
-        d = datetime.now() - timedelta(days=3)
-        return get(keywords,0), d, get(dates,1), get(places,0), get(sources,0)
+        # maybe create this list dynamically?
+        return [{"search_term" : get(keywords,0),  "date1" : get(dates, 0),  
+        "date2" : get(dates,1), "place": get(places,0), "sources" : get(sources,0)}]
+        
 
     # Function that asks the news extractor for it's sources
     def source_entities(self):
