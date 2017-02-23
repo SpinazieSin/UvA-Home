@@ -14,6 +14,7 @@ Python Version: 3.6
 import posparse
 import newsextractor as extract
 import articlesearch
+import prettynews
 
 class ChatEngine(object):
     """
@@ -32,9 +33,11 @@ class ChatEngine(object):
         n = extract.NewsExtractor()
         n.build_all()
         self.searcher = articlesearch.ArticleSearch(n)
+        self.newsprinter = prettynews.PrettyNews(self.searcher)
         self.commands = {
             "topics" : self.get_topics, "switch" : self.switch, "help" : self.print_commands,
-            "quit" : self.quit, "search" : self.searcher.search
+            "quit" : self.quit, "search" : self.searcher.search,
+            "present_news" : self.newsprinter.show_news
         }
         self.posparser = posparse.POSParse()
 
@@ -64,13 +67,13 @@ class ChatEngine(object):
     def get_topics(self):
         print("Binnenland\nBuitenland\nOorlog")
 
-    def not_found(self):
+    def not_found(self, *args):
         print("Command not found!")
         
     def process_command_args(self, cmd, args):
-        self.commands.get(cmd, self.not_found)(*args)
+        return self.commands.get(cmd, self.not_found)(*args)
         
-    # When NLP is done, this will be replaced by a NLP function
+    # This function extracts the arguments from a 
     def process_command(self, cmd):
         # TODO capability to do gdb like command synonyms
         cmd = cmd.lower().split(" ")

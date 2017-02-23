@@ -129,23 +129,23 @@ class POSParse(object):
         return cmd, args
 
 
-    def process_queries(self, queries):
+    def process_queries(self, queries, debug=False):
         ptrees = self.parser.raw_parse_sents(queries)
         for ptree, query in zip(ptrees, queries):
             print("------------")
             print(query)
-            self.process_tree(list(ptree)[0])
+            self.process_tree(list(ptree)[0], debug)
 
     def process_tree(self, tree, debug=False):
         np_trees = self._find_NP_Leaves(tree)
         nps = {" ".join(t.leaves()).lower() for t in np_trees}
         nps = {np[4:] if np[:3] == 'the' else np for np in nps}
         if debug:
-            print("NPs", list(nps))
+            print("NPs:", list(nps))
         # see if NPs contain places or news sources
         sources = {np for np in nps if np in self.source_ents}
         places = {np for np in nps if np in self.place_ents}
-        dates = {self.to_datetime(np) np for np in nps if self.find_dates(np)}
+        dates = {self.to_datetime(np) for np in nps if self.find_dates(np)}
         cats = {np for np in nps if np in self.categories}
         nps -= sources | dates | places | cats # union
 
@@ -160,7 +160,7 @@ class POSParse(object):
         get = lambda l, i: None if i > len(l)-1 else list(l)[i]
 #        return get(keywords,0), get(dates,0), get(dates,1), get(places,0), get(sources,0)
         # maybe create this list dynamically?
-        return [{"search_term" : get(keywords,0),  "date1" : get(dates, 0),  
+        return [{"search_term" : get(keywords,0), "date1" : get(dates, 0),  
         "date2" : get(dates,1), "place": get(places,0), "sources" : get(sources,0)}]
         
 
@@ -190,7 +190,7 @@ if __name__ == "__main__":
     with open("testcorpus.txt", "r") as f:
         questions = f.read().splitlines()
         parser = POSParse()
-        parser.process_queries(questions)
+        parser.process_queries(questions, debug=True)
         # for dp in parser.date_phrases:
         #     print("--------------------")
         #     print(dp)
