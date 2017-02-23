@@ -55,11 +55,13 @@ class UserProfile():
         self.interests["politics"] = 0.5
         self.interests["education"] = 0.5
         self.interests["art"] = 0.5
+        self.interests["companies"] = 0.5
         self.interests["media"] = 0.5
         self.interests["economy"] = 0.5
         self.interests["odd"] = 0.5
         self.interests["lifestyle"] = 0.5
         self.interests["health"] = 0.5
+        self.interests["baseball"] = 0.5
         self.interests["environment"] = 0.5
 
     def __repr__(self):
