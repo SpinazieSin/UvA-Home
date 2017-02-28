@@ -20,7 +20,9 @@ class ArticleSearch(object):
         """
         self.article_list = article_list.news
 
-    def search(self, search_term, date1=None, date2=None, place=None, sources=None):
+    # an empty search term should let it return all articles, so only the other filters are used
+    # This should at one point be extend to deal with multiple keywords
+    def search(self, search_term="", date1=None, date2=None, place=None, sources=None):
         """
         Search function that handles parameters
         @param search_term The string to be searched in tags and titles of the articles
@@ -39,8 +41,11 @@ class ArticleSearch(object):
 
         scored_articles = []
         for article in self.article_list:
-
-            if article.published == '' or not (min_date <= article.published <= max_date):
+            # filters
+            try:
+                if not min_date <= article.published <= max_date:
+                    continue
+            except:
                 continue
 
             if not article.source in sources:
