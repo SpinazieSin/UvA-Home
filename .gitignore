@@ -89,3 +89,5 @@ ENV/
 .ropeproject
 
 # Project specific settings
+faceRecognition/training-images/*
+faceRecognition/aligned-images/*

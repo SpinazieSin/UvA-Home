@@ -39,6 +39,7 @@ class UserProfile():
         self.interests["entertainment"] = 0.5
         self.interests["sport"] = 0.5
         self.interests["football"] = 0.5
+        self.interests["american_football"] = 0.5
         self.interests["golf"] = 0.5
         self.interests["basketball"] = 0.5
         self.interests["motorsport"] = 0.5

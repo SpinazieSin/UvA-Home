@@ -30,24 +30,80 @@ def run():
     print "Lets play, " + person
 
 
-def saveNewUser(images):
-    fName = raw_input("I don't know you, what is your first name?\n")
-    lName = raw_input("And what is your last name?\n")
+def saveNewUser(images, fName, lName):
+    # fName = raw_input("I don't know you, what is your first name?\n")
+    # lName = raw_input("And what is your last name?\n")
     # Create folder with name
+    fileDir = os.path.join(os.path.dirname(__file__), '')
     fileDir = os.path.dirname(os.path.realpath(__file__))
     trainDir = os.path.join(fileDir, 'training-images')
+    print("traindir:" + str(trainDir))
     directory = os.path.join(trainDir, fName + "-" + lName)
     n = 0
-    if not os.path.exists(directory + "-0"):
-        os.makedirs(directory + "-0")
+    if not os.path.exists(directory):
+        os.makedirs(directory)
     else:
         n = max([int(d.split("-")[2]) for d in os.listdir(trainDir)
             if d.startswith(fName + "-" + lName)] + [0]) + 1
-        os.makedirs(directory + "-" + str(n))
+        os.makedirs(directory)
     for i, img in enumerate(images):
-        cv2.imwrite(directory + "-" + str(n) + "/image" + str(i) + ".png", img)
+        print("iteration over images")
+        cv2.imwrite(directory + "/image" + str(i) + ".png", img)
     return fName + "-" + lName + "-" + str(n)
 
+
+def take_photos():
+    fileDir = os.path.dirname(os.path.realpath(__file__))
+    print(fileDir)
+    modelDir = os.path.join(fileDir, 'models')
+    dlibModelDir = os.path.join(modelDir, 'dlib')
+    openfaceModelDir = os.path.join(modelDir, 'openface')
+
+    dlibFacePredictor = os.path.join(dlibModelDir,
+        "shape_predictor_68_face_landmarks.dat")
+    networkModel = os.path.join(openfaceModelDir, 'nn4.small2.v1.t7')
+    cuda = False
+
+    align = openface.AlignDlib(dlibFacePredictor)
+    net = openface.TorchNeuralNet(networkModel, imgDim=IMG_DIM, cuda=cuda)
+    video_capture = cv2.VideoCapture(0)
+    video_capture.set(3, WIDTH)
+    video_capture.set(4, HEIGHT)
+
+    # Check if person is known
+    picturesTaken = 0
+    # possiblePersons = collections.Counter()
+    images = []
+    while (picturesTaken < 10):
+        ret, frame = video_capture.read()
+        persons, confidences = infer(frame, align, net)
+        for i, c in enumerate(confidences):
+            if c <= THRESHOLD:
+                persons[i] = "_unknown"
+
+        if len(persons) == 0:
+            print "No person detected"
+            continue
+
+        if persons[0] == "_unknown":
+            print("found unknown person")
+            images.append(frame)
+            picturesTaken += 1
+
+        #     print "P: " + str(persons) + " C: " + str(confidences)
+        #     possiblePersons[persons[i]] += 1
+        # cv2.putText(frame, "P: {} C: {}".format(persons, confidences),
+        #             (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        # cv2.imshow('', frame)
+        # Quit the program on the press of key 'q'
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
+        # picturesTaken += 1
+    video_capture.release()
+    cv2.destroyAllWindows()
+
+    # person = possiblePersons.most_common(1)[0][0]
+    return images
 
 def identifyPerson():
     video_capture = cv2.VideoCapture(0)
@@ -84,13 +140,14 @@ def identifyPerson():
     person = possiblePersons.most_common(1)[0][0]
     return person, images
 
-def infer(img):
-    classifierModel = "./generated-embeddings/classifier.pkl"
+def infer(img, align, net):
+    ospath = os.path.join(os.path.dirname(__file__), '')
+    classifierModel = ospath + '/generated-embeddings/classifier.pkl'
 
     with open(classifierModel, 'r') as f:
         (le, clf) = pickle.load(f)  # le - label and clf - classifer
 
-    reps = getRep(img)
+    reps = getRep(img, align, net)
     persons = []
     confidences = []
     for rep in reps:
@@ -114,7 +171,7 @@ def infer(img):
             pass
     return (persons, confidences)
 
-def getRep(bgrImg):
+def getRep(bgrImg, align, net):
     if bgrImg is None:
         raise Exception("Unable to load image/frame")
 
