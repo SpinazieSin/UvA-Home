@@ -412,8 +412,7 @@ class NewsExtractor(object):
                 self.news = pickle.load(handle)
         if save:
             with open('news.pickle', 'wb') as handle:
-                pickle.dump(self.news, handle,
-                            protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(self.news, handle)
 
     def __repr__(self):
         """Print supported newspapers  and total parsed articles."""

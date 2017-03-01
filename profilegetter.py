@@ -11,8 +11,10 @@ import userprofile
 import random
 import os
 import pickle
-import speechRecognition.speech as STT
-import faceRecognition.faceRecognition as facerec
+# import speechRecognition.speech as STT
+from faceRecognition import facerecognition as facerec
+from faceRecognition import imageRecognition as imrec
+from faceRecognition import trainer
 
 
 class ProfileGetter():
@@ -55,30 +57,37 @@ class ProfileGetter():
 
     def start(self):
         """Init QA, return profile when done."""
+        # name is empty if unknown
         known, name = facerec.known_face()
 
+        # First check if the user is already present using face rec.
         if known:
-            # First check if the user is already present using face rec.
             print("Hi " + name + "!")
-            PATH = "./users/" + name + "/" + name + ".pickle"
-            with open(PATH, 'rb') as handle:
+            PATH = "users/" + name + "/" + name + ".pickle"
+
+            # this makes it work in 2.7 idk why
+            ospath = os.path.join(os.path.dirname(__file__), '')
+            fullpath = ospath + PATH
+            with open(fullpath, 'rb') as handle:
                 profile = pickle.load(handle)
         else:
+            images = imrec.take_photos()
             print("Hi! can you tell me your name?")
-            name = self.get_user_name()
-            PATH = "./users/" + name
+            fname, lname = self.get_user_name()
+            imrec.saveNewUser(images, fname, lname)
+            PATH = "./users/" + fname + "-" + lname
             self.make_folder(PATH)
 
             random_topics = self.get_random_topics()
             # Initialize profile
-            profile = userprofile.UserProfile(username=name)
+            profile = userprofile.UserProfile(username=fname + "-" + lname)
 
-            response1 = self.question("Can I ask you some questions about \
-                                      the news? (Y/n)\n")
+            response1 = self.question("Can I ask you some questions about the\
+             news? (Y/n)")
             if self.positive(response1):
                 for n in range(self.questions):
                     response2 = self.question("Are you generally interested \
-                                               in " + str(random_topics[n]))
+                    in " + str(random_topics[n]))
 
                     # adjust interest in user profile
                     if self.positive(response2):
@@ -88,23 +97,30 @@ class ProfileGetter():
                         profile.interests[self.interests[random_topics[n]]] -=\
                                                                             0.3
             self.say("Thank you!")
-            self.say("I'm now going to ask you about a few current topics, \
-            tell me if you think they are interesting.")
+            self.say("I'm now going to ask you about a few current topics, tell\
+             me if you think they are interesting.")
 
-            counter = self.topics
+            counter = 0
             while counter < self.topics:
                 artic = random.choice(self.newsDB)
                 if profile.interests[artic.category] > 0.5:
                     if artic.summary != "":
                         counter += 1
-                        response3 = self.question("Is this interesting?\n" +
-                                                  artic.summary + "\n")
+                        # some hacky stuff to print the question in better
+                        # format
+                        self.say("is this interesting?")
+                        print(artic.summary)
+                        response3 = self.question("(Y/n)")
                         if self.positive(response3):
                             profile.keywords.append(artic.keywords)
 
-            with open('profile.pickle', 'wb') as handle:
-                pickle.dump(profile, handle,
-                            protocol=pickle.HIGHEST_PROTOCOL)
+            PATH = "users/" + fname + "-" + lname + "/" + fname + "-" + lname + ".pickle"
+            # this makes it work in 2.7 idk why
+            ospath = os.path.join(os.path.dirname(__file__), '')
+            fullpath = ospath + PATH
+            with open(fullpath, 'wb') as handle:
+                pickle.dump(profile, handle)
+            self.train_model()
         return profile
 
     def positive(self, response):
@@ -113,6 +129,10 @@ class ProfileGetter():
             return True
         else:
             return False
+
+    def train_model(self):
+        """Please run the trainer from here, sorry for the inconvenience."""
+        trainer.run()
 
     def say_phrase(phrase):
         """Pronounce given phrase."""
@@ -127,8 +147,9 @@ class ProfileGetter():
                 if name == "":
                     print("sorry I didn't catch that.")
         else:
-            name = input("Hi! can you tell me your name?\n")
-        return name
+            fname = raw_input("Hi! can you tell me your first name?\n")
+            lname = raw_input("Hi! can you tell me your last name?\n")
+        return fname, lname
 
     def make_folder(self, PATH):
         """Make folder with username, ask for new name if unavailable."""
@@ -154,7 +175,7 @@ class ProfileGetter():
             self.say(question)
             response = STT.wait_for_voice()
         else:
-            response = input(question)
+            response = raw_input(question + "\n")
         return response
 
     def say(self, phrase):

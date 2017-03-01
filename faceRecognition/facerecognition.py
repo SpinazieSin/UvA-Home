@@ -1,12 +1,17 @@
-#!/usr/bin/env python2
+# -*-coding:utf-8-*-
+"""facial recognition class file for the media understanding 2017 project.
 
-import time
-import argparse
+File name: facerecognition.py
+Author: Media Understanding 2017
+Date created: 23/2/2017
+Date last modified: 23/2/2017
+Python Version: 3.4
+"""
+
 import cv2
 import os
 import pickle
-import collections
-
+import time
 import numpy as np
 from sklearn.mixture import GMM
 import openface
@@ -18,131 +23,98 @@ WIDTH = 320
 HEIGHT = 240
 THRESHOLD = 0.65
 
-def run():
-    # Start recognising
-    person, images = identifyPerson()
 
-    # Identify
-    if person == "_unknown":
-        person = saveNewUser(images)
+def known_face():
+    """Check for known face.
 
-    # start program
-    print "Lets play, " + person
-
-
-def saveNewUser(images, fName, lName):
-    # fName = raw_input("I don't know you, what is your first name?\n")
-    # lName = raw_input("And what is your last name?\n")
-    # Create folder with name
+    Return True and name if a face is recognized after 10 seconds otherwise
+    return False and ""
+    """
+    # this stuff was in the main so I put it here
+    # fileDir = os.path.dirname(os.path.realpath(__file__))
     fileDir = os.path.join(os.path.dirname(__file__), '')
-    fileDir = os.path.dirname(os.path.realpath(__file__))
-    trainDir = os.path.join(fileDir, 'training-images')
-    print("traindir:" + str(trainDir))
-    directory = os.path.join(trainDir, fName + "-" + lName)
-    n = 0
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    else:
-        n = max([int(d.split("-")[2]) for d in os.listdir(trainDir)
-            if d.startswith(fName + "-" + lName)] + [0]) + 1
-        os.makedirs(directory)
-    for i, img in enumerate(images):
-        print("iteration over images")
-        cv2.imwrite(directory + "/image" + str(i) + ".png", img)
-    return fName + "-" + lName + "-" + str(n)
-
-
-def take_photos():
-    fileDir = os.path.dirname(os.path.realpath(__file__))
-    print(fileDir)
     modelDir = os.path.join(fileDir, 'models')
     dlibModelDir = os.path.join(modelDir, 'dlib')
     openfaceModelDir = os.path.join(modelDir, 'openface')
 
     dlibFacePredictor = os.path.join(dlibModelDir,
-        "shape_predictor_68_face_landmarks.dat")
+                                     "shape_predictor_68_face_landmarks.dat")
     networkModel = os.path.join(openfaceModelDir, 'nn4.small2.v1.t7')
     cuda = False
 
     align = openface.AlignDlib(dlibFacePredictor)
     net = openface.TorchNeuralNet(networkModel, imgDim=IMG_DIM, cuda=cuda)
+
     video_capture = cv2.VideoCapture(0)
     video_capture.set(3, WIDTH)
     video_capture.set(4, HEIGHT)
+    start_time = time.time()
+    confidenceList = []
+    person_list = []
+    while True:
+        # if it takes longer than 10 seconds, stop and return False and ""
+        if time.time() - start_time > 5:
+            video_capture.release()
+            cv2.destroyAllWindows()
+            print("found no known person")
+            return False, ""
 
-    # Check if person is known
-    picturesTaken = 0
-    # possiblePersons = collections.Counter()
-    images = []
-    while (picturesTaken < 10):
         ret, frame = video_capture.read()
         persons, confidences = infer(frame, align, net)
+        print(persons, confidences)
         for i, c in enumerate(confidences):
-            if c <= THRESHOLD:
+            if c <= THRESHOLD:  # 0.5 is kept as threshold for known face.
                 persons[i] = "_unknown"
+        # print "P: " + str(persons) + " C: " + str(confidences)
 
-        if len(persons) == 0:
-            print "No person detected"
-            continue
-
-        if persons[0] == "_unknown":
-            print("found unknown person")
-            images.append(frame)
-            picturesTaken += 1
-
-        #     print "P: " + str(persons) + " C: " + str(confidences)
-        #     possiblePersons[persons[i]] += 1
-        # cv2.putText(frame, "P: {} C: {}".format(persons, confidences),
-        #             (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        # cv2.imshow('', frame)
-        # Quit the program on the press of key 'q'
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
-        #     break
-        # picturesTaken += 1
-    video_capture.release()
-    cv2.destroyAllWindows()
-
-    # person = possiblePersons.most_common(1)[0][0]
-    return images
-
-def identifyPerson():
-    video_capture = cv2.VideoCapture(0)
-    video_capture.set(3, WIDTH)
-    video_capture.set(4, HEIGHT)
-
-    # Check if person is known
-    picturesTaken = 0
-    possiblePersons = collections.Counter()
-    images = []
-    while (picturesTaken < 10):
-        ret, frame = video_capture.read()
-        images.append(frame)
-        persons, confidences = infer(frame)
-        if len(persons) == 0:
-            picturesTaken -= 1
-            print "No person detected"
-
-        for i, c in enumerate(confidences):
-            if c <= THRESHOLD:
-                persons[i] = "_unknown"
-            print "P: " + str(persons) + " C: " + str(confidences)
-            possiblePersons[persons[i]] += 1
+        try:
+            # append with two floating point precision
+            confidenceList.append('%.2f' % confidences[0])
+            person_list.append(persons[0])
+            # enforce length of 10 for test_persons
+            if len(person_list) <= 10:
+                continue
+            # get the last 10 items of the confidenceList
+            test_persons = person_list[-10:]
+            test_confidences = confidenceList[-10:]
+            # sorry for terribly ugly if statement
+            if test_persons.count(test_persons[0]) >= len(test_persons)/2 and \
+                    test_persons[0] != "_unknown":
+                # 0.8 threshold for known faces
+                # the code previously written recognizes a face above 0.5
+                # confidence score, I think thats a bit low so I added a
+                # 0.8 minimal score here.
+                if all(i >= 0.65 for i in test_confidences):
+                    print(test_confidences)
+                    print("found 5 high confidence scores")
+                    video_capture.release()
+                    cv2.destroyAllWindows()
+                    return True, test_persons[0]
+        except:
+            # If there is no face detected, confidences matrix will be empty.
+            # We can simply ignore it.
+            pass
+        # Print the person name and conf value on the frame
         cv2.putText(frame, "P: {} C: {}".format(persons, confidences),
-                    (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                    (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                    (255, 255, 255), 1)
         cv2.imshow('', frame)
-        # Quit the program on the press of key 'q'
+        # quit the program on the press of key 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-        picturesTaken += 1
+    # When everything is done, release the capture
+    # this only runs when someone breaks the loop by pressin gq, don't know
+    # if we should keep that...
     video_capture.release()
     cv2.destroyAllWindows()
 
-    person = possiblePersons.most_common(1)[0][0]
-    return person, images
 
 def infer(img, align, net):
+    """Do inference yo."""
+    # i added this for 2.7 idk why it works
     ospath = os.path.join(os.path.dirname(__file__), '')
-    classifierModel = ospath + '/generated-embeddings/classifier.pkl'
+    fullpath = ospath + '/generated-embeddings/classifier.pkl'
+    classifierModel = fullpath
 
     with open(classifierModel, 'r') as f:
         (le, clf) = pickle.load(f)  # le - label and clf - classifer
@@ -154,7 +126,7 @@ def infer(img, align, net):
         try:
             rep = rep.reshape(1, -1)
         except:
-            print "No Face detected"
+            # print "No Face detected"
             return (None, None)
         predictions = clf.predict_proba(rep).ravel()
         # print predictions
@@ -164,14 +136,16 @@ def infer(img, align, net):
         # print str(le.inverse_transform(max2)) + ": "+str( predictions [max2])
         # ^ prints the second prediction
         confidences.append(predictions[maxI])
-        # print("Predict {} with {:.2f} confidence.".format(person, confidence))
+        # print("Predict {} with {:.2f} confidence.".format(person,confidence))
         if isinstance(clf, GMM):
             dist = np.linalg.norm(rep - clf.means_[maxI])
             print("  + Distance from the mean: {}".format(dist))
             pass
     return (persons, confidences)
 
+
 def getRep(bgrImg, align, net):
+    """I don't know what this does."""
     if bgrImg is None:
         raise Exception("Unable to load image/frame")
 
@@ -209,16 +183,17 @@ def getRep(bgrImg, align, net):
 
 if __name__ == '__main__':
     fileDir = os.path.dirname(os.path.realpath(__file__))
+    # fileDir = os.path.join(os.path.dirname(__file__), '../../users')
     modelDir = os.path.join(fileDir, 'models')
     dlibModelDir = os.path.join(modelDir, 'dlib')
     openfaceModelDir = os.path.join(modelDir, 'openface')
 
     dlibFacePredictor = os.path.join(dlibModelDir,
-        "shape_predictor_68_face_landmarks.dat")
+                                     "shape_predictor_68_face_landmarks.dat")
     networkModel = os.path.join(openfaceModelDir, 'nn4.small2.v1.t7')
     cuda = False
 
     align = openface.AlignDlib(dlibFacePredictor)
     net = openface.TorchNeuralNet(networkModel, imgDim=IMG_DIM, cuda=cuda)
 
-    run()
+    known_face()
