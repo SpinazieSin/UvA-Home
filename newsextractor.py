@@ -109,6 +109,7 @@ class NewsExtractor(object):
                             ]
 
         parsed_entry_list = []
+        duplicate_url_list = set()
         for cat, url in rss_category_list:
             d = feedparser.parse(url)
             for entry in d.entries:
@@ -124,11 +125,16 @@ class NewsExtractor(object):
                 except BaseException:
                     print("skipped summary in: " + source + " title: " + title)
                 try:
-                    published = list(datefinder.find_dates(entry.published))[0].replace(tzinfo=None)
+                    published = list(datefinder.find_dates(entry.published))[0]
                 except BaseException:
                     print("skipped date in: " + source + " title: " + title)
 
                 url = entry.link
+                if url in duplicate_url_list:
+                    print("skipped duplicate url: " + url)
+                    continue
+                duplicate_url_list.add(url)
+
                 category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
                 # A NEW RSS FEED.
                 parsed_entry = article.Article(title=title, summary=summary,
@@ -189,7 +195,7 @@ class NewsExtractor(object):
                 except BaseException:
                     print("skipped summary in: " + source + " title: " + title)
                 try:
-                    published = list(datefinder.find_dates(entry.published))[0].replace(tzinfo=None)
+                    published = list(datefinder.find_dates(entry.published))[0]
                 except BaseException:
                     print("skipped date in: " + source + " title: " + title)
 
@@ -242,7 +248,7 @@ class NewsExtractor(object):
                 except BaseException:
                     print("skipped summary in: " + source + " title: " + title)
                 try:
-                    published = list(datefinder.find_dates(entry.published))[0].replace(tzinfo=None)
+                    published = list(datefinder.find_dates(entry.published))[0]
                 except BaseException:
                     print("skipped date in: " + source + " title: " + title)
 
@@ -328,7 +334,7 @@ class NewsExtractor(object):
                 except BaseException:
                     print("skipped summary in: " + source + " title: " + title)
                 try:
-                    published = list(datefinder.find_dates(entry.published))[0].replace(tzinfo=None)
+                    published = list(datefinder.find_dates(entry.published))[0]
                 except BaseException:
                     print("skipped date in: " + source + " title: " + title)
 
@@ -412,8 +418,7 @@ class NewsExtractor(object):
                 self.news = pickle.load(handle)
         if save:
             with open('news.pickle', 'wb') as handle:
-                pickle.dump(self.news, handle,
-                            protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(self.news, handle)
 
     def __repr__(self):
         """Print supported newspapers  and total parsed articles."""

@@ -1,29 +1,28 @@
 # -*-coding:utf-8-*-
 """Preference finding class file for the media understanding 2017 project.
 
-File name: emotionengine.py
+File name: profilegetter.py
 Author: Media Understanding 2017
-Date created: 9/2/2017
-Date last modified: 9/2/2017
+Date created: 22/2/2017
+Date last modified: 23/2/2017
 Python Version: 3.4
 """
-import numpy as np
 import userprofile
-import articlesearch
 import random
 import os
 import pickle
 import speechRecognition.speech as STT
+import faceRecognition.faceRecognition as facerec
 
 
-class PreferenceFinder():
+class ProfileGetter():
     """
-    PreferenceFinder constructs a user profile based on a QA system.
+    ProfileGetter constructs a user profile based on a QA system.
 
     more text to come
     """
 
-    def __init__(self, news):
+    def __init__(self, news, use_STT=False, voiced=False):
         """Initialize all values."""
         self.interests = {"Africa": "africa",
                           "Asia": "asia",
@@ -48,100 +47,61 @@ class PreferenceFinder():
                           "entertainment": "entertainment",
                           "news about the US:": "north_america"
                           }
-        # self.interests["top_stories"] = 1.0
-        # self.interests["world"] = 0.5
-        # self.interests["africa"] = 0.5
-        # self.interests["americas"] = 0.5
-        # self.interests["asia"] = 0.5
-        # self.interests["europe"] = 0.5
-        # self.interests["middle_east"] = 0.5
-        # self.interests["north_america"] = 0.5
-        # self.interests["money"] = 0.5
-        # self.interests["technology"] = 0.5
-        # self.interests["science"] = 0.5
-        # self.interests["entertainment"] = 0.5
-        # self.interests["sport"] = 0.5
-        # self.interests["football"] = 0.5
-        # self.interests["golf"] = 0.5
-        # self.interests["motorsport"] = 0.5
-        # self.interests["tennis"] = 0.5
-        # self.interests["travel"] = 0.5
-        # self.interests["latest"] = 0.5
-        # self.interests["latin_america"] = 0.5
-        # self.interests["uk"] = 0.5
-        # self.interests["england"] = 0.5
-        # self.interests["northern_ireland"] = 0.5
-        # self.interests["scotland"] = 0.5
-        # self.interests["wales"] = 0.5
-        # self.interests["business"] = 0.5
-        # self.interests["politics"] = 0.5
-        # self.interests["education"] = 0.5
-        # self.interests["art"] = 0.5
-        # self.interests["media"] = 0.5
-        # self.interests["economy"] = 0.5
-        # self.interests["odd"] = 0.5
-        # self.interests["lifestyle"] = 0.5
-        # self.interests["health"] = 0.5
-        # self.interests["environment"] = 0.5
         self.newsDB = news
+        self.use_STT = use_STT
+        self.voiced = voiced
+        self.questions = 10  # amount of question about categories
+        self.topics = 10
 
-    def question_answer(self):
-        """Init QA, return true when done."""
-        # searcher = articlesearch.ArticleSearch()
-        questions = 10
-        topics = 10
-        all_topics = list(self.interests.keys())
+    def start(self):
+        """Init QA, return profile when done."""
+        known, name = facerec.known_face()
 
-        random_topics = []
-        for _ in range(questions):
-            key = random.choice(all_topics)
-            all_topics.remove(key)
-            random_topics.append(key)
-
-        # name = input("Hi! can you tell me your name?\n")
-        print("Hi! can you tell me your name?")
-        name = STT.wait_for_voice()
-        PATH = "./users/" + name
-
-        while os.path.exists(PATH) or name == "":
-            print("that name is not available!")
-            name = STT.wait_for_voice()
+        if known:
+            # First check if the user is already present using face rec.
+            print("Hi " + name + "!")
+            PATH = "./users/" + name + "/" + name + ".pickle"
+            with open(PATH, 'rb') as handle:
+                profile = pickle.load(handle)
+        else:
+            print("Hi! can you tell me your name?")
+            name = self.get_user_name()
             PATH = "./users/" + name
+            self.make_folder(PATH)
 
-        os.makedirs(PATH)
-        print(PATH)
-        profile = userprofile.UserProfile(username=name)
+            random_topics = self.get_random_topics()
+            # Initialize profile
+            profile = userprofile.UserProfile(username=name)
 
+            response1 = self.question("Can I ask you some questions about \
+                                      the news? (Y/n)\n")
+            if self.positive(response1):
+                for n in range(self.questions):
+                    response2 = self.question("Are you generally interested \
+                                               in " + str(random_topics[n]))
 
-        # response1 = input("Can I ask you some questions about the news? (Y/n)\n")
-        print("Can I ask you some questions about the news? (Y/n)\n")
-        response1 = STT.wait_for_voice()
-        if self.positive(response1):
-            for n in range(questions):
-                # response2 = input("Are you generally interested in " +
-                                #   str(random_topics[n]) + "\n")
-                print("Are you generally interested in " +
-                                  str(random_topics[n]))
-                response2 = STT.wait_for_voice()
-                if self.positive(response2):
-                    profile.interests[self.interests[random_topics[n]]] += 0.3
-                else:
-                    profile.interests[self.interests[random_topics[n]]] -= 0.3
-        print("Thank you! ")
-        print("I'm now going to ask you about a few current topics, tell me" +
-              " if you think they are interesting.")
+                    # adjust interest in user profile
+                    if self.positive(response2):
+                        profile.interests[self.interests[random_topics[n]]] +=\
+                                                                            0.3
+                    else:
+                        profile.interests[self.interests[random_topics[n]]] -=\
+                                                                            0.3
+            self.say("Thank you!")
+            self.say("I'm now going to ask you about a few current topics, \
+            tell me if you think they are interesting.")
 
-        while topics > 0:
-            artic = random.choice(self.newsDB)
-            if profile.interests[artic.category] > 0.5:
-                if artic.summary != "":
-                    topics -= 1
-                    responsy = input("Is this interesting?\n" +
-                                     artic.summary + "\n")
-                    if self.positive(responsy):
-                        profile.keywords.append(artic.keywords)
+            counter = self.topics
+            while counter < self.topics:
+                artic = random.choice(self.newsDB)
+                if profile.interests[artic.category] > 0.5:
+                    if artic.summary != "":
+                        counter += 1
+                        response3 = self.question("Is this interesting?\n" +
+                                                  artic.summary + "\n")
+                        if self.positive(response3):
+                            profile.keywords.append(artic.keywords)
 
-        if not os.path.isfile(PATH + "/profile.pickle"):
             with open('profile.pickle', 'wb') as handle:
                 pickle.dump(profile, handle,
                             protocol=pickle.HIGHEST_PROTOCOL)
@@ -154,6 +114,57 @@ class PreferenceFinder():
         else:
             return False
 
+    def say_phrase(phrase):
+        """Pronounce given phrase."""
+        print("no speech synthesis implemented yet.")
+
+    def get_user_name(self):
+        """Ask user for name."""
+        name = ""
+        if self.use_STT:
+            while name != "":
+                name = STT.wait_for_voice()
+                if name == "":
+                    print("sorry I didn't catch that.")
+        else:
+            name = input("Hi! can you tell me your name?\n")
+        return name
+
+    def make_folder(self, PATH):
+        """Make folder with username, ask for new name if unavailable."""
+        while os.path.exists(PATH):
+            print("that name is not available!")
+            name = self.get_user_name()
+            PATH = "./users/" + name
+        os.makedirs(PATH)
+
+    def get_random_topics(self):
+        """Get list of n random categories, n is in self.questions."""
+        all_topics = list(self.interests.keys())
+        random_topics = []
+        for _ in range(self.questions):
+            key = random.choice(all_topics)
+            all_topics.remove(key)
+            random_topics.append(key)
+        return random_topics
+
+    def question(self, question):
+        """Ask a question, use either SST or command line input."""
+        if self.use_STT:
+            self.say(question)
+            response = STT.wait_for_voice()
+        else:
+            response = input(question)
+        return response
+
+    def say(self, phrase):
+        """Print phrase or pronounce, depends on the use_STT variable."""
+        if self.voiced:
+            # not implemented
+            print("VOICED NOT IMPLEMENTED YET!")
+            print(phrase)
+        else:
+            print(phrase)
 
     def __repr__(self):
         """Print article name when object is printed."""

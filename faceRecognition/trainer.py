@@ -38,24 +38,24 @@ from sklearn.naive_bayes import GaussianNB
 
 def prepareImages():
     # Delete old cache file
-    if os.path.exists("./aligned-images/cache.t7"):
-        os.remove("./aligned-images/cache.t7")
+    if os.path.exists("./faceRecognition/aligned-images/cache.t7"):
+        os.remove("./faceRecognition/aligned-images/cache.t7")
     # Do pose detection and alignment
-    os.system("./util/align-dlib.py ./training-images/ align outerEyesAndNose" +
-    " ./aligned-images/ --size 96")
+    os.system("./faceRecognition/util/align-dlib.py ./faceRecognition/training-images/ align outerEyesAndNose" +
+    " ./faceRecognition/aligned-images/ --size 96")
     # Generate representations from the aligned images
-    os.system("./batch-represent/main.lua -outDir ./generated-embeddings/ -data"
-    + " ./aligned-images/")
+    os.system("./faceRecognition/batch-represent/main.lua -outDir ./faceRecognition/generated-embeddings/ -data"
+    + " ./faceRecognition/aligned-images/")
 
 
 def train(folder, classifier):
     print("Loading embeddings.")
-    fname = "{}/labels.csv".format(folder)
+    fname = "{}labels.csv".format(folder)
     labels = pd.read_csv(fname, header=None).as_matrix()[:, 1]
     labels = map(itemgetter(1),
                  map(os.path.split,
                      map(os.path.dirname, labels)))  # Get the directory.
-    fname = "{}/reps.csv".format(folder)
+    fname = "{}reps.csv".format(folder)
     embeddings = pd.read_csv(fname, header=None).as_matrix()
     le = LabelEncoder().fit(labels)
     labelsNum = le.transform(labels)
@@ -98,21 +98,28 @@ def train(folder, classifier):
 
     clf.fit(embeddings, labelsNum)
 
-    fName = "{}/classifier.pkl".format(folder)
+    fName = "{}classifier.pkl".format(folder)
     print("Saving classifier to '{}'".format(fName))
     with open(fName, 'w') as f:
         pickle.dump((le, clf), f)
 
 
 def classify():
-    cwd = os.path.join(os.getcwd(), "faceRecognition.py")
+    cwd = os.path.join(os.getcwd(), "facerecognition.py")
     os.system('{} {}'.format('python', cwd))
+
+
+def run():
+    """Train new model and prepare images."""
+    classifier = "LinearSvm"
+    prepareImages()
+    train("./faceRecognition/generated-embeddings/", classifier)
 
 
 if __name__ == '__main__':
     # TODO: miss classifier als argument ofzo
     classifier = "LinearSvm"
     prepareImages()
-    train("./generated-embeddings/", classifier)
+    train("./faceRecognition/generated-embeddings/", classifier)
     # To test the newly trained classifier
-    classify()
+    # classify()

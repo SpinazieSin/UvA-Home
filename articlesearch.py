@@ -20,7 +20,9 @@ class ArticleSearch(object):
         """
         self.article_list = article_list.news
 
-    def search(self, search_term, date1=None, date2=None, place=None, sources=None):
+    # an empty search term should let it return all articles, so only the other filters are used
+    # This should at one point be extend to deal with multiple keywords
+    def search(self, search_term="", date1=None, date2=None, place=None, sources=None):
         """
         Search function that handles parameters
         @param search_term The string to be searched in tags and titles of the articles
@@ -39,8 +41,8 @@ class ArticleSearch(object):
 
         scored_articles = []
         for article in self.article_list:
-
-            if article.published == '' or not (min_date <= article.published <= max_date):
+            # filters
+            if article.published == '' or not (min_date <= article.published.replace(tzinfo=None) <= max_date):
                 continue
 
             if not article.source in sources:
@@ -55,12 +57,17 @@ class ArticleSearch(object):
                     break
 
             vec2 = self.text_to_vector(article.title.lower())
-            highest_score = self.get_cosine(search_term_vec, vec2)
+            highest_score = self.similar(search_term_vec, vec2) # sum word similarity method
+            # highest_score = self.get_cosine(search_term_vec, vec2) # cosine similarity method
             for keyword in article.keywords:
                 vec2 = self.text_to_vector(keyword)
-                score = self.get_cosine(search_term_vec, vec2)
+                # score = self.similar(search_term_vec, vec2) # sum word similarity method
+                score = self.get_cosine(search_term_vec, vec2) # cosine similarity method
                 if score > highest_score:
                     highest_score = score
+            # vec2 = self.text_to_vector(article.text)
+            # highest_score = self.similar(search_term_vec, vec2)
+
             scored_articles.append([article, highest_score])
         return sorted(scored_articles, key=operator.itemgetter(1), reverse=True)
 
@@ -76,13 +83,7 @@ class ArticleSearch(object):
         if not denominator:
             return 0.0
         else:
-            intersection = set(vec1.keys() & vec2.keys())
-            # Replace instersection with this for grammer correction, this is quite cpu intensive
-            # intersection = []
-            # for key1 in vec1.keys():
-            #     for key2 in vec2.keys():
-            #         if self.similar(key1, key2) > 0.5:
-            #             intersection.append(key2)
+            intersection = set(vec1.keys()) & set(vec2.keys())
             numerator = sum([(vec1[x] * vec2[x]) for x in intersection])
             return float(numerator) / denominator
 
@@ -92,7 +93,7 @@ class ArticleSearch(object):
         @param text String to be split
         """
         global word
-        return Counter(word.findall(text))
+        return Counter(word.findall(text)) # cosine similarity method
 
     def similar(self, word1, word2):
         """
@@ -100,4 +101,15 @@ class ArticleSearch(object):
         @param word1 string1
         @param word2 string2
         """
-        return SequenceMatcher(None, word1, word2).ratio()
+        word1 = list(word1)
+        word2 = list(word2)
+        length_word1 = len(word1)
+        length_word2 = len(word2)
+        if length_word1 == 0 or length_word2 == 0: return 0
+        score = 0
+        for i in range(length_word2-length_word1):
+            for j in range(length_word1):
+                temp_score = SequenceMatcher(None, word1[j], word2[i+j]).quick_ratio()
+                if temp_score > 0.9:
+                    score += temp_score
+        return score/(length_word2+length_word1)
