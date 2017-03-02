@@ -42,10 +42,7 @@ class ArticleSearch(object):
         scored_articles = []
         for article in self.article_list:
             # filters
-            try:
-                if not min_date <= article.published <= max_date:
-                    continue
-            except:
+            if article.published == '' or not (min_date <= article.published.replace(tzinfo=None) <= max_date):
                 continue
 
             if not article.source in sources:
@@ -60,14 +57,17 @@ class ArticleSearch(object):
                     break
 
             vec2 = self.text_to_vector(article.title.lower())
-            # highest_score = self.similar(search_term_vec, vec2) # sum word similarity method
-            highest_score = self.get_cosine(search_term_vec, vec2) # cosine similarity method
+            highest_score = self.similar(search_term_vec, vec2) # sum word similarity method
+            # highest_score = self.get_cosine(search_term_vec, vec2) # cosine similarity method
             for keyword in article.keywords:
                 vec2 = self.text_to_vector(keyword)
                 # score = self.similar(search_term_vec, vec2) # sum word similarity method
                 score = self.get_cosine(search_term_vec, vec2) # cosine similarity method
                 if score > highest_score:
                     highest_score = score
+            # vec2 = self.text_to_vector(article.text)
+            # highest_score = self.similar(search_term_vec, vec2)
+
             scored_articles.append([article, highest_score])
         return sorted(scored_articles, key=operator.itemgetter(1), reverse=True)
 
@@ -83,7 +83,7 @@ class ArticleSearch(object):
         if not denominator:
             return 0.0
         else:
-            intersection = set(vec1.keys() & vec2.keys())
+            intersection = set(vec1.keys()) & set(vec2.keys())
             numerator = sum([(vec1[x] * vec2[x]) for x in intersection])
             return float(numerator) / denominator
 
