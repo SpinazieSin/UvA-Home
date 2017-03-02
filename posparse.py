@@ -145,11 +145,14 @@ class POSParse(object):
         # see if NPs contain places or news sources
         sources = {np for np in nps if np in self.source_ents}
         places = {np for np in nps if np in self.place_ents}
-        dates = {self.to_datetime(np) for np in nps if self.find_dates(np)}
+        dates = {np for np in nps if self.find_dates(np)}
         cats = {np for np in nps if np in self.categories}
         nps -= sources | dates | places | cats # union
 
         keywords = {np for np in nps if not len(set(np.split(" ")) & self.non_keywords)} # no commons
+        
+        dates = [self.to_datetime(np) for np in dates]
+        dates.sort()
         if debug:
             print("sources:", list(sources))
             print("places", list(places))
@@ -159,6 +162,13 @@ class POSParse(object):
         # dictionary get like operator for list
         get = lambda l, i: None if i > len(l)-1 else list(l)[i]
 #        return get(keywords,0), get(dates,0), get(dates,1), get(places,0), get(sources,0)
+
+
+        if len(dates) > 2:
+            return "failed_search", "Try to use less dates in your question."
+        if len(places) > 2:
+            return "failed_search", "Try to use less dates in your question."
+
         # maybe create this list dynamically?
         return [{"search_term" : get(keywords,0), "date1" : get(dates, 0),  
         "date2" : get(dates,1), "place": get(places,0), "sources" : get(sources,0)}]
@@ -186,17 +196,24 @@ class POSParse(object):
         # Generate subtrees at the lowest 'NP' node
         return t.subtrees(filter=lambda t: t.label()=='NP' and t.height()==3)
 
+    def _find_logical_Leaves(self, t):
+        # If connectitive found, traverse up until NP, and then take the first NP leave of that NP
+        # as an logical argument
+        and_or_t = t.subtrees(filter=lambda t: t.label()=='CC' and t.height()==1)
+        nottree = t.subtrees(filter=lambda t: t.label()=='RB' and t.height()==1)
+        
+        
 if __name__ == "__main__":
     with open("testcorpus.txt", "r") as f:
         questions = f.read().splitlines()
         parser = POSParse()
-        parser.process_queries(questions, debug=True)
-        # for dp in parser.date_phrases:
+#        parser.process_queries(questions, debug=True)
+#         for dp in parser.date_phrases:
         #     print("--------------------")
         #     print(dp)
         #     parser.to_datetime(dp)
 
-#        for q in questions:
-#            print("------------")
-#            print(q)
-#            parser.process_query(q)
+        for q in questions:
+            print("------------")
+            print(q)
+            parser.process_query(q)
