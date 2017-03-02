@@ -58,8 +58,13 @@ class POSParse(object):
             "last week" : "one weeks ago",
             "last month" : "one months ago"
         }
+        self.translate.update({
+            d + " of " + m : m + " " + d for d in date_words
+                                         for m in months
+        })
         for m in months:
             self.date_phrases.update([m + " " + d for d in date_words])
+            self.date_phrases.update([d + " of " + m for d in date_words])
         for c in count_words:
             self.date_phrases.update([c + " " + d + " ago" for d in date_terminals])
         for d in date_terminals:
@@ -81,6 +86,9 @@ class POSParse(object):
             if date_phrase in self.special_phrases:
                 date_phrase = self.translate[date_phrase]
             parts = date_phrase.split(" ")
+            if parts[1] == "of":
+                date_phrase = self.translate[date_phrase]
+                parts = date_phrase.split(" ")
             if date_phrase == "now":
                 out = now
             elif len(parts) == 2:
@@ -211,7 +219,7 @@ if __name__ == "__main__":
 #         for dp in parser.date_phrases:
         #     print("--------------------")
         #     print(dp)
-        #     parser.to_datetime(dp)
+        #     print(parser.to_datetime(dp))
 
         for q in questions:
             print("------------")
