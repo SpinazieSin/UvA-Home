@@ -32,6 +32,60 @@ HEIGHT = 240
 THRESHOLD = 0.65
 
 
+def fast_known_face():
+    """Check for known face.
+
+    Return True and name if a face is recognized after 10 seconds otherwise
+    return False and ""
+    """
+    # this stuff was in the main so I put it here
+    # fileDir = os.path.dirname(os.path.realpath(__file__))
+    fileDir = os.path.join(os.path.dirname(__file__), '')
+    modelDir = os.path.join(fileDir, 'models')
+    dlibModelDir = os.path.join(modelDir, 'dlib')
+    openfaceModelDir = os.path.join(modelDir, 'openface')
+
+    dlibFacePredictor = os.path.join(dlibModelDir,
+                                     "shape_predictor_68_face_landmarks.dat")
+    networkModel = os.path.join(openfaceModelDir, 'nn4.small2.v1.t7')
+    cuda = False
+
+    align = openface.AlignDlib(dlibFacePredictor)
+    net = openface.TorchNeuralNet(networkModel, imgDim=IMG_DIM, cuda=cuda)
+
+    start_time = time.time()
+    confidenceList = []
+    person_list = []
+    while True:
+        # if it takes longer than 10 seconds, stop and return False and ""
+        if time.time() - start_time > 5:
+            print("found no known person")
+            return False, ""
+
+        naoqi_frames = naoqiutils.get_images(5)
+        frames = []
+        for nframe in naoqi_frames:
+            frame = np.array(nframe)
+            frames.append(frame)
+            persons, confidences = infer(frame, align, net)
+            print("P: " + str(persons) + " C: " + str(confidences))
+
+            # append with two floating point precision
+            for i, c in enumerate(confidences):
+                if c <= THRESHOLD:  # 0.5 is kept as threshold for known face.
+                    persons[i] = "_unknown"
+            try:
+                person_list.append(persons[0])
+                confidenceList.append('%.2f' % confidences[0])
+            except Exception as e:
+                pass
+        try:
+            most_common = max(set(person_list), key=person_list.count)
+            if most_common != "_unknown":
+                return True, most_common
+        except Exception as e:
+            pass
+
 def known_face():
     """Check for known face.
 

@@ -20,7 +20,7 @@ def speak(phrase):
     # errors if not converted to ascii :(
     phrase = phrase.encode('ascii', 'ignore')
     tts = ALProxy("ALTextToSpeech", IP, PORT)
-    tts.setVolume(0.1)
+    tts.setVolume(0.5)
     tts.say(phrase)
 
 def get_images(amount):

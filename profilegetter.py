@@ -60,19 +60,20 @@ class ProfileGetter():
     def start(self):
         """Init QA, return profile when done."""
         # name is empty if unknown
-        known, name = facerec.known_face()
+        known, name = facerec.fast_known_face()
         fname = ""
         lname = ""
         # First check if the user is already present using face rec.
         if known:
-            fname = name.split("-")[0]
-            lname = name.split("-")[1]
+            names = name.split("-")
+            fname = names[0]
+            lname = names[1]
             self.say("Hi " + fname + "!")
             profile = self.get_profile(name)
         else:
             images = imrec.take_photos()
 
-            self.say("Hi! can you tell me your name?")
+            self.say("Hi! I don't know you, can you tell me your name?")
             fname, lname = self.get_user_name()
             imrec.saveNewUser(images, fname, lname)
             PATH = "./users/" + fname + "-" + lname
@@ -90,7 +91,7 @@ class ProfileGetter():
 
                 profile = self.question_topics(profile)
                 # train the model to include the new user
-                self.train_model()
+            self.train_model()
 
         PATH = "users/" + fname + "-" + lname + "/" + fname + "-" + lname + ".pickle"
         # this makes it work in 2.7 idk why
@@ -101,6 +102,7 @@ class ProfileGetter():
         return profile
 
     def get_profile(self, name):
+        """Get profile with given name."""
         PATH = "users/" + name + "/" + name + ".pickle"
 
         # this makes it work in 2.7 idk why
@@ -169,7 +171,9 @@ class ProfileGetter():
                 if lname == "":
                     self.say("sorry I didn't catch that.")
         else:
+            self.say("What is your first name?")
             fname = raw_input("First name?\n")
+            self.say("What is your last name?")
             lname = raw_input("Last name?\n")
         return fname, lname
 
