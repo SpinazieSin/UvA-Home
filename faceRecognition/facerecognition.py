@@ -15,6 +15,14 @@ import time
 import numpy as np
 from sklearn.mixture import GMM
 import openface
+import sys
+from PIL import Image
+dir_path = os.path.dirname(os.path.realpath(__file__))
+up_dir = os.path.dirname(os.path.dirname(dir_path))
+
+sys.path.append(up_dir)
+
+import naoqiutils
 
 np.set_printoptions(precision=2)
 
@@ -45,40 +53,51 @@ def known_face():
     align = openface.AlignDlib(dlibFacePredictor)
     net = openface.TorchNeuralNet(networkModel, imgDim=IMG_DIM, cuda=cuda)
 
-    video_capture = cv2.VideoCapture(0)
-    video_capture.set(3, WIDTH)
-    video_capture.set(4, HEIGHT)
+    # video_capture = cv2.VideoCapture(0)
+    # video_capture.set(3, WIDTH)
+    # video_capture.set(4, HEIGHT)
     start_time = time.time()
     confidenceList = []
     person_list = []
     while True:
         # if it takes longer than 10 seconds, stop and return False and ""
-        if time.time() - start_time > 5:
-            video_capture.release()
-            cv2.destroyAllWindows()
+        if time.time() - start_time > 10:
+            # video_capture.release()
+            # cv2.destroyAllWindows()
             print("found no known person")
             return False, ""
 
-        ret, frame = video_capture.read()
+        # line for using with webcams
+        # ret, frame = video_capture.read()
+        # print(type(frame))
+
+        naoqi_frame = naoqiutils.get_image()
+        # print(type(frame2))
+        # frame = np.array(frame2)
+        frame = np.array(naoqi_frame)
+        # im = Image.fromarray(frame)
+        # im.save("afterarrayconv.png")
+
         persons, confidences = infer(frame, align, net)
-        print(persons, confidences)
+        # print(persons, confidences)
         for i, c in enumerate(confidences):
             if c <= THRESHOLD:  # 0.5 is kept as threshold for known face.
                 persons[i] = "_unknown"
-        # print "P: " + str(persons) + " C: " + str(confidences)
+        print("P: " + str(persons) + " C: " + str(confidences))
+        print(persons)
 
         try:
             # append with two floating point precision
             confidenceList.append('%.2f' % confidences[0])
             person_list.append(persons[0])
             # enforce length of 10 for test_persons
-            if len(person_list) <= 10:
+            if len(person_list) <= 4:
                 continue
             # get the last 10 items of the confidenceList
-            test_persons = person_list[-10:]
-            test_confidences = confidenceList[-10:]
+            test_persons = person_list[-4:]
+            test_confidences = confidenceList[-4:]
             # sorry for terribly ugly if statement
-            if test_persons.count(test_persons[0]) >= len(test_persons)/2 and \
+            if test_persons.count(test_persons[0]) >= len(test_persons) and \
                     test_persons[0] != "_unknown":
                 # 0.8 threshold for known faces
                 # the code previously written recognizes a face above 0.5
@@ -86,27 +105,27 @@ def known_face():
                 # 0.8 minimal score here.
                 if all(i >= 0.65 for i in test_confidences):
                     print(test_confidences)
-                    print("found 5 high confidence scores")
-                    video_capture.release()
-                    cv2.destroyAllWindows()
+                    print("found 4 high confidence scores")
+                    # video_capture.release()
+                    # cv2.destroyAllWindows()
                     return True, test_persons[0]
         except:
             # If there is no face detected, confidences matrix will be empty.
             # We can simply ignore it.
             pass
         # Print the person name and conf value on the frame
-        cv2.putText(frame, "P: {} C: {}".format(persons, confidences),
-                    (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                    (255, 255, 255), 1)
-        cv2.imshow('', frame)
+        # cv2.putText(frame, "P: {} C: {}".format(persons, confidences),
+        #             (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+        #             (255, 255, 255), 1)
+        # cv2.imshow('', frame)
         # quit the program on the press of key 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     # When everything is done, release the capture
     # this only runs when someone breaks the loop by pressin gq, don't know
     # if we should keep that...
-    video_capture.release()
-    cv2.destroyAllWindows()
+    # video_capture.release()
+    # cv2.destroyAllWindows()
 
 
 def infer(img, align, net):
@@ -149,7 +168,8 @@ def getRep(bgrImg, align, net):
     if bgrImg is None:
         raise Exception("Unable to load image/frame")
 
-    rgbImg = cv2.cvtColor(bgrImg, cv2.COLOR_BGR2RGB)
+    # rgbImg = cv2.cvtColor(bgrImg, cv2.COLOR_RGB2BGR)
+    rgbImg = bgrImg
 
     # Get the largest face bounding box
     # bb = align.getLargestFaceBoundingBox(rgbImg) #Bounding box
@@ -182,6 +202,7 @@ def getRep(bgrImg, align, net):
 
 
 if __name__ == '__main__':
+    # just ignore this stuff it's here in case we need to change some code back
     fileDir = os.path.dirname(os.path.realpath(__file__))
     # fileDir = os.path.join(os.path.dirname(__file__), '../../users')
     modelDir = os.path.join(fileDir, 'models')

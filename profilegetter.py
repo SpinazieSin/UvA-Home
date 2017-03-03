@@ -11,10 +11,12 @@ import userprofile
 import random
 import os
 import pickle
+import naoqiutils
 # import speechRecognition.speech as STT
 from faceRecognition import facerecognition as facerec
 from faceRecognition import imageRecognition as imrec
 from faceRecognition import trainer
+from speechRecognition import speech
 
 
 class ProfileGetter():
@@ -53,79 +55,96 @@ class ProfileGetter():
         self.use_STT = use_STT
         self.voiced = voiced
         self.questions = 10  # amount of question about categories
-        self.topics = 10
+        self.topics = 5
 
     def start(self):
         """Init QA, return profile when done."""
         # name is empty if unknown
         known, name = facerec.known_face()
-
+        fname = ""
+        lname = ""
         # First check if the user is already present using face rec.
         if known:
-            print("Hi " + name + "!")
-            PATH = "users/" + name + "/" + name + ".pickle"
-
-            # this makes it work in 2.7 idk why
-            ospath = os.path.join(os.path.dirname(__file__), '')
-            fullpath = ospath + PATH
-            with open(fullpath, 'rb') as handle:
-                profile = pickle.load(handle)
+            fname = name.split("-")[0]
+            lname = name.split("-")[1]
+            self.say("Hi " + fname + "!")
+            profile = self.get_profile(name)
         else:
             images = imrec.take_photos()
-            print("Hi! can you tell me your name?")
+
+            self.say("Hi! can you tell me your name?")
             fname, lname = self.get_user_name()
             imrec.saveNewUser(images, fname, lname)
             PATH = "./users/" + fname + "-" + lname
             self.make_folder(PATH)
 
-            random_topics = self.get_random_topics()
             # Initialize profile
             profile = userprofile.UserProfile(username=fname + "-" + lname)
-
-            response1 = self.question("Can I ask you some questions about the\
-             news? (Y/n)")
+            # Start tuning of profile
+            response1 = self.question("Can I ask you some questions about the news?")
             if self.positive(response1):
-                for n in range(self.questions):
-                    response2 = self.question("Are you generally interested \
-                    in " + str(random_topics[n]))
+                profile = self.question_categories(profile)
 
-                    # adjust interest in user profile
-                    if self.positive(response2):
-                        profile.interests[self.interests[random_topics[n]]] +=\
-                                                                            0.3
-                    else:
-                        profile.interests[self.interests[random_topics[n]]] -=\
-                                                                            0.3
-            self.say("Thank you!")
-            self.say("I'm now going to ask you about a few current topics, tell\
-             me if you think they are interesting.")
+                self.say("Thank you!")
+                self.say("I'm now going to ask you about a few current topics, tell me if you think they are interesting.")
 
-            counter = 0
-            while counter < self.topics:
-                artic = random.choice(self.newsDB)
-                if profile.interests[artic.category] > 0.5:
-                    if artic.summary != "":
-                        counter += 1
-                        # some hacky stuff to print the question in better
-                        # format
-                        self.say("is this interesting?")
-                        print(artic.summary)
-                        response3 = self.question("(Y/n)")
-                        if self.positive(response3):
-                            profile.keywords.append(artic.keywords)
+                profile = self.question_topics(profile)
+                # train the model to include the new user
+                self.train_model()
 
-            PATH = "users/" + fname + "-" + lname + "/" + fname + "-" + lname + ".pickle"
-            # this makes it work in 2.7 idk why
-            ospath = os.path.join(os.path.dirname(__file__), '')
-            fullpath = ospath + PATH
-            with open(fullpath, 'wb') as handle:
-                pickle.dump(profile, handle)
-            self.train_model()
+        PATH = "users/" + fname + "-" + lname + "/" + fname + "-" + lname + ".pickle"
+        # this makes it work in 2.7 idk why
+        ospath = os.path.join(os.path.dirname(__file__), '')
+        fullpath = ospath + PATH
+        with open(fullpath, 'wb') as handle:
+            pickle.dump(profile, handle)
+        return profile
+
+    def get_profile(self, name):
+        PATH = "users/" + name + "/" + name + ".pickle"
+
+        # this makes it work in 2.7 idk why
+        ospath = os.path.join(os.path.dirname(__file__), '')
+        fullpath = ospath + PATH
+        with open(fullpath, 'rb') as handle:
+            profile = pickle.load(handle)
+        return profile
+
+    def question_categories(self, profile):
+        """Ask questions about categories."""
+        random_topics = self.get_random_topics()
+        self.say("Are you generally interested")
+        for n in range(self.questions):
+            response2 = self.question("in " + str(random_topics[n]))
+
+            # adjust interest in user profile
+            if self.positive(response2):
+                profile.interests[self.interests[random_topics[n]]] += 0.3
+            else:
+                profile.interests[self.interests[random_topics[n]]] -= 0.3
+        return profile
+
+    def question_topics(self, profile):
+        """Ask questions about current news topics."""
+        counter = 0
+        while counter < self.topics:
+            artic = random.choice(self.newsDB)
+            if profile.interests[artic.category] > 0.5:
+                if artic.summary != "":
+                    counter += 1
+                    # some hacky stuff to print the question in better
+                    # format
+                    # self.say("is this interesting?")
+                    self.say(artic.summary)
+                    response3 = self.question(" ")
+                    print("(Y/n)")
+                    if self.positive(response3):
+                        profile.keywords.append(artic.keywords)
         return profile
 
     def positive(self, response):
         """Return true if response was positive."""
-        if response == "y" or response == "yes" or response == "Y":
+        if response == "y" or response == "yes" or response == "Y" or response == "yeah":
             return True
         else:
             return False
@@ -134,21 +153,24 @@ class ProfileGetter():
         """Please run the trainer from here, sorry for the inconvenience."""
         trainer.run()
 
-    def say_phrase(phrase):
-        """Pronounce given phrase."""
-        print("no speech synthesis implemented yet.")
-
     def get_user_name(self):
         """Ask user for name."""
-        name = ""
+        fname = ""
+        lname = ""
         if self.use_STT:
-            while name != "":
-                name = STT.wait_for_voice()
-                if name == "":
-                    print("sorry I didn't catch that.")
+            self.say("What is your first name?")
+            while fname == "":
+                fname = speech.wait_for_voice()
+                if fname == "":
+                    self.say("sorry I didn't catch that.")
+            self.say("What is your last name?")
+            while lname == "":
+                lname = speech.wait_for_voice()
+                if lname == "":
+                    self.say("sorry I didn't catch that.")
         else:
-            fname = raw_input("Hi! can you tell me your first name?\n")
-            lname = raw_input("Hi! can you tell me your last name?\n")
+            fname = raw_input("First name?\n")
+            lname = raw_input("Last name?\n")
         return fname, lname
 
     def make_folder(self, PATH):
@@ -173,17 +195,18 @@ class ProfileGetter():
         """Ask a question, use either SST or command line input."""
         if self.use_STT:
             self.say(question)
-            response = STT.wait_for_voice()
+            response = speech.wait_for_voice()
         else:
+            naoqiutils.speak(question)
             response = raw_input(question + "\n")
         return response
 
     def say(self, phrase):
         """Print phrase or pronounce, depends on the use_STT variable."""
         if self.voiced:
-            # not implemented
-            print("VOICED NOT IMPLEMENTED YET!")
             print(phrase)
+            naoqiutils.speak(phrase)
+            # print("VOICED NOT IMPLEMENTED YET!")
         else:
             print(phrase)
 

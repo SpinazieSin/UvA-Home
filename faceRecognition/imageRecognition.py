@@ -1,4 +1,12 @@
 #!/usr/bin/env python2
+"""this file is used for taking training photos for new users.
+
+File name: imagerecognition.py
+Author: Media Understanding 2017
+Date created: 2/3/2017
+Date last modified: 2/3/2017
+Python Version: 2.7
+"""
 
 import time
 import argparse
@@ -6,10 +14,18 @@ import cv2
 import os
 import pickle
 import collections
-
+import sys
+import os
 import numpy as np
+from PIL import Image
 from sklearn.mixture import GMM
 import openface
+# forgive my hackeries but this should work on all or computers
+dir_path = os.path.dirname(os.path.realpath(__file__))
+up_dir = os.path.dirname(os.path.dirname(dir_path))
+
+sys.path.append(up_dir)
+import naoqiutils
 
 np.set_printoptions(precision=2)
 
@@ -18,22 +34,23 @@ WIDTH = 320
 HEIGHT = 240
 THRESHOLD = 0.65
 
-def run():
-    # Start recognising
-    person, images = identifyPerson()
-
-    # Identify
-    if person == "_unknown":
-        person = saveNewUser(images)
-
-    # start program
-    print "Lets play, " + person
+# def run():
+    # # Start recognising
+    # person, images = identifyPerson()
+    #
+    # # Identify
+    # if person == "_unknown":
+    #     person = saveNewUser(images)
+    #
+    # # start program
+    # print "Lets play, " + person
 
 
 def saveNewUser(images, fName, lName):
     # fName = raw_input("I don't know you, what is your first name?\n")
     # lName = raw_input("And what is your last name?\n")
     # Create folder with name
+    # rgbImg = cv2.cvtColor(images, cv2.COLOR_BGR2RGB)
     fileDir = os.path.join(os.path.dirname(__file__), '')
     fileDir = os.path.dirname(os.path.realpath(__file__))
     trainDir = os.path.join(fileDir, 'training-images')
@@ -48,7 +65,9 @@ def saveNewUser(images, fName, lName):
         os.makedirs(directory)
     for i, img in enumerate(images):
         print("iteration over images")
-        cv2.imwrite(directory + "/image" + str(i) + ".png", img)
+        goodimg = Image.fromarray(img)
+        goodimg.save(directory + "/image" + str(i) + ".png")
+        # cv2.imwrite(directory + "/image" + str(i) + ".png", img)
     return fName + "-" + lName + "-" + str(n)
 
 
@@ -66,16 +85,22 @@ def take_photos():
 
     align = openface.AlignDlib(dlibFacePredictor)
     net = openface.TorchNeuralNet(networkModel, imgDim=IMG_DIM, cuda=cuda)
-    video_capture = cv2.VideoCapture(0)
-    video_capture.set(3, WIDTH)
-    video_capture.set(4, HEIGHT)
+    # video_capture = cv2.VideoCapture(0)
+    # video_capture.set(3, WIDTH)
+    # video_capture.set(4, HEIGHT)
 
     # Check if person is known
     picturesTaken = 0
     # possiblePersons = collections.Counter()
     images = []
     while (picturesTaken < 10):
-        ret, frame = video_capture.read()
+        # line for using with webcams
+        # ret, frame = video_capture.read()
+
+        naoqi_frame = naoqiutils.get_image()
+        # naoqi_frame is an rgb image, I checked this.
+        frame = np.array(naoqi_frame)
+
         persons, confidences = infer(frame, align, net)
         for i, c in enumerate(confidences):
             if c <= THRESHOLD:
@@ -92,53 +117,16 @@ def take_photos():
 
         #     print "P: " + str(persons) + " C: " + str(confidences)
         #     possiblePersons[persons[i]] += 1
-        # cv2.putText(frame, "P: {} C: {}".format(persons, confidences),
-        #             (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        # cv2.imshow('', frame)
         # Quit the program on the press of key 'q'
         # if cv2.waitKey(1) & 0xFF == ord('q'):
         #     break
         # picturesTaken += 1
-    video_capture.release()
+    # video_capture.release()
     cv2.destroyAllWindows()
 
     # person = possiblePersons.most_common(1)[0][0]
     return images
 
-def identifyPerson():
-    video_capture = cv2.VideoCapture(0)
-    video_capture.set(3, WIDTH)
-    video_capture.set(4, HEIGHT)
-
-    # Check if person is known
-    picturesTaken = 0
-    possiblePersons = collections.Counter()
-    images = []
-    while (picturesTaken < 10):
-        ret, frame = video_capture.read()
-        images.append(frame)
-        persons, confidences = infer(frame)
-        if len(persons) == 0:
-            picturesTaken -= 1
-            print "No person detected"
-
-        for i, c in enumerate(confidences):
-            if c <= THRESHOLD:
-                persons[i] = "_unknown"
-            print "P: " + str(persons) + " C: " + str(confidences)
-            possiblePersons[persons[i]] += 1
-        cv2.putText(frame, "P: {} C: {}".format(persons, confidences),
-                    (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        cv2.imshow('', frame)
-        # Quit the program on the press of key 'q'
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-        picturesTaken += 1
-    video_capture.release()
-    cv2.destroyAllWindows()
-
-    person = possiblePersons.most_common(1)[0][0]
-    return person, images
 
 def infer(img, align, net):
     ospath = os.path.join(os.path.dirname(__file__), '')
@@ -175,10 +163,11 @@ def getRep(bgrImg, align, net):
     if bgrImg is None:
         raise Exception("Unable to load image/frame")
 
-    rgbImg = cv2.cvtColor(bgrImg, cv2.COLOR_BGR2RGB)
+    # rgbImg = cv2.cvtColor(bgrImg, cv2.COLOR_RGB2BGR)
+    rgbImg = bgrImg
 
     # Get the largest face bounding box
-    # bb = align.getLargestFaceBoundingBox(rgbImg) #Bounding box
+    # bb = align.getLargestFaceBoundingBox(rgbImg) #  Bounding box
 
     # Get all bounding boxes
     bb = align.getAllFaceBoundingBoxes(rgbImg)
@@ -198,13 +187,47 @@ def getRep(bgrImg, align, net):
 
     if alignedFaces is None:
         raise Exception("Unable to align the frame")
-
     reps = []
     for alignedFace in alignedFaces:
         reps.append(net.forward(alignedFace))
 
     # print reps
     return reps
+
+    # def identifyPerson():
+    #     video_capture = cv2.VideoCapture(0)
+    #     video_capture.set(3, WIDTH)
+    #     video_capture.set(4, HEIGHT)
+    #
+    #     # Check if person is known
+    #     picturesTaken = 0
+    #     possiblePersons = collections.Counter()
+    #     images = []
+    #     while (picturesTaken < 10):
+    #         ret, frame = video_capture.read()
+    #         images.append(frame)
+    #         persons, confidences = infer(frame)
+    #         if len(persons) == 0:
+    #             picturesTaken -= 1
+    #             print "No person detected"
+    #
+    #         for i, c in enumerate(confidences):
+    #             if c <= THRESHOLD:
+    #                 persons[i] = "_unknown"
+    #             print "P: " + str(persons) + " C: " + str(confidences)
+    #             possiblePersons[persons[i]] += 1
+    #         cv2.putText(frame, "P: {} C: {}".format(persons, confidences),
+    #                     (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+    #         cv2.imshow('', frame)
+    #         # Quit the program on the press of key 'q'
+    #         if cv2.waitKey(1) & 0xFF == ord('q'):
+    #             break
+    #         picturesTaken += 1
+    #     video_capture.release()
+    #     cv2.destroyAllWindows()
+    #
+    #     person = possiblePersons.most_common(1)[0][0]
+    #     return person, images
 
 
 if __name__ == '__main__':
