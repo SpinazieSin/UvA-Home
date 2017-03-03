@@ -83,6 +83,48 @@ class NewsExtractor(object):
         self.news = entry_list
         print("parsed articles, available in OBJECT.news")
 
+    def parse_rss(self, rss_category_list, source):
+        parsed_entry_list = []
+        duplicate_url_list = set()
+        duplicate_title_list = set()
+        for cat, url in rss_category_list:
+            d = feedparser.parse(url)
+            for entry in d.entries:
+                # summaries and dates are missing sometimes, an empty strings
+                # is returned when this happens.
+                summary = ""
+                published = ""
+                try:
+                    dirty_summary = entry.summary
+                    summary = re.sub('<[^>]*>', '', dirty_summary)
+                except BaseException:
+                    print("skipped summary in: " + source + " title: " + title)
+                try:
+                    published = list(datefinder.find_dates(entry.published))[0]
+                except BaseException:
+                    print("skipped date in: " + source + " title: " + title)
+
+                url = entry.link
+                if url in duplicate_url_list:
+                    print("skipped duplicate url: " + url)
+                    continue
+                duplicate_url_list.add(url)
+
+                title = entry.title
+                if title in duplicate_title_list:
+                    print("skipped duplicate title: " + title)
+                    continue
+                duplicate_title_list.add(title)
+
+                category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
+                # A NEW RSS FEED.
+                parsed_entry = article.Article(title=title, summary=summary,
+                                               url=url, published=published,
+                                               category=category,
+                                               source=source)
+                parsed_entry_list.append(parsed_entry)
+        return parsed_entry_list
+
     def extract_cnn_rss(self):
         """Extract and return the news entries of the cnn rss feeds."""
         rss_category_list = [
@@ -108,35 +150,7 @@ class NewsExtractor(object):
             ("latest", "http://rss.cnn.com/rss/cnn_latest.rss"),
                             ]
 
-        parsed_entry_list = []
-        for cat, url in rss_category_list:
-            d = feedparser.parse(url)
-            for entry in d.entries:
-                title = entry.title
-                source = "cnn"
-                # summaries and dates are missing sometimes, an empty strings
-                # is returned when this happens.
-                summary = ""
-                published = ""
-                try:
-                    dirty_summary = entry.summary
-                    summary = re.sub('<[^>]*>', '', dirty_summary)
-                except BaseException:
-                    print("skipped summary in: " + source + " title: " + title)
-                try:
-                    published = list(datefinder.find_dates(entry.published))[0].replace(tzinfo=None)
-                except BaseException:
-                    print("skipped date in: " + source + " title: " + title)
-
-                url = entry.link
-                category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
-                # A NEW RSS FEED.
-                parsed_entry = article.Article(title=title, summary=summary,
-                                               url=url, published=published,
-                                               category=category,
-                                               source=source)
-                parsed_entry_list.append(parsed_entry)
-        return parsed_entry_list
+        return self.parse_rss(rss_category_list, "cnn")
 
     def extract_bbc_rss(self):
         """Extract and return the news entries of the bbc rss feeds."""
@@ -173,35 +187,7 @@ class NewsExtractor(object):
                 "latest_published_content/rss.xml")
                             ]
 
-        parsed_entry_list = []
-        for cat, url in rss_category_list:
-            d = feedparser.parse(url)
-            for entry in d.entries:
-                title = entry.title
-                source = "bbc"
-                # summaries and dates are missing sometimes, an empty strings
-                # is returned when this happens.
-                summary = ""
-                published = ""
-                try:
-                    dirty_summary = entry.summary
-                    summary = re.sub('<[^>]*>', '', dirty_summary)
-                except BaseException:
-                    print("skipped summary in: " + source + " title: " + title)
-                try:
-                    published = list(datefinder.find_dates(entry.published))[0].replace(tzinfo=None)
-                except BaseException:
-                    print("skipped date in: " + source + " title: " + title)
-
-                url = entry.link
-                category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
-                # A NEW RSS FEED.
-                parsed_entry = article.Article(title=title, summary=summary,
-                                               url=url, published=published,
-                                               category=category,
-                                               source=source)
-                parsed_entry_list.append(parsed_entry)
-        return parsed_entry_list
+        return self.parse_rss(rss_category_list, "bbc")
 
     def extract_reuters_rss(self):
         """Extract and return the news entries of the reuters rss feeds."""
@@ -226,35 +212,7 @@ class NewsExtractor(object):
             ("odd", "http://feeds.reuters.com/reuters/oddlyEnoughNews")
                             ]
 
-        parsed_entry_list = []
-        for cat, url in rss_category_list:
-            d = feedparser.parse(url)
-            for entry in d.entries:
-                title = entry.title
-                source = "reuters"
-                # summaries and dates are missing sometimes, an empty string
-                # is returned when this happens.
-                summary = ""
-                published = ""
-                try:
-                    dirty_summary = entry.summary
-                    summary = re.sub('<[^>]*>', '', dirty_summary)
-                except BaseException:
-                    print("skipped summary in: " + source + " title: " + title)
-                try:
-                    published = list(datefinder.find_dates(entry.published))[0].replace(tzinfo=None)
-                except BaseException:
-                    print("skipped date in: " + source + " title: " + title)
-
-                url = entry.link
-                category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
-                # A NEW RSS FEED.
-                parsed_entry = article.Article(title=title, summary=summary,
-                                               url=url, published=published,
-                                               category=category,
-                                               source=source)
-                parsed_entry_list.append(parsed_entry)
-        return parsed_entry_list
+        return self.parse_rss(rss_category_list, "reuters")
 
     def extract_nytimes_rss(self):
         """Extract and return the news entries of the cnn rss feeds."""
@@ -312,35 +270,7 @@ class NewsExtractor(object):
              "http://rss.nytimes.com/services/xml/rss/nyt/Travel.xml")
                             ]
 
-        parsed_entry_list = []
-        for cat, url in rss_category_list:
-            d = feedparser.parse(url)
-            for entry in d.entries:
-                title = entry.title
-                source = "nytimes"
-                # summaries and dates are missing sometimes, an empty strings
-                # is returned when this happens.
-                summary = ""
-                published = ""
-                try:
-                    dirty_summary = entry.summary
-                    summary = re.sub('<[^>]*>', '', dirty_summary)
-                except BaseException:
-                    print("skipped summary in: " + source + " title: " + title)
-                try:
-                    published = list(datefinder.find_dates(entry.published))[0].replace(tzinfo=None)
-                except BaseException:
-                    print("skipped date in: " + source + " title: " + title)
-
-                url = entry.link
-                category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
-                # A NEW RSS FEED.
-                parsed_entry = article.Article(title=title, summary=summary,
-                                               url=url, published=published,
-                                               category=category,
-                                               source=source)
-                parsed_entry_list.append(parsed_entry)
-        return parsed_entry_list
+        return self.parse_rss(rss_category_list, "nytimes")
 
     def get_full_article_url(self, url, newspaper):
         """Get the full article text and tags from url.
@@ -352,18 +282,14 @@ class NewsExtractor(object):
         soup = BeautifulSoup(page.content, "html.parser")
         if newspaper == "cnn":
             text_divs = soup.find_all("div", {"class": "zn-body__paragraph"})
-            tag_divs = soup.find_all(
-                       "ul", {"class": "el__storyhighlights__list"})
         if newspaper == "bbc":
             text_divs = soup.find_all("div", {"class": "story-body__inner"})
         if newspaper == "reuters":
             text_divs = soup.find_all("span", {"id": "article-text"})
-            tag_divs = []
             # nothing that resembles tags present in reuters pages :(
         if newspaper == "nytimes":
             text_divs = soup.find_all(
                         "p", {"class": "story-body-text story-content"})
-            tag_divs = []
 
         result_text = ""
         for div in text_divs:

@@ -78,7 +78,12 @@ class ChatEngine(object):
         # TODO capability to do gdb like command synonyms
         cmd = cmd.lower().split(" ")
         # split the list in first and rest
-        cmd, *args = cmd
+        cmd = cmd[0]
+        if len(cmd) > 1:
+            args = cmd[1:]
+        else:
+            args = []
+        # cmd, *args = cmd
         self.commands.get(cmd, self.not_found)(*args)
         
 

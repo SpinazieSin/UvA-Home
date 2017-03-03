@@ -1,4 +1,4 @@
-What is happening in the british antartic territory?
+What is happening in the Netherlands?
 What happened in the last month regarding Trump?
 What news is available on Trump?
 What happened three weeks ago?
@@ -15,3 +15,4 @@ Give me news that has to do with Donald Trump from the last month.
 I want some news related to Donald Trump and Bernie Sanders.
 I want some news related to Donald Trump but not Bernie Sanders.
 Give me some updates about current events happening today.
+I want news from the last month about lasts week terrorist attack.
