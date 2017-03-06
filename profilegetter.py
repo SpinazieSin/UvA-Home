@@ -16,7 +16,6 @@ import naoqiutils
 from faceRecognition import facerecognition as facerec
 from faceRecognition import imageRecognition as imrec
 from faceRecognition import trainer
-from speechRecognition import speech
 
 
 class ProfileGetter():
@@ -56,6 +55,9 @@ class ProfileGetter():
         self.voiced = voiced
         self.questions = 10  # amount of question about categories
         self.topics = 5
+        if use_STT:
+            from speechRecognition import speech
+
 
     def start(self):
         """Init QA, return profile when done."""
