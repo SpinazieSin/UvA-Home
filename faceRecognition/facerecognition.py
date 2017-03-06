@@ -29,10 +29,10 @@ np.set_printoptions(precision=2)
 IMG_DIM = 96
 WIDTH = 320
 HEIGHT = 240
-THRESHOLD = 0.65
+THRESHOLD = 0.5
 
 
-def fast_known_face():
+def fast_known_face(use_nao=True):
     """Check for known face.
 
     Return True and name if a face is recognized after 10 seconds otherwise
@@ -79,6 +79,7 @@ def fast_known_face():
                 confidenceList.append('%.2f' % confidences[0])
             except Exception as e:
                 pass
+        print(person_list)
         try:
             most_common = max(set(person_list), key=person_list.count)
             if most_common != "_unknown":
@@ -86,11 +87,12 @@ def fast_known_face():
         except Exception as e:
             pass
 
-def known_face():
+
+def known_face(use_nao=True):
     """Check for known face.
 
     Return True and name if a face is recognized after 10 seconds otherwise
-    return False and ""
+    return False, this method is also able to take images with regular webcams""
     """
     # this stuff was in the main so I put it here
     # fileDir = os.path.dirname(os.path.realpath(__file__))
@@ -107,30 +109,29 @@ def known_face():
     align = openface.AlignDlib(dlibFacePredictor)
     net = openface.TorchNeuralNet(networkModel, imgDim=IMG_DIM, cuda=cuda)
 
-    # video_capture = cv2.VideoCapture(0)
-    # video_capture.set(3, WIDTH)
-    # video_capture.set(4, HEIGHT)
+    if not use_nao:
+        video_capture = cv2.VideoCapture(0)
+        video_capture.set(3, WIDTH)
+        video_capture.set(4, HEIGHT)
     start_time = time.time()
     confidenceList = []
     person_list = []
     while True:
         # if it takes longer than 10 seconds, stop and return False and ""
-        if time.time() - start_time > 10:
-            # video_capture.release()
-            # cv2.destroyAllWindows()
+        if time.time() - start_time > 5:
+            if not use_nao:
+                video_capture.release()
+                cv2.destroyAllWindows()
             print("found no known person")
             return False, ""
 
-        # line for using with webcams
-        # ret, frame = video_capture.read()
-        # print(type(frame))
-
-        naoqi_frame = naoqiutils.get_image()
-        # print(type(frame2))
-        # frame = np.array(frame2)
-        frame = np.array(naoqi_frame)
-        # im = Image.fromarray(frame)
-        # im.save("afterarrayconv.png")
+        if use_nao:
+            naoqi_frame = naoqiutils.get_image()
+            # naoqi_frame is an rgb image, I checked this.
+            frame = np.array(naoqi_frame)
+        else:
+            # line for using with webcams
+            ret, frame = video_capture.read()
 
         persons, confidences = infer(frame, align, net)
         # print(persons, confidences)
@@ -160,8 +161,9 @@ def known_face():
                 if all(i >= 0.65 for i in test_confidences):
                     print(test_confidences)
                     print("found 4 high confidence scores")
-                    # video_capture.release()
-                    # cv2.destroyAllWindows()
+                    if not use_nao:
+                        video_capture.release()
+                        cv2.destroyAllWindows()
                     return True, test_persons[0]
         except:
             # If there is no face detected, confidences matrix will be empty.

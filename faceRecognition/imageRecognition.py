@@ -71,7 +71,7 @@ def saveNewUser(images, fName, lName):
     return fName + "-" + lName + "-" + str(n)
 
 
-def take_photos():
+def take_photos(use_nao=True):
     fileDir = os.path.dirname(os.path.realpath(__file__))
     print(fileDir)
     modelDir = os.path.join(fileDir, 'models')
@@ -85,21 +85,23 @@ def take_photos():
 
     align = openface.AlignDlib(dlibFacePredictor)
     net = openface.TorchNeuralNet(networkModel, imgDim=IMG_DIM, cuda=cuda)
-    # video_capture = cv2.VideoCapture(0)
-    # video_capture.set(3, WIDTH)
-    # video_capture.set(4, HEIGHT)
+    if not use_nao:
+        video_capture = cv2.VideoCapture(0)
+        video_capture.set(3, WIDTH)
+        video_capture.set(4, HEIGHT)
 
     # Check if person is known
     picturesTaken = 0
     # possiblePersons = collections.Counter()
     images = []
-    while (picturesTaken < 10):
-        # line for using with webcams
-        # ret, frame = video_capture.read()
-
-        naoqi_frame = naoqiutils.get_image()
-        # naoqi_frame is an rgb image, I checked this.
-        frame = np.array(naoqi_frame)
+    while (picturesTaken < 7):
+        if use_nao:
+            naoqi_frame = naoqiutils.get_image()
+            # naoqi_frame is an rgb image, I checked this.
+            frame = np.array(naoqi_frame)
+        else:
+            # line for using with webcams
+            ret, frame = video_capture.read()
 
         persons, confidences = infer(frame, align, net)
         for i, c in enumerate(confidences):
@@ -121,8 +123,9 @@ def take_photos():
         # if cv2.waitKey(1) & 0xFF == ord('q'):
         #     break
         # picturesTaken += 1
-    # video_capture.release()
-    cv2.destroyAllWindows()
+    if not use_nao:
+        video_capture.release()
+        cv2.destroyAllWindows()
 
     # person = possiblePersons.most_common(1)[0][0]
     return images
