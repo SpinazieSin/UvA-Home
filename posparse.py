@@ -8,7 +8,7 @@ Date last modified: 7/2/2017
 Python Version: 3.6
 """
 
-from nltk.parse.stanford import StanfordParser
+#from nltk.parse.stanford import StanfordParser
 import datefinder
 import newsextractor
 import userprofile
