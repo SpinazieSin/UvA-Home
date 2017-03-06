@@ -205,7 +205,6 @@ class POSParse(object):
         
         # dictionary get like operator for list
         get = lambda l, i: None if i > len(l)-1 else list(l)[i]
-        
         # maybe create this dict dynamically?
         return [{"term1" : get(keywords, 0), "term2" : get(keywords, 1), "cat1" : get(cats, 0),  
         "cat2" : get(cats, 1), "date1" : get(dates, 0), "date2" : get(dates, 1), 

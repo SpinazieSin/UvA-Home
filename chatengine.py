@@ -18,6 +18,7 @@ import prettynews
 import os
 import platform
 import conversation
+import profilegetter
 
 class ChatEngine(object):
     """
@@ -117,5 +118,7 @@ class ChatEngine(object):
 
 
 if __name__ == "__main__":
-    c = ChatEngine()
+    getter = profilegetter.ProfileGetter([])
+    user = getter.get_profile("Jonathon-Gorbscheid")
+    c = ChatEngine(user=user)
     c.start()

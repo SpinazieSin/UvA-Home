@@ -33,13 +33,12 @@ class ArticleSearch(object):
         @param place Location of news
         @param sources What sources the news will be returned from
         """
-        if sources is None:
-            sources = newsextractor.NewsExtractor().supported_news_papers
+#        if sources is None:
+#            sources = newsextractor.NewsExtractor().supported_news_papers
 
         min_date = datetime.datetime.fromtimestamp(0) if date1 is None else date1
         max_date = datetime.datetime.now() if date2 is None else date2
-
-        search_term_vec = self.text_to_vector(search_term.lower())
+        search_term_vec = self.text_to_vector(term1.lower())
 
         scored_articles = []
         for article in self.article_list:
@@ -47,9 +46,10 @@ class ArticleSearch(object):
             if article.published == '' or not (min_date <= article.published.replace(tzinfo=None) <= max_date):
                 continue
 
-            if not article.source in sources:
+            if not article.source == source1 and source1 is not None:
                 continue
             if cat1 is not None: # Check if the category satifies
+                
                 if article.category != cat1:
                     continue
             if place is not None:
@@ -60,26 +60,25 @@ class ArticleSearch(object):
                         break
                 if not place_found:
                     break
-
-            vec2 = self.text_to_vector(article.title.lower())
-            highest_score = self.similar(search_term_vec, vec2) # sum word similarity method
-            # highest_score = self.get_cosine(search_term_vec, vec2) # cosine similarity method
-            for keyword in article.keywords:
-                vec2 = self.text_to_vector(keyword)
-                # score = self.similar(search_term_vec, vec2) # sum word similarity method
-                score = self.get_cosine(search_term_vec, vec2) # cosine similarity method
-                if score > highest_score:
-                    highest_score = score
-            # vec2 = self.text_to_vector(article.text)
-            # highest_score = self.similar(search_term_vec, vec2)
-
-            scored_articles.append([article, highest_score])
+            if not term1 == '':                
+                vec2 = self.text_to_vector(article.title.lower())
+                highest_score = self.similar(search_term_vec, vec2) # sum word similarity method
+                # highest_score = self.get_cosine(search_term_vec, vec2) # cosine similarity method
+                for keyword in article.keywords:
+                    vec2 = self.text_to_vector(keyword)
+                    # score = self.similar(search_term_vec, vec2) # sum word similarity method
+                    score = self.get_cosine(search_term_vec, vec2) # cosine similarity method
+                    if score > highest_score:
+                        highest_score = score
+                # vec2 = self.text_to_vector(article.text)
+                # highest_score = self.similar(search_term_vec, vec2)
+    
+                scored_articles.append([article, highest_score])
+            else:
+                scored_articles.append([article, 1])
         l = sorted(scored_articles, key=operator.itemgetter(1), reverse=True)
-        for a in l[:10]:
-            print(str(a[0].keywords) + ", Score: "  + str(a[1]))
-            print(a[0].url)
-            print("-------------------")
-#        print([a[0].keywords for a in l[:10]])
+
+
         return sorted(scored_articles, key=operator.itemgetter(1), reverse=True)
 
     def get_cosine(self, vec1, vec2):
