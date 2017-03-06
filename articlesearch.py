@@ -22,7 +22,9 @@ class ArticleSearch(object):
 
     # an empty search term should let it return all articles, so only the other filters are used
     # This should at one point be extend to deal with multiple keywords
-    def search(self, search_term="", date1=None, date2=None, place=None, sources=None):
+    # 'cat' stands for category
+    def search(self, term1="", term2="", cat1=None, cat2=None, date1=None, date2=None, place=None, 
+    source1=None, source2=None):
         """
         Search function that handles parameters
         @param search_term The string to be searched in tags and titles of the articles
@@ -47,6 +49,9 @@ class ArticleSearch(object):
 
             if not article.source in sources:
                 continue
+            if cat1 is not None: # Check if the category satifies
+                if article.category != cat1:
+                    continue
             if place is not None:
                 place_found = False
                 for k in article.keywords: # search the full text maybe?
@@ -69,6 +74,12 @@ class ArticleSearch(object):
             # highest_score = self.similar(search_term_vec, vec2)
 
             scored_articles.append([article, highest_score])
+        l = sorted(scored_articles, key=operator.itemgetter(1), reverse=True)
+        for a in l[:10]:
+            print(str(a[0].keywords) + ", Score: "  + str(a[1]))
+            print(a[0].url)
+            print("-------------------")
+#        print([a[0].keywords for a in l[:10]])
         return sorted(scored_articles, key=operator.itemgetter(1), reverse=True)
 
     def get_cosine(self, vec1, vec2):
