@@ -25,7 +25,7 @@ class ProfileGetter():
     more text to come
     """
 
-    def __init__(self, news, use_STT=False, voiced=False):
+    def __init__(self, news, use_STT=False, use_Nao=False):
         """Initialize all values."""
         self.interests = {"Africa": "africa",
                           "Asia": "asia",
@@ -52,17 +52,18 @@ class ProfileGetter():
                           }
         self.newsDB = news
         self.use_STT = use_STT
-        self.voiced = voiced
         self.questions = 10  # amount of question about categories
         self.topics = 5
+        self.use_Nao = use_Nao
         if use_STT:
             from speechRecognition import speech
-
+        if use_Nao:
+            import naoqiutils
 
     def start(self):
         """Init QA, return profile when done."""
         # name is empty if unknown
-        known, name = facerec.fast_known_face(use_nao=True, timeout=False)
+        known, name = facerec.fast_known_face(use_nao=self.use_Nao, timeout=False)
         fname = ""
         lname = ""
         # First check if the user is already present using face rec.
@@ -74,7 +75,7 @@ class ProfileGetter():
             profile = self.get_profile(name)
         else:
             self.say("Hi! I don't know you, can you stand still for a moment so I can get to know your face?")
-            images = imrec.take_photos(use_nao=True)
+            images = imrec.take_photos(use_nao=self.use_Nao)
             self.say("Thank you! Could you now tell me your name?")
             fname, lname = self.get_user_name()
             imrec.saveNewUser(images, fname, lname)
@@ -143,7 +144,7 @@ class ProfileGetter():
                     response3 = self.question(" ")
                     print("(Y/n)")
                     if self.positive(response3):
-                        profile.keywords.append(artic.keywords)
+                        profile.keywords += artic.keywords
         return profile
 
     def positive(self, response):
@@ -209,10 +210,9 @@ class ProfileGetter():
 
     def say(self, phrase):
         """Print phrase or pronounce, depends on the use_STT variable."""
-        if self.voiced:
+        if self.use_Nao:
             print(phrase)
             naoqiutils.speak(phrase)
-            # print("VOICED NOT IMPLEMENTED YET!")
         else:
             print(phrase)
 
