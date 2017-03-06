@@ -15,6 +15,9 @@ import posparse
 import newsextractor as extract
 import articlesearch
 import prettynews
+import os
+import platform
+import conversation
 
 class ChatEngine(object):
     """
@@ -23,33 +26,58 @@ class ChatEngine(object):
     The engine runs in a mode which determines how it will answer. Possible
     modes are human and debug. Human parses queries as natural language
     (it tries to understand them), and debug calls a function ("command")
-    assigned to a specific query string
+    assigned to a specific query string. 'human_speech' is the same as human, but
     """
 
-    def __init__(self, user="", mode="human"):
+    def __init__(self, user="", mode="human_speech", news=None):
         self.user = user
         self.mode = mode
         # get all articles
-        n = extract.NewsExtractor()
-        n.build_all()
+        n = news
+        if n is None:
+            n = extract.NewsExtractor()
+            n.build_all()
+
         self.searcher = articlesearch.ArticleSearch(n)
         self.newsprinter = prettynews.PrettyNews(self.searcher)
         self.commands = {
             "topics" : self.get_topics, "switch" : self.switch, "help" : self.print_commands,
             "quit" : self.quit, "search" : self.searcher.search,
-            "present_news" : self.newsprinter.show_news
+            "present_news" : self.newsprinter.show_news,
+            "failed_search" : self.newsprinter.search_help
         }
         self.posparser = posparse.POSParse()
+        if platform.system() == 'Darwin': # OS X
+            self.speak = self.osx_speak
+        else: # Assume linux/naoqi
+            import naoqiutils
+            self.speak = naoqiutils.speak
 
     def start(self):
+        conv = conversation.Conversation(self)
+        if self.mode=='human' or self.mode=='human_speech':
+            conv.start_conversation()
+
         while True:
-            q = input("> ")
+            
+            q = raw_input("> ")
             if self.mode == 'debug':
                 self.process_command(q)
-            elif self.mode == 'human':
-                cmd, args = self.posparser.process_query(q)
-                self.process_command_args(cmd, args)
+            elif self.mode.startswith('human'):
+                # Differentiate between IR queries and opinion related stuff
+                # Something like: read me the first article/article by title/article approxiatmely
+                # by title? 
+                cmd, args = self.posparser.process_query(q)                
+                if self.mode == 'human_speech':
+                    self.speak(self.process_command_args(cmd, args))
+                else:
+                    self.process_command_args(cmd, args)
 
+
+
+    def osx_speak(self, phrase):
+        os.system("say " + phrase)
+    
     def quit(self):
         import sys
         print("Goodbye!")
@@ -83,7 +111,7 @@ class ChatEngine(object):
             args = cmd[1:]
         else:
             args = []
-        # cmd, *args = cmd
+        # cmd, *args = cmd # rip beatiful python3 syntax
         self.commands.get(cmd, self.not_found)(*args)
         
 

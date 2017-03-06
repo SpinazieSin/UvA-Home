@@ -40,3 +40,7 @@ class EmotionEngine():
     def __repr__(self):
         """Print article name when object is printed."""
         return "<EmotionEngine, Current emotions: " + str(self.emotions) + ">"
+
+
+if __name__ == "__main__":
+    print("Hello world!")
