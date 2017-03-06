@@ -167,19 +167,29 @@ class POSParse(object):
             print("dates:", list(dates))
             print("keywords:", list(keywords))
             print("categories:", list(cats))
-        # dictionary get like operator for list
-        get = lambda l, i: None if i > len(l)-1 else list(l)[i]
-#        return get(keywords,0), get(dates,0), get(dates,1), get(places,0), get(sources,0)
 
 
         if len(dates) > 2:
             return "failed_search", "Try to use less dates in your question."
         if len(places) > 2:
-            return "failed_search", "Try to use less dates in your question."
+            return "failed_search", "Sorry, I don't understand the region you want me to search news in."
+        if len(keywords) > 2:
+            return "failed_search", "I'm sorry, your question is a bit too long for me. Try searching only for '%s' and '%s'." % (keywords[0], keywords[1])
+        if len(cats) > 2:
+            return "failed_search", "I'm sorry, your question is a bit too long for me. Try searching only for '%s' and '%s'." % (cats[0], cats[1])
+        if len(sources) > 2:
+            return "failed_search", "Try specifying just one or two news sources."
 
-        # maybe create this list dynamically?
-        return [{"search_term" : get(keywords,0), "date1" : get(dates, 0),  
-        "date2" : get(dates,1), "place": get(places,0), "sources" : get(sources,0)}]
+
+      
+        
+        # dictionary get like operator for list
+        get = lambda l, i: None if i > len(l)-1 else list(l)[i]
+        
+        # maybe create this dict dynamically?
+        return [{"term1" : get(keywords, 0), "term2" : get(keywords, 1), "cat1" : get(cats, 0),  
+        "cat2" : get(cats, 1), "date1" : get(dates, 0), "date2" : get(dates, 1), 
+        "place": get(places, 0), "source1" : get(sources, 0), "source2" : get(sources, 1)}]
         
 
     # Function that asks the news extractor for it's sources
