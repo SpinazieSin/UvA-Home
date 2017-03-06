@@ -10,9 +10,9 @@ Python Version: 2.7
 
 from naoqi import ALProxy
 import vision_definitions
-import Image
+import PIL.Image as Image
 
-IP = "baratheon.local"
+IP = "carlos.local"
 PORT = 9559
 
 
