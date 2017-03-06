@@ -5,7 +5,7 @@ import newsextractor as extractor
 db = extractor.NewsExtractor()
 # db.build_all(force=True, save=True)
 db.build_all()
-getter = pg.ProfileGetter(db.news, voiced=True)
+getter = pg.ProfileGetter(db.news, use_Nao=False)
 # getter.train_model()
 # print(db.news)
 # print(finder.newsDB)
