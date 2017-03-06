@@ -14,6 +14,10 @@ import newsextractor
 import userprofile
 from datetime import datetime, timedelta
 
+from nltk.tree import *
+from pycorenlp import StanfordCoreNLP
+import time
+
 class POSParse(object):
     """
     Class for studying grammatical categories and their referents within news queries, which is then
@@ -22,7 +26,11 @@ class POSParse(object):
     """
 
     def __init__(self):
-        self.parser=StanfordParser(model_path="edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz", java_options='-mx3000m')
+        # Replaced with server implementation, should remove at some point. self.parser=StanfordParser(model_path="edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz", java_options='-mx3000m')
+
+        # Connect to local NLPcore server.
+        self.parser=StanfordCoreNLP('http://localhost:9000')
+
         # tagger is used for named entity recognition
         # Potential tags are Location, Person and Organization
 #        self.tagger = StanfordNERTagger('english.all.3class.distsim.crf.ser.gz')
@@ -86,19 +94,22 @@ class POSParse(object):
             if date_phrase in self.special_phrases:
                 date_phrase = self.translate[date_phrase]
             parts = date_phrase.split(" ")
-            if parts[1] == "of":
-                date_phrase = self.translate[date_phrase]
-                parts = date_phrase.split(" ")
             if date_phrase == "now":
                 out = now
+            elif parts[1] == "of":
+                date_phrase = self.translate[date_phrase]
+                parts = date_phrase.split(" ")
             elif len(parts) == 2:
                 m = self.month_toint[parts[0]]
                 d = self.word_toint[parts[1]]
                 y = now.year
                 if now.month < m or (now.month == m and now.day < d):
                     y -= 1
-                p = datetime(year=y, month=m, day=d)
-                out = p
+                try:
+                    p = datetime(year=y, month=m, day=d)
+                    out = p
+                except ValueError:
+                    out = datetime.now()
             else:
                 if parts[-1] == "ago":
                     i = self.word_toint[parts[0]];
@@ -129,20 +140,29 @@ class POSParse(object):
 
     # The NLP equivalent of processCommand from chatengine.py
     def process_query(self, query):
-        ptree = list(self.parser.raw_parse(query))[0]
+        # Replaced with server implementation, should be removed.
+        # ptree = list(self.parser.raw_parse(query))[0]
+
+        # Parse the sentence and make a tree from the resulting string.
+        parse = self.parser.annotate(query, properties={
+          'annotators': 'parse',
+          'outputFormat': 'json'
+          })
+        ptree = Tree.fromstring(parse['sentences'][0]['parse'])
+
         # search is the command the chat enging has to carry out.
         # Maybe add ways to differentiate if the user wants news or not
         cmd = "present_news"
         args = self.process_tree(ptree)
         return cmd, args
 
-
-    def process_queries(self, queries, debug=False):
-        ptrees = self.parser.raw_parse_sents(queries)
-        for ptree, query in zip(ptrees, queries):
-            print("------------")
-            print(query)
-            self.process_tree(list(ptree)[0], debug)
+    # No longer necessary.
+    # def process_queries(self, queries, debug=False):
+    #     ptrees = self.parser.raw_parse_sents(queries)
+    #     for ptree, query in zip(ptrees, queries):
+    #         print("------------")
+    #         print(query)
+    #         self.process_tree(list(ptree)[0], debug)
 
     def process_tree(self, tree, debug=False):
         np_trees = self._find_NP_Leaves(tree)
@@ -158,7 +178,7 @@ class POSParse(object):
         nps -= sources | dates | places | cats # union
 
         keywords = {np for np in nps if not len(set(np.split(" ")) & self.non_keywords)} # no commons
-        
+
         dates = [self.to_datetime(np) for np in dates]
         dates.sort()
         if debug:
@@ -167,20 +187,30 @@ class POSParse(object):
             print("dates:", list(dates))
             print("keywords:", list(keywords))
             print("categories:", list(cats))
-        # dictionary get like operator for list
-        get = lambda l, i: None if i > len(l)-1 else list(l)[i]
-#        return get(keywords,0), get(dates,0), get(dates,1), get(places,0), get(sources,0)
 
 
         if len(dates) > 2:
             return "failed_search", "Try to use less dates in your question."
         if len(places) > 2:
-            return "failed_search", "Try to use less dates in your question."
+            return "failed_search", "Sorry, I don't understand the region you want me to search news in."
+        if len(keywords) > 2:
+            return "failed_search", "I'm sorry, your question is a bit too long for me. Try searching only for '%s' and '%s'." % (keywords[0], keywords[1])
+        if len(cats) > 2:
+            return "failed_search", "I'm sorry, your question is a bit too long for me. Try searching only for '%s' and '%s'." % (cats[0], cats[1])
+        if len(sources) > 2:
+            return "failed_search", "Try specifying just one or two news sources."
 
-        # maybe create this list dynamically?
-        return [{"search_term" : get(keywords,0), "date1" : get(dates, 0),  
-        "date2" : get(dates,1), "place": get(places,0), "sources" : get(sources,0)}]
+
+      
         
+        # dictionary get like operator for list
+        get = lambda l, i: None if i > len(l)-1 else list(l)[i]
+        
+        # maybe create this dict dynamically?
+        return [{"term1" : get(keywords, 0), "term2" : get(keywords, 1), "cat1" : get(cats, 0),  
+        "cat2" : get(cats, 1), "date1" : get(dates, 0), "date2" : get(dates, 1), 
+        "place": get(places, 0), "source1" : get(sources, 0), "source2" : get(sources, 1)}]
+
 
     # Function that asks the news extractor for it's sources
     def source_entities(self):
@@ -209,18 +239,23 @@ class POSParse(object):
         # as an logical argument
         and_or_t = t.subtrees(filter=lambda t: t.label()=='CC' and t.height()==1)
         nottree = t.subtrees(filter=lambda t: t.label()=='RB' and t.height()==1)
-        
-        
+
+
 if __name__ == "__main__":
     with open("testcorpus.txt", "r") as f:
         questions = f.read().splitlines()
         parser = POSParse()
-#        parser.process_queries(questions, debug=True)
-#         for dp in parser.date_phrases:
+
+        # Replaced, to be removed.
+        # parser.process_queries(questions, debug=True)
+
+        # Prints datetime objects corresponding to the date_phrases.
+        # for dp in parser.date_phrases:
         #     print("--------------------")
         #     print(dp)
         #     print(parser.to_datetime(dp))
 
+        # Parse the questions.
         for q in questions:
             print("------------")
             print(q)
