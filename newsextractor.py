@@ -300,7 +300,7 @@ class NewsExtractor(object):
         result_text = result_text.replace("\\", "")
         # load stopwordlist
         global keywords
-        algorithm_tags = keywords.extract(result_text)
+        algorithm_tags = set(keywords.extract(result_text))
         return result_text, algorithm_tags
 
     def get_full_article_text(self, article):
