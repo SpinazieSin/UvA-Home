@@ -32,7 +32,7 @@ HEIGHT = 240
 THRESHOLD = 0.5
 
 
-def fast_known_face(use_nao=True):
+def fast_known_face(use_nao=True, timeout=True):
     """Check for known face.
 
     Return True and name if a face is recognized after 10 seconds otherwise
@@ -58,7 +58,7 @@ def fast_known_face(use_nao=True):
     person_list = []
     while True:
         # if it takes longer than 10 seconds, stop and return False and ""
-        if time.time() - start_time > 5:
+        if time.time() - start_time > 5 and timeout:
             print("found no known person")
             return False, ""
 
@@ -79,16 +79,17 @@ def fast_known_face(use_nao=True):
                 confidenceList.append('%.2f' % confidences[0])
             except Exception as e:
                 pass
-        print(person_list)
+        print("Person List: " + str(person_list))
         try:
-            most_common = max(set(person_list), key=person_list.count)
+            last_persons = person_list[:-4]
+            most_common = max(set(last_persons), key=last_persons.count)
             if most_common != "_unknown":
                 return True, most_common
         except Exception as e:
             pass
 
 
-def known_face(use_nao=True):
+def known_face(use_nao=True, timeout=True):
     """Check for known face.
 
     Return True and name if a face is recognized after 10 seconds otherwise
@@ -118,7 +119,7 @@ def known_face(use_nao=True):
     person_list = []
     while True:
         # if it takes longer than 10 seconds, stop and return False and ""
-        if time.time() - start_time > 5:
+        if time.time() - start_time > 5 and timeout:
             if not use_nao:
                 video_capture.release()
                 cv2.destroyAllWindows()
@@ -236,6 +237,9 @@ def getRep(bgrImg, align, net):
     if bb is None:
         # raise Exception("Unable to find a face: {}".format(imgPath))
         return None
+    if len(bb) > 0:
+        print("image size: " + str(rgbImg.shape))
+        print("position of face: " + str(bb[0].center()))
 
     alignedFaces = []
     for box in bb:
@@ -246,6 +250,7 @@ def getRep(bgrImg, align, net):
                 box,
                 landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE))
 
+    # print(alignedFaces)
     if alignedFaces is None:
         raise Exception("Unable to align the frame")
 

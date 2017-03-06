@@ -94,7 +94,7 @@ def take_photos(use_nao=True):
     picturesTaken = 0
     # possiblePersons = collections.Counter()
     images = []
-    while (picturesTaken < 7):
+    while (picturesTaken < 10):
         if use_nao:
             naoqi_frame = naoqiutils.get_image()
             # naoqi_frame is an rgb image, I checked this.
