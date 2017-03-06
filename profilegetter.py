@@ -60,7 +60,7 @@ class ProfileGetter():
     def start(self):
         """Init QA, return profile when done."""
         # name is empty if unknown
-        known, name = facerec.fast_known_face()
+        known, name = facerec.fast_known_face(use_nao=True)
         fname = ""
         lname = ""
         # First check if the user is already present using face rec.
@@ -71,9 +71,9 @@ class ProfileGetter():
             self.say("Hi " + fname + "!")
             profile = self.get_profile(name)
         else:
-            images = imrec.take_photos()
-
-            self.say("Hi! I don't know you, can you tell me your name?")
+            self.say("Hi! I don't know you, can you stand still for a moment so I can get to know your face?")
+            images = imrec.take_photos(use_nao=True)
+            self.say("Thank you! Could you now tell me your name?")
             fname, lname = self.get_user_name()
             imrec.saveNewUser(images, fname, lname)
             PATH = "./users/" + fname + "-" + lname

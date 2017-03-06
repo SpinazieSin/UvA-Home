@@ -12,7 +12,7 @@ from naoqi import ALProxy
 import vision_definitions
 import Image
 
-IP = "baratheon.local"
+IP = "carlos.local"
 PORT = 9559
 
 
@@ -20,7 +20,7 @@ def speak(phrase):
     # errors if not converted to ascii :(
     phrase = phrase.encode('ascii', 'ignore')
     tts = ALProxy("ALTextToSpeech", IP, PORT)
-    tts.setVolume(0.5)
+    tts.setVolume(0.2)
     tts.say(phrase)
 
 def get_images(amount):
