@@ -50,6 +50,8 @@ class ArticleSearch(object):
             else:
                 search_term_stemmed.append(term)
 
+        normalize_score = 0
+
         scored_articles = []
         for article in self.article_list:
             # filters
@@ -76,7 +78,11 @@ class ArticleSearch(object):
                 scored_articles.append([article, 1])
             if highest_score > 0:
                 scored_articles.append([article, highest_score])
+            if highest_score > normalize_score:
+                normalize_score = highest_score
 
+        for index in range(len(scored_articles)):
+            scored_articles[index][1] /= normalize_score
         return sorted(scored_articles, key=operator.itemgetter(1), reverse=True)
 
     def text_to_list(self, text):
