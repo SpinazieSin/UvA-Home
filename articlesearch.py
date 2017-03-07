@@ -24,7 +24,9 @@ class ArticleSearch(object):
 
     # an empty search term should let it return all articles, so only the other filters are used
     # This should at one point be extend to deal with multiple keywords
-    def search(self, search_term="", date1=None, date2=None, place=None, sources=None):
+    # 'cat' stands for category
+    def search(self, term1="", term2="", cat1=None, cat2=None, date1=None, date2=None, place=None, 
+    source1=None, source2=None):
         """
         Search function that handles parameters
         @param search_term The string to be searched in tags and titles of the articles
@@ -33,14 +35,13 @@ class ArticleSearch(object):
         @param place Location of news
         @param sources What sources the news will be returned from
         """
-        if sources is None:
-            sources = newsextractor.NewsExtractor().supported_news_papers
+#        if sources is None:
+#            sources = newsextractor.NewsExtractor().supported_news_papers
 
         min_date = datetime.datetime.fromtimestamp(0) if date1 is None else date1
         max_date = datetime.datetime.now() if date2 is None else date2
 
-
-        search_term_vec = self.text_to_vector(search_term.lower())
+        search_term_vec = self.text_to_vector(term1.lower())
         search_term_stemmed = []
         for term in search_term_vec:
             stem = self.stemmer.stem(term)
@@ -55,8 +56,12 @@ class ArticleSearch(object):
             if article.published == '' or not (min_date <= article.published.replace(tzinfo=None) <= max_date):
                 continue
 
-            if not article.source in sources:
+            if not article.source == source1 and source1 is not None:
                 continue
+            if cat1 is not None: # Check if the category satifies
+                
+                if article.category != cat1:
+                    continue
             if place is not None:
                 place_found = False
                 for k in article.keywords: # search the full text maybe?
@@ -65,10 +70,13 @@ class ArticleSearch(object):
                         break
                 if not place_found:
                     break
-
-            highest_score = self.similar(search_term_stemmed, article.term_count)
+            if not term1 == '':                
+                highest_score = self.similar(search_term_stemmed, article.term_count)
+            else:
+                scored_articles.append([article, 1])
             if highest_score > 0:
                 scored_articles.append([article, highest_score])
+
         return sorted(scored_articles, key=operator.itemgetter(1), reverse=True)
 
     def text_to_list(self, text):
