@@ -25,7 +25,7 @@ class PrettyNews(object):
         longest_name = len(max(articles, key=lambda a: len(a.title)).title)
         phrase = "I found the following articles for you: "
         for a in articles:
-            print('{0: <{width}} - {1}'.format(a.title, a.url, width=longest_name))
+            print('{0: <{width}} - {1}'.format(a.title.encode('utf-8'), a.url, width=longest_name))
             phrase = "'%s', " % (a.title) 
         return phrase[:-2] + "."
 
