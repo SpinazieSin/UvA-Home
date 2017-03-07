@@ -16,11 +16,14 @@ import pickle
 import os.path
 import datefinder
 import keywords as k
-# set global so file is read only once
-keywords = k.KeyWords()
 
 import re
 from bs4 import BeautifulSoup
+from nltk.stem.snowball import SnowballStemmer
+
+# set global so file is read only once
+keywords = k.KeyWords()
+word = re.compile(r'\w+')
 
 
 class NewsExtractor(object):
@@ -44,6 +47,7 @@ class NewsExtractor(object):
 
     def __init__(self, newspapers=["cnn", "bbc", "reuters", "nytimes"]):
         """Initialize all values."""
+        stemmer = SnowballStemmer("english")
         self.newspapers = newspapers
         self.supported_news_papers = ["cnn", "bbc", "reuters", "nytimes"]
         self.articles_parsed = 0
@@ -94,15 +98,6 @@ class NewsExtractor(object):
                 # is returned when this happens.
                 summary = ""
                 published = ""
-                try:
-                    dirty_summary = entry.summary
-                    summary = re.sub('<[^>]*>', '', dirty_summary)
-                except BaseException:
-                    print("skipped summary in: " + source + " title: " + title)
-                try:
-                    published = list(datefinder.find_dates(entry.published))[0]
-                except BaseException:
-                    print("skipped date in: " + source + " title: " + title)
 
                 url = entry.link
                 if url in duplicate_url_list:
@@ -115,6 +110,17 @@ class NewsExtractor(object):
                     print("skipped duplicate title: " + title)
                     continue
                 duplicate_title_list.add(title)
+
+                try:
+                    dirty_summary = entry.summary
+                    summary = re.sub('<[^>]*>', '', dirty_summary)
+                except BaseException:
+                    print("skipped summary in: " + source + " title: " + title)
+                try:
+                    published = list(datefinder.find_dates(entry.published))[0]
+                except BaseException:
+                    print("skipped date in: " + source + " title: " + title)
+
 
                 category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
                 # A NEW RSS FEED.
@@ -303,10 +309,33 @@ class NewsExtractor(object):
         algorithm_tags = keywords.extract(result_text)
         return result_text, algorithm_tags
 
+
     def get_full_article_text(self, article):
         """Wrapper around get_full_article_url for easier debugging."""
         text, tags = self.get_full_article_url(article.url, article.source)
         return text
+
+    def text_to_list(self, text):
+        global word
+        return word.findall(text)
+
+    def convert_to_terms(self, article_title, article_keywords):
+        stemmed_terms = Counter()
+        title_vector = self.text_to_list(article.title.lower())
+        for term in title_vector:
+            stem = self.stemmer.stem(term)
+            if len(stem) > 1:
+                stemmed_terms[stem] += 1
+            else:
+                stemmed_terms[term] += 1
+        for keyword in article_keywords:
+            for term in self.text_to_list(keyword):
+                stem = self.stemmer.stem(term)
+                if len(stem) > 1:
+                    stemmed_terms[stem] += 1
+                else:
+                    stemmed_terms[term] += 1
+        return stemmed_terms
 
     def add_full_article_all(self):
         """Add full text to all articles in self.news."""
@@ -315,6 +344,7 @@ class NewsExtractor(object):
                 self.news[i].text, self.news[i].keywords = \
                     self.get_full_article_url(self.news[i].url,
                                               self.news[i].source)
+                self.news[i].term_count = self.convert_to_terms(self.news[i].title, self.news[i].keywords)
             except BaseException:
                 print(" skipped entry: " + str(i) + ", " + self.news[i].title)
             sys.stdout.write("\r{0}".format("parsed: " + str(i + 1) + "/" +

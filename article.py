@@ -7,9 +7,9 @@ Date created: 7/2/2017
 Date last modified: 7/2/2017
 Python Version: 3.4
 """
+from collections import Counter
 
-
-class Article():
+class Article(object):
     """
     Standarized format for a news entry from any source.
 
@@ -19,7 +19,7 @@ class Article():
     """
 
     def __init__(self, title="", author="", source="", url="", category="",
-                 keywords=[], published="", summary="", text="", ID=""):
+                 keywords=[], published="", summary="", text="", ID="", term_count=Counter()):
         """Initialize all values."""
         self.title = title
         self.author = author
@@ -31,7 +31,8 @@ class Article():
         self.summary = summary
         self.text = text
         self.ID = ID
+        self.term_count = term_count
 
     def __repr__(self):
         """Print article name when object is printed."""
-        return "<Article Title: " + str(self.title) + ">"
+        return "<Article Title: " + str(self.title.encode('utf-8')) + ">"
