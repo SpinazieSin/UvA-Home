@@ -72,17 +72,19 @@ class ArticleSearch(object):
                         break
                 if not place_found:
                     break
-            if not term1 == '':                
+
+            if not term1 == "":         
                 highest_score = self.similar(search_term_stemmed, article.term_count)
+                if highest_score > 0:
+                    scored_articles.append([article, highest_score])
+                if highest_score > normalize_score:
+                    normalize_score = highest_score
             else:
                 scored_articles.append([article, 1])
-            if highest_score > 0:
-                scored_articles.append([article, highest_score])
-            if highest_score > normalize_score:
-                normalize_score = highest_score
 
-        for index in range(len(scored_articles)):
-            scored_articles[index][1] /= normalize_score
+        if normalize_score > 0:
+            for index in range(len(scored_articles)):
+                scored_articles[index][1] /= normalize_score
         return sorted(scored_articles, key=operator.itemgetter(1), reverse=True)
 
     def text_to_list(self, text):
