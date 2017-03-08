@@ -40,6 +40,7 @@ THRESHOLD = 0.65
 IP = "mio.local"
 PORT = 9559
 camProxy = ALProxy("ALVideoDevice", IP, PORT)
+motionProxy = ALProxy("ALMotion", IP, PORT)
 resolution = 2    # VGA
 colorSpace = 11  # RGB
 videoClient = camProxy.subscribe("python_client", resolution, colorSpace, 5)
@@ -194,7 +195,7 @@ def getRep(bgrImg, align, net):
         center = bb[0].center()
         width = rgbImg.shape[0]
         height = rgbImg.shape[0]
-        headstuff.move_head(center.x, center.y, width, height)
+        headmotions.move_head(center.x, center.y, width, height, IP, motionProxy)
 
     alignedFaces = []
     for box in bb:

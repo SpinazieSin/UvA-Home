@@ -11,7 +11,6 @@ Python Version: 3.4
 import cv2
 import os
 import pickle
-import time
 import numpy as np
 from sklearn.mixture import GMM
 import openface
@@ -31,10 +30,11 @@ np.set_printoptions(precision=2)
 IMG_DIM = 96
 WIDTH = 320
 HEIGHT = 240
-THRESHOLD = 0.9
+THRESHOLD = 0.5
 IP = "mio.local"
 PORT = 9559
 camProxy = ALProxy("ALVideoDevice", IP, PORT)
+motionProxy = ALProxy("ALMotion", IP, PORT)
 resolution = 2    # VGA
 colorSpace = 11  # RGB
 videoClient = camProxy.subscribe("python_client", resolution, colorSpace, 5)
@@ -123,16 +123,17 @@ def known_face(use_nao=True, timeout=True):
         video_capture = cv2.VideoCapture(0)
         video_capture.set(3, WIDTH)
         video_capture.set(4, HEIGHT)
-    start_time = time.time()
     confidenceList = []
     person_list = []
+    images_taken_count = 0
     while True:
         # if it takes longer than 10 seconds, stop and return False and ""
-        if time.time() - start_time > 5 and timeout:
+        if images_taken_count > 10 and timeout:
             if not use_nao:
                 video_capture.release()
                 cv2.destroyAllWindows()
                 camProxy.unsubscribe(videoClient)
+                headmotions.stiffnessOff()
             print("found no known person")
             return False, ""
 
@@ -176,6 +177,7 @@ def known_face(use_nao=True, timeout=True):
                         video_capture.release()
                         cv2.destroyAllWindows()
                         camProxy.unsubscribe(videoClient)
+                        headmotions.stiffnessOff()
                     return True, test_persons[0]
         except:
             # If there is no face detected, confidences matrix will be empty.
@@ -189,6 +191,7 @@ def known_face(use_nao=True, timeout=True):
         # quit the program on the press of key 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+        images_taken_count += 1
     # When everything is done, release the capture
     # this only runs when someone breaks the loop by pressin gq, don't know
     # if we should keep that...
@@ -254,7 +257,7 @@ def getRep(bgrImg, align, net):
         center = bb[0].center()
         width = rgbImg.shape[0]
         height = rgbImg.shape[0]
-        headmotions.move_head(center.x, center.y, width, height)
+        headmotions.move_head(center.x, center.y, width, height, IP, motionProxy)
 
     alignedFaces = []
     for box in bb:
