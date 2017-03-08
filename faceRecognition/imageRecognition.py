@@ -20,12 +20,16 @@ import numpy as np
 from PIL import Image
 from sklearn.mixture import GMM
 import openface
+from PIL import Image
+from naoqi import ALProxy
 # forgive my hackeries but this should work on all or computers
 dir_path = os.path.dirname(os.path.realpath(__file__))
 up_dir = os.path.dirname(os.path.dirname(dir_path))
 
 sys.path.append(up_dir)
-import naoqiutils
+# import naoqiutils
+import headmotions
+
 
 np.set_printoptions(precision=2)
 
@@ -33,6 +37,12 @@ IMG_DIM = 96
 WIDTH = 320
 HEIGHT = 240
 THRESHOLD = 0.65
+IP = "mio.local"
+PORT = 9559
+camProxy = ALProxy("ALVideoDevice", IP, PORT)
+resolution = 2    # VGA
+colorSpace = 11  # RGB
+videoClient = camProxy.subscribe("python_client", resolution, colorSpace, 5)
 
 # def run():
     # # Start recognising
@@ -96,7 +106,7 @@ def take_photos(use_nao=True):
     images = []
     while (picturesTaken < 10):
         if use_nao:
-            naoqi_frame = naoqiutils.get_image()
+            naoqi_frame = get_image()
             # naoqi_frame is an rgb image, I checked this.
             frame = np.array(naoqi_frame)
         else:
@@ -178,6 +188,13 @@ def getRep(bgrImg, align, net):
     if bb is None:
         # raise Exception("Unable to find a face: {}".format(imgPath))
         return None
+    if len(bb) > 0:
+        # print("image size: " + str(rgbImg.shape))
+        # print("position of face: " + str(bb[0].center()))
+        center = bb[0].center()
+        width = rgbImg.shape[0]
+        height = rgbImg.shape[0]
+        headstuff.move_head(center.x, center.y, width, height)
 
     alignedFaces = []
     for box in bb:
@@ -232,6 +249,18 @@ def getRep(bgrImg, align, net):
     #     person = possiblePersons.most_common(1)[0][0]
     #     return person, images
 
+
+def get_image():
+    # Get a camera image.
+    # image[6] contains the image data passed as an array of ASCII chars.
+    naoImage = camProxy.getImageRemote(videoClient)
+
+    imageWidth = naoImage[0]
+    imageHeight = naoImage[1]
+    array = naoImage[6]
+
+    im = Image.fromstring("RGB", (imageWidth, imageHeight), array)
+    return im
 
 if __name__ == '__main__':
     fileDir = os.path.dirname(os.path.realpath(__file__))

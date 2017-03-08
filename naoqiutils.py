@@ -12,7 +12,7 @@ from naoqi import ALProxy
 import vision_definitions
 import PIL.Image as Image
 
-IP = "carlos.local"
+IP = "mio.local"
 PORT = 9559
 
 
@@ -68,5 +68,4 @@ def get_image():
 
     # Create a PIL Image from our pixel array.
     im = Image.fromstring("RGB", (imageWidth, imageHeight), array)
-
     return im

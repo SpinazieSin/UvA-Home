@@ -63,7 +63,7 @@ class ProfileGetter():
     def start(self):
         """Init QA, return profile when done."""
         # name is empty if unknown
-        known, name = facerec.fast_known_face(use_nao=self.use_Nao, timeout=True)
+        known, name = facerec.known_face(use_nao=self.use_Nao, timeout=False)
         fname = ""
         lname = ""
         # First check if the user is already present using face rec.
