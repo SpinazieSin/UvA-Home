@@ -1,12 +1,15 @@
 # -*-coding:utf-8-*-
 
 from random import choice
+from collections import deque
 
 class Conversation(object):
     
     def __init__(self, chat):
         self.chat = chat
-        print("🚫 This class uses an unneeded set conversion on line 23")
+        self.newscontext = deque() # stack of the news
+        self.newscontext = [] # more general context 
+        
 
     # A little introduction to the conversation
     def start_conversation(self):
@@ -20,7 +23,7 @@ class Conversation(object):
             cat = choice(user_interest)
             arts = self.chat.searcher.search(cat1=cat)
 #            print([set(a[0].keywords) for a in arts])
-            arts = {a[0] for a in arts if usr_keys & set(a[0].keywords)}
+            arts = {a[0] for a in arts if usr_keys & a[0].keywords}
             if not len(arts):
                 tries -= 1
                 continue
@@ -34,8 +37,19 @@ class Conversation(object):
             self.chat.speak(phrase)
 
         print(phrase)
-
+        
+    def query_parse(self, query):
+        # add to context
+        # do a posparse
+        # Do you want me to read 'title' etc. 
+        pass
+        
+    # Talk about query results/await the information retrievel answer
+    # So yes/no to questions about the query
+    def ir_answer(self, answer):
+        pass
+    
     # The rest of this class will contain other conversational keypoints/modes
     
-    def end_conversation():
+    def end_conversation(self):
         return "Goodbye?"
