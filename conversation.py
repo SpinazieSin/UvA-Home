@@ -38,6 +38,10 @@ class Conversation(object):
 
         print(phrase)
         
+        
+    def related_news_parse(self, query, article):
+        pass
+        
     def query_parse(self, query):
         # add to context
         # do a posparse
