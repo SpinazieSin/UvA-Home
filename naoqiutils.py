@@ -53,7 +53,9 @@ def get_images(amount):
 
 def get_image():
     camProxy = ALProxy("ALVideoDevice", IP, PORT)
-    resolution = 2    # VGA
+    # Found the chart! its at
+    # http://doc.aldebaran.com/2-1/family/robots/video_robot.html
+    resolution = 2    # VGA 640*480px
     colorSpace = 11  # RGB
 
     videoClient = camProxy.subscribe("python_client", resolution, colorSpace, 5)
