@@ -12,7 +12,6 @@ import random
 import os
 import pickle
 import naoqiutils
-# import speechRecognition.speech as STT
 from faceRecognition import facerecognition as facerec
 from faceRecognition import imageRecognition as imrec
 from faceRecognition import trainer
@@ -56,7 +55,7 @@ class ProfileGetter():
         self.topics = 5
         self.use_Nao = use_Nao
         if use_STT:
-            from speechRecognition import speech
+            from speechRecognition import speech as STT
         if use_Nao:
             import naoqiutils
 
@@ -165,19 +164,19 @@ class ProfileGetter():
         if self.use_STT:
             self.say("What is your first name?")
             while fname == "":
-                fname = speech.wait_for_voice()
+                fname = STT.wait_for_voice()
                 if fname == "":
                     self.say("sorry I didn't catch that.")
             self.say("What is your last name?")
             while lname == "":
-                lname = speech.wait_for_voice()
+                lname = STT.wait_for_voice()
                 if lname == "":
                     self.say("sorry I didn't catch that.")
         else:
             self.say("What is your first name?")
-            fname = raw_input("First name?\n")
+            fname = raw_input("First name?\n> ")
             self.say("What is your last name?")
-            lname = raw_input("Last name?\n")
+            lname = raw_input("Last name?\n> ")
         return fname, lname
 
     def make_folder(self, PATH):
@@ -202,10 +201,10 @@ class ProfileGetter():
         """Ask a question, use either SST or command line input."""
         if self.use_STT:
             self.say(question)
-            response = speech.wait_for_voice()
+            response = STT.wait_for_voice()
         else:
             naoqiutils.speak(question)
-            response = raw_input(question + "\n")
+            response = raw_input(question + "\n> ")
         return response
 
     def say(self, phrase):

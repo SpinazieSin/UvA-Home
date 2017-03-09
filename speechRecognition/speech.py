@@ -9,15 +9,20 @@ Python Version: 3.4
 """
 import speech_recognition as sr
 import sys
-
+import os
+dir_path = os.path.dirname(os.path.realpath(__file__))
+up_dir = os.path.dirname(os.path.dirname(dir_path))
+import naoqiutils
 
 def wait_for_voice():
     """Wait for voice."""
     # obtain audio from the microphone perhaps this should be changed for pepper
+    naoqiutils.play_sine(300)
     r = sr.Recognizer()
     with sr.Microphone() as source:
         audio = r.listen(source)
     print("I heard you!")
+    naoqiutils.play_sine(200)
     # recognize speech using Google Speech Recognition
     try:
         # for testing purposes, we're just using the default API key

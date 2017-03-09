@@ -14,13 +14,14 @@ import PIL.Image as Image
 
 IP = "mio.local"
 PORT = 9559
+import sys
 
 
 def speak(phrase):
     # errors if not converted to ascii :(
     phrase = phrase.encode('ascii', 'ignore')
     tts = ALProxy("ALTextToSpeech", IP, PORT)
-    tts.setVolume(0.005)
+    tts.setVolume(0.3)
     tts.say(phrase)
 
 def get_images(amount):
@@ -69,3 +70,12 @@ def get_image():
     # Create a PIL Image from our pixel array.
     im = Image.fromstring("RGB", (imageWidth, imageHeight), array)
     return im
+
+def play_sine(frequency):
+    try:
+        aup = ALProxy("ALAudioPlayer", IP, PORT)
+    except Exception, e:
+        print "Could not create proxy to ALAudioPlayer"
+        print "Error was: ", e
+        sys.exit(1)
+    aup.playSine(frequency, 40, 0, 0.5)
