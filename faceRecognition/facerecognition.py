@@ -11,18 +11,19 @@ Python Version: 3.4
 import cv2
 import os
 import pickle
-import time
 import numpy as np
 from sklearn.mixture import GMM
 import openface
 import sys
 from PIL import Image
+from naoqi import ALProxy
 dir_path = os.path.dirname(os.path.realpath(__file__))
 up_dir = os.path.dirname(os.path.dirname(dir_path))
 
 sys.path.append(up_dir)
 
-import naoqiutils
+# import naoqiutils
+import headmotions
 
 np.set_printoptions(precision=2)
 
@@ -30,70 +31,76 @@ IMG_DIM = 96
 WIDTH = 320
 HEIGHT = 240
 THRESHOLD = 0.5
+IP = "mio.local"
+PORT = 9559
+camProxy = ALProxy("ALVideoDevice", IP, PORT)
+motionProxy = ALProxy("ALMotion", IP, PORT)
+resolution = 2    # VGA
+colorSpace = 11  # RGB
+videoClient = camProxy.subscribe("python_client", resolution, colorSpace, 5)
 
-
-def fast_known_face(use_nao=True, timeout=True):
-    """Check for known face.
-
-    Return True and name if a face is recognized after 10 seconds otherwise
-    return False and ""
-    """
-    # this stuff was in the main so I put it here
-    # fileDir = os.path.dirname(os.path.realpath(__file__))
-    fileDir = os.path.join(os.path.dirname(__file__), '')
-    modelDir = os.path.join(fileDir, 'models')
-    dlibModelDir = os.path.join(modelDir, 'dlib')
-    openfaceModelDir = os.path.join(modelDir, 'openface')
-
-    dlibFacePredictor = os.path.join(dlibModelDir,
-                                     "shape_predictor_68_face_landmarks.dat")
-    networkModel = os.path.join(openfaceModelDir, 'nn4.small2.v1.t7')
-    cuda = False
-
-    align = openface.AlignDlib(dlibFacePredictor)
-    net = openface.TorchNeuralNet(networkModel, imgDim=IMG_DIM, cuda=cuda)
-
-    start_time = time.time()
-    confidenceList = []
-    person_list = []
-    while True:
-        # if it takes longer than 10 seconds, stop and return False and ""
-        if time.time() - start_time > 5 and timeout:
-            print("found no known person")
-            return False, ""
-
-        naoqi_frames = naoqiutils.get_images(5)
-        frames = []
-        for nframe in naoqi_frames:
-            frame = np.array(nframe)
-            frames.append(frame)
-            persons, confidences = infer(frame, align, net)
-            print("P: " + str(persons) + " C: " + str(confidences))
-
-            # append with two floating point precision
-            for i, c in enumerate(confidences):
-                if c <= THRESHOLD:  # 0.5 is kept as threshold for known face.
-                    persons[i] = "_unknown"
-            try:
-                person_list.append(persons[0])
-                confidenceList.append('%.2f' % confidences[0])
-            except Exception as e:
-                pass
-        print("Person List: " + str(person_list))
-        try:
-            last_persons = person_list[:-4]
-            most_common = max(set(last_persons), key=last_persons.count)
-            if most_common != "_unknown":
-                return True, most_common
-        except Exception as e:
-            pass
+# def fast_known_face(use_nao=True, timeout=True):
+#     """Check for known face.
+#
+#     Return True and name if a face is recognized after 10 seconds otherwise
+#     return False and ""
+#     """
+#     # this stuff was in the main so I put it here
+#     # fileDir = os.path.dirname(os.path.realpath(__file__))
+#     fileDir = os.path.join(os.path.dirname(__file__), '')
+#     modelDir = os.path.join(fileDir, 'models')
+#     dlibModelDir = os.path.join(modelDir, 'dlib')
+#     openfaceModelDir = os.path.join(modelDir, 'openface')
+#
+#     dlibFacePredictor = os.path.join(dlibModelDir,
+#                                      "shape_predictor_68_face_landmarks.dat")
+#     networkModel = os.path.join(openfaceModelDir, 'nn4.small2.v1.t7')
+#     cuda = False
+#
+#     align = openface.AlignDlib(dlibFacePredictor)
+#     net = openface.TorchNeuralNet(networkModel, imgDim=IMG_DIM, cuda=cuda)
+#
+#     start_time = time.time()
+#     confidenceList = []
+#     person_list = []
+#     while True:
+#         # if it takes longer than 10 seconds, stop and return False and ""
+#         if time.time() - start_time > 5 and timeout:
+#             print("found no known person")
+#             return False, ""
+#
+#         naoqi_frames = naoqiutils.get_images(5)
+#         frames = []
+#         for nframe in naoqi_frames:
+#             frame = np.array(nframe)
+#             frames.append(frame)
+#             persons, confidences = infer(frame, align, net)
+#             print("P: " + str(persons) + " C: " + str(confidences))
+#
+#             # append with two floating point precision
+#             for i, c in enumerate(confidences):
+#                 if c <= THRESHOLD:  # 0.5 is kept as threshold for known face.
+#                     persons[i] = "_unknown"
+#             try:
+#                 person_list.append(persons[0])
+#                 confidenceList.append('%.2f' % confidences[0])
+#             except Exception as e:
+#                 pass
+#         print("Person List: " + str(person_list))
+#         try:
+#             last_persons = person_list[:-4]
+#             most_common = max(set(last_persons), key=last_persons.count)
+#             if most_common != "_unknown":
+#                 return True, most_common
+#         except Exception as e:
+#             pass
 
 
 def known_face(use_nao=True, timeout=True):
     """Check for known face.
 
     Return True and name if a face is recognized after 10 seconds otherwise
-    return False, this method is also able to take images with regular webcams""
+    return False, this method is also able to take images with regular webcams
     """
     # this stuff was in the main so I put it here
     # fileDir = os.path.dirname(os.path.realpath(__file__))
@@ -110,24 +117,28 @@ def known_face(use_nao=True, timeout=True):
     align = openface.AlignDlib(dlibFacePredictor)
     net = openface.TorchNeuralNet(networkModel, imgDim=IMG_DIM, cuda=cuda)
 
-    if not use_nao:
+    if use_nao:
+        pass  # dont worry bout it yo
+    else:
         video_capture = cv2.VideoCapture(0)
         video_capture.set(3, WIDTH)
         video_capture.set(4, HEIGHT)
-    start_time = time.time()
     confidenceList = []
     person_list = []
+    images_taken_count = 0
     while True:
         # if it takes longer than 10 seconds, stop and return False and ""
-        if time.time() - start_time > 5 and timeout:
+        if images_taken_count > 10 and timeout:
             if not use_nao:
                 video_capture.release()
                 cv2.destroyAllWindows()
+                camProxy.unsubscribe(videoClient)
+                headmotions.stiffnessOff()
             print("found no known person")
             return False, ""
 
         if use_nao:
-            naoqi_frame = naoqiutils.get_image()
+            naoqi_frame = get_image()
             # naoqi_frame is an rgb image, I checked this.
             frame = np.array(naoqi_frame)
         else:
@@ -140,7 +151,7 @@ def known_face(use_nao=True, timeout=True):
             if c <= THRESHOLD:  # 0.5 is kept as threshold for known face.
                 persons[i] = "_unknown"
         print("P: " + str(persons) + " C: " + str(confidences))
-        print(persons)
+        # print(persons)
 
         try:
             # append with two floating point precision
@@ -165,6 +176,8 @@ def known_face(use_nao=True, timeout=True):
                     if not use_nao:
                         video_capture.release()
                         cv2.destroyAllWindows()
+                        camProxy.unsubscribe(videoClient)
+                        headmotions.stiffnessOff()
                     return True, test_persons[0]
         except:
             # If there is no face detected, confidences matrix will be empty.
@@ -178,6 +191,7 @@ def known_face(use_nao=True, timeout=True):
         # quit the program on the press of key 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+        images_taken_count += 1
     # When everything is done, release the capture
     # this only runs when someone breaks the loop by pressin gq, don't know
     # if we should keep that...
@@ -238,8 +252,12 @@ def getRep(bgrImg, align, net):
         # raise Exception("Unable to find a face: {}".format(imgPath))
         return None
     if len(bb) > 0:
-        print("image size: " + str(rgbImg.shape))
-        print("position of face: " + str(bb[0].center()))
+        # print("image size: " + str(rgbImg.shape))
+        # print("position of face: " + str(bb[0].center()))
+        center = bb[0].center()
+        width = rgbImg.shape[0]
+        height = rgbImg.shape[0]
+        headmotions.move_head(center.x, center.y, width, height, IP, motionProxy)
 
     alignedFaces = []
     for box in bb:
@@ -260,6 +278,19 @@ def getRep(bgrImg, align, net):
 
     # print reps
     return reps
+
+
+def get_image():
+    # Get a camera image.
+    # image[6] contains the image data passed as an array of ASCII chars.
+    naoImage = camProxy.getImageRemote(videoClient)
+
+    imageWidth = naoImage[0]
+    imageHeight = naoImage[1]
+    array = naoImage[6]
+
+    im = Image.fromstring("RGB", (imageWidth, imageHeight), array)
+    return im
 
 
 if __name__ == '__main__':
