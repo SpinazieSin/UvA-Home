@@ -2,6 +2,7 @@
 
 from random import choice
 from collections import deque
+import newsextractor as extract
 
 class Conversation(object):
     
@@ -9,7 +10,13 @@ class Conversation(object):
         self.chat = chat
         self.newscontext = deque() # stack of the news
         self.newscontext = [] # more general context 
-        
+        # get all articles
+        n = news
+        if n is None:
+            n = extract.NewsExtractor()
+            n.build_all()
+
+        self.searcher = articlesearch.ArticleSearch(n)
 
     # A little introduction to the conversation
     def start_conversation(self):
@@ -39,7 +46,7 @@ class Conversation(object):
         print(phrase)
         
         
-    def related_news_parse(self, query, article):
+    def related_news_parse(self, query, article): # Wijnands thingy
         pass
         
     def query_parse(self, query):
