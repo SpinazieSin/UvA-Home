@@ -38,6 +38,9 @@ class ArticleSearch(object):
 #        if sources is None:
 #            sources = newsextractor.NewsExtractor().supported_news_papers
 
+        if term1 == None:
+            term1 = ""
+
         min_date = datetime.datetime.fromtimestamp(0) if date1 is None else date1
         max_date = datetime.datetime.now() if date2 is None else date2
 
@@ -73,10 +76,11 @@ class ArticleSearch(object):
                 if not place_found:
                     break
 
-            if not term1 == "":         
+
+            if not term1 == "": 
                 highest_score = self.similar(search_term_stemmed, article.term_count)
                 if highest_score > 0:
-                    scored_articles.append([article, highest_score])
+                    scored_articles.append([article, highest_score, highest_score])
                 if highest_score > normalize_score:
                     normalize_score = highest_score
             else:
