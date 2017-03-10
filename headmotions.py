@@ -14,14 +14,14 @@ def move_head(headxpos, headypos, im_width, im_height, ip_addr, motionProxy):
     # 480 = pixel heigth using kVGA
     # angle is 47.64
     # 1 degree = 10.075 pixel diff
-    # make sure movement is not made too often
     # Yaw is turning , left is positive, right is negative.
+
+    # get current angles of the head
     currentAngle = motionProxy.getAngles("HeadYaw", True)[0]
-    # move head only when ball is surely spotted
+    # MOVE HEAD LEFT
     if headxpos < (width/2 - 5):
         pdiff = abs((width/2 - 5) - headxpos)
         turn = radians(pdiff / 10.49)
-        print(turn)
         speed = abs(0.6 * turn*2)
         if speed > 0.8:
             speed = 0.8
@@ -29,12 +29,11 @@ def move_head(headxpos, headypos, im_width, im_height, ip_addr, motionProxy):
             speed = 0.2
         if currentAngle < 1.95:
             motionProxy.setAngles("HeadYaw", currentAngle + turn, speed)
-            print("LEFT")
+
+    # MOVE HEAD RIGHT
     if headxpos > (width/2 + 5):
         pdiff = abs((width/2 + 5) - headxpos)
         turn = radians(pdiff / 10.49)
-        print(turn)
-        # turn = abs(0.15 * pdiff/80)
         speed = abs(0.6 * turn*2)
         if speed > 0.8:
             speed = 0.8
@@ -42,14 +41,12 @@ def move_head(headxpos, headypos, im_width, im_height, ip_addr, motionProxy):
             speed = 0.2
         if currentAngle > -1.95:
             motionProxy.setAngles("HeadYaw", currentAngle - turn, speed)
-            print("RIGHT")
-    # moving head up and down
+
+    # MOVE HEAD UP
     currentAngle = motionProxy.getAngles("HeadPitch", True)[0]
     if headypos > (height/2 - 5):
         pdiff = abs((height/2 - 5) - headypos)
-        # turn = abs(0.09 * pdiff/80)
         turn = radians(pdiff / 10.075)
-        print(turn)
         speed = abs(0.6 * turn*2)
         if speed > 0.8:
             speed = 0.8
@@ -57,12 +54,11 @@ def move_head(headxpos, headypos, im_width, im_height, ip_addr, motionProxy):
             speed = 0.2
         if currentAngle < 0.51:
             motionProxy.setAngles("HeadPitch", currentAngle + turn, speed)
-            print("UP")
+
+    # MOVE HEAD DOWN
     if headypos < (height/2 + 5):
         pdiff = abs((height/2 - 5) - headypos)
-        # turn = abs(0.09 * pdiff/80)
         turn = radians(pdiff / 10.075)
-        print(turn)
         speed = abs(0.6 * turn*2)
         if speed > 0.8:
             speed = 0.8
@@ -70,7 +66,7 @@ def move_head(headxpos, headypos, im_width, im_height, ip_addr, motionProxy):
             speed = 0.2
         if currentAngle > -0.65:
             motionProxy.setAngles("HeadPitch", currentAngle - turn, speed)
-            print("DOWN")
+
     StiffnessOn(motionProxy)
     motionProxy.stiffnessInterpolation("Head", 0.0, 0.5)
     motionProxy.stopMove()

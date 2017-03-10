@@ -178,7 +178,7 @@ def known_face(use_nao=True, timeout=True):
                     cv2.destroyAllWindows()
                     camProxy.unsubscribe(videoClient)
                     headmotions.stiffnessOff()
-                return True, test_persons[0]
+                return True, test_persons[-1]
         except:
             # If there is no face detected, confidences matrix will be empty.
             # We can simply ignore it.

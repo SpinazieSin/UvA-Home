@@ -73,9 +73,10 @@ class ChatEngine(object):
                 self.speak("One More time please.")
                 q = STT.wait_for_voice()
             if q == "":
-                self.speak("I assume you just want another article, don't you?")
-                conv.start_conversation()
-                continue
+                self.speak("I assume you just want another article, don't you? Here is something.")
+                # currently if no question is found after 3 tries, random news
+                # is requested.
+                q = "can you get me the latest news"
             if self.mode == 'debug':
                 self.process_command(q)
             elif self.mode.startswith('human'):
@@ -84,7 +85,11 @@ class ChatEngine(object):
                 # by title?
                 cmd, args = self.posparser.process_query(q)
                 if self.mode == 'human_speech':
-                    self.speak(self.process_command_args(cmd, args))
+                    answer = self.process_command_args(cmd, args)
+                    if answer is None:
+                        self.speak("I don't understand what you just said. Can you say it again.")
+                    else:
+                        self.speak(answer)
                 else:
                     self.process_command_args(cmd, args)
 
