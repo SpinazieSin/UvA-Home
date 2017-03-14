@@ -121,12 +121,11 @@ class ArticleSearch(object):
 
     def similar(self, count1, count2):
         """
-        Check the similarity between two strings, in case of wrong spelling
+        Count the similarity between the two Counter objects.
+        Unique elements are scored higher than repeated elements.
         @param word1 string1
         @param word2 string2
         """
-        # length_word1 = len(word1)
-        # length_word2 = len(word2)
         score = 0.0
         for term in count1:
             temp_score = count2[term]

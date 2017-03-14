@@ -20,6 +20,8 @@ import keywords as k
 import re
 from bs4 import BeautifulSoup
 from nltk.stem.snowball import SnowballStemmer
+from collections import Counter
+
 
 # set global so file is read only once
 keywords = k.KeyWords()
@@ -47,7 +49,7 @@ class NewsExtractor(object):
 
     def __init__(self, newspapers=["cnn", "bbc", "reuters", "nytimes"]):
         """Initialize all values."""
-        stemmer = SnowballStemmer("english")
+        self.stemmer = SnowballStemmer("english")
         self.newspapers = newspapers
         self.supported_news_papers = ["cnn", "bbc", "reuters", "nytimes"]
         self.articles_parsed = 0
@@ -65,17 +67,15 @@ class NewsExtractor(object):
         for newspaper in self.newspapers:
             if newspaper in self.supported_news_papers:
                 if newspaper == "cnn":
-                    cnn_entries = self.extract_cnn_rss()
-                    entry_list = entry_list + cnn_entries
-                if newspaper == "bbc":
-                    bbc_entries = self.extract_bbc_rss()
-                    entry_list = entry_list + bbc_entries
+                    entry_list += self.extract_cnn_rss()
+                if newspaper == "bbc": 
+                    entry_list += self.extract_bbc_rss()
                 if newspaper == "reuters":
-                    reuters_entries = self.extract_reuters_rss()
-                    entry_list = entry_list + reuters_entries
-                if newspaper == "nytimes":
-                    nytimes_entries = self.extract_nytimes_rss()
-                    entry_list = entry_list + nytimes_entries
+                    entry_list += self.extract_reuters_rss()
+                if newspaper == "nytimes": 
+                    entry_list += self.extract_nytimes_rss()
+                if newspaper == "slashdot":
+                    entry_list += self.extract_slashdot_rss()
             else:
                 print("the source: " + str(newspaper) + ", is not supported.")
 
@@ -278,6 +278,9 @@ class NewsExtractor(object):
 
         return self.parse_rss(rss_category_list, "nytimes")
 
+    def extract_slashdot_rss(self):
+        return []
+
     def get_full_article_url(self, url, newspaper):
         """Get the full article text and tags from url.
 
@@ -289,6 +292,16 @@ class NewsExtractor(object):
         if newspaper == "cnn":
             text_divs = soup.find_all("div", {"class": "zn-body__paragraph"})
         if newspaper == "bbc":
+            # for div in soup.findall("div", {"class:": "bbccom_advert"}):
+            #     div.decompose()
+            # for div in soup.findall("figure", {"class:": "media-landscape no-caption full-width lead"}):
+            #     div.decompose()
+            # for div in soup.findall("figure", {"class:": "media-landscape has-caption full-width lead"}):
+            #     div.decompose()
+            # for div in soup.findall("figure", {"class:": "media-landscape no-caption full-width"}):
+            #     div.decompose()
+            # for div in soup.findall("figure", {"class:": "  media-landscape has-caption full-width"}):
+            #     div.decompose()
             text_divs = soup.find_all("div", {"class": "story-body__inner"})
         if newspaper == "reuters":
             text_divs = soup.find_all("span", {"id": "article-text"})
@@ -321,7 +334,7 @@ class NewsExtractor(object):
 
     def convert_to_terms(self, article_title, article_keywords):
         stemmed_terms = Counter()
-        title_vector = self.text_to_list(article.title.lower())
+        title_vector = self.text_to_list(article_title.lower())
         for term in title_vector:
             stem = self.stemmer.stem(term)
             if len(stem) > 1:
