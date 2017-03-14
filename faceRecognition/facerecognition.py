@@ -164,7 +164,7 @@ def known_face(use_nao=True, timeout=True):
             test_persons = person_list[-4:]
             test_confidences = confidenceList[-4:]
             # sorry for terribly ugly if statement
-            if test_persons.count(test_persons[-1]) > 2 and \
+            if test_persons.count(test_persons[-1]) > 1 and \
                     person_list[-1] != "_unknown":
                 # 0.8 threshold for known faces
                 # the code previously written recognizes a face above 0.5

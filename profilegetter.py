@@ -15,6 +15,7 @@ import naoqiutils
 from faceRecognition import facerecognition as facerec
 from faceRecognition import imageRecognition as imrec
 from faceRecognition import trainer
+from speechRecognition import speech as STT
 
 
 class ProfileGetter():
@@ -54,10 +55,6 @@ class ProfileGetter():
         self.questions = 10  # amount of question about categories
         self.topics = 5
         self.use_Nao = use_Nao
-        if use_STT:
-            from speechRecognition import speech as STT
-        if use_Nao:
-            import naoqiutils
 
     def start(self):
         """Init QA, return profile when done."""
