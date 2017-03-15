@@ -18,6 +18,7 @@ class Conversation(object):
             n = extract.NewsExtractor()
             n.build_all()
 
+        self.keywords = keywords.KeyWords()
         self.searcher = articlesearch.ArticleSearch(n)
 
     # A little introduction to the conversation
@@ -32,11 +33,11 @@ class Conversation(object):
             cat = choice(user_interest)
             arts = self.chat.searcher.search(cat1=cat)
 #            print([set(a[0].keywords) for a in arts])
-            arts = {a[0] for a in arts if set(usr_keys) & set(a[0].keywords)}
+            arts = {a[0] for a in arts if usr_keys & a[0].keywords}
             if not len(arts):
                 tries -= 1
                 continue
-            phrase = "I found an article called '%s' for you. Pretty cool right?" % (list(arts)[0].title)
+            phrase = "I found an article on '%s' for you. Pretty cool right?" % (list(arts)[0].title)
             break
 
         if not tries:
@@ -48,7 +49,9 @@ class Conversation(object):
         print(phrase)
 
 
-    def related_news_parse(self, query, article): # Wijnands thingy
+    def related_news_parse(self, article): # Wijnands thingy
+        article.keywords # lange keywords
+        keys.extract_top(article.text, True) # most frequent keywords
         pass
 
     def query_parse(self, query):
@@ -66,3 +69,18 @@ class Conversation(object):
 
     def end_conversation(self):
         return "Goodbye?"
+
+if __name__ == "__main__":
+    with open("testcorpus.txt", "r") as f:
+        questions = f.read().splitlines()
+        parser = POSParse()
+        # parser.process_queries(questions, debug=True)
+        # for dp in parser.date_phrases:
+        #     print("--------------------")
+        #     print(dp)
+        #     print(parser.to_datetime(dp))
+
+        for q in questions:
+            print("------------")
+            print(q)
+            parser.process_query(q)
