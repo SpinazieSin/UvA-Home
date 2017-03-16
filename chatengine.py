@@ -8,17 +8,24 @@ Date last modified: 7/2/2017
 Python Version: 3.6
 """
 
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
+
+#... import sklearn stuff...
 
 # import other classes here, like NLP class
 
 import posparse
-import newsextractor as extract
 import articlesearch
 import prettynews
+import userprofile
 import os
 import platform
 import conversation
 import profilegetter
+import userprofile
 
 class ChatEngine(object):
     """
@@ -30,34 +37,51 @@ class ChatEngine(object):
     assigned to a specific query string. 'human_speech' is the same as human, but
     """
 
-    def __init__(self, user="", mode="human_speech", news=None):
-        self.user = user
+    def __init__(self, user=None, mode="human", news=None):
+        if not user:
+            self.user = userprofile.UserProfile()
+        else:
+            self.user = user
+        
         self.mode = mode
-        # get all articles
-        n = news
-        if n is None:
-            n = extract.NewsExtractor()
-            n.build_all()
-
-        self.searcher = articlesearch.ArticleSearch(n)
-        self.newsprinter = prettynews.PrettyNews(self.searcher)
-        self.commands = {
-            "topics" : self.get_topics, "switch" : self.switch, "help" : self.print_commands,
-            "quit" : self.quit, "search" : self.searcher.search,
-            "present_news" : self.newsprinter.show_news,
-            "failed_search" : self.newsprinter.search_help
-        }
-        self.posparser = posparse.POSParse()
+        self.conv = conversation.Conversation(self, news=news)
         if platform.system() == 'Darwin': # OS X
-            self.speak = self.osx_speak
+            self.say = self.osx_say
         else: # Assume linux/naoqi
             import naoqiutils
-            self.speak = naoqiutils.speak
+            self.say = naoqiutils.speak
+
+        self.newsprinter = prettynews.PrettyNews(self.conv.searcher, self.mode, self)
+        # Commands is a dict of named conversation action scripts
+        self.commands = {
+            "help" : self.print_commands,
+            "quit" : self.quit,
+            "present_news" : self.newsprinter.show_news,
+            "present_news_preferences" : self.newsprinter.show_news_preferences,
+            "failed_search" : self.newsprinter.search_help,
+            "speak" : self.speak,
+            "ir_answer" : self.conv.ir_parse,
+            "read_article" : self.conv.read,
+            "update_preference" : self.user.update_preferences,
+            "get_preference" : self.conv.get_preference,
+        }
+        debug_commands = {
+            "topics" : self.get_topics, "switch" : self.switch, 
+            "quit" : self.quit,
+        }
+        
+        if mode == "debug":
+            self.commands = dict(self.commands.items() + debug_commands.items())
+        self.posparser = posparse.POSParse()
+
 
     def start(self):
-        conv = conversation.Conversation(self)
+        
         if self.mode=='human' or self.mode=='human_speech':
-            conv.start_conversation()
+            cmd, args = self.conv.start_conversation()
+            self.process_command_args(cmd, args)
+            
+        cmd = None        
 
         while True:
             
@@ -68,21 +92,31 @@ class ChatEngine(object):
                 # Differentiate between IR queries and opinion related stuff
                 # Something like: read me the first article/article by title/article approxiatmely
                 # by title? 
-                cmd, args = self.posparser.process_query(q)                
-                if self.mode == 'human_speech':
-                    self.speak(self.process_command_args(cmd, args))
-                else:
-                    self.process_command_args(cmd, args)
+                # ^ This should go into (pos)parsing! cus that class is concerned with unnderstanding
+                # sentences. It could/should go into the process_query() method
+                cmd, args = self.posparser.process_query(q)
+                while cmd is not None:
+                    cmd, args = self.process_command_args(cmd, args)
+                    
+        conv.end_conversation()
 
+    
+    def speak(self, phrase):
+        if self.mode == "human_speech":
+            print(phrase)
+            self.say(phrase.replace('"', '\"'))
+        elif self.mode == "human":
+            print(phrase)
+        return None, None
 
-
-    def osx_speak(self, phrase):
-        os.system("say " + phrase)
     
     def quit(self):
         import sys
         print("Goodbye!")
         sys.exit(0)
+        
+    def select_random_command(self):
+        pass
 
     def print_commands(self):
         for cmd in self.commands:
@@ -99,8 +133,14 @@ class ChatEngine(object):
     def not_found(self, *args):
         print("Command not found!")
         
-    def process_command_args(self, cmd, args):
+    def osx_say(self, phrase):
+        os.system("say \"" + phrase.encode('utf-8') + "\"")
+
+        
+    def process_command_args(self, cmd, *args):
         return self.commands.get(cmd, self.not_found)(*args)
+
+
         
     # This function extracts the arguments from a 
     def process_command(self, cmd):

@@ -100,7 +100,7 @@ class ProfileGetter():
                         response3 = self.question("Is this interesting?\n" +
                                                   artic.summary + "\n")
                         if self.positive(response3):
-                            profile.keywords.append(artic.keywords)
+                            profile.keywords.update(artic.keywords)
 
             with open('profile.pickle', 'wb') as handle:
                 pickle.dump(profile, handle,

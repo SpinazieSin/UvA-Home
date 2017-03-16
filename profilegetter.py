@@ -13,9 +13,9 @@ import os
 import pickle
 import naoqiutils
 # import speechRecognition.speech as STT
-from faceRecognition import facerecognition as facerec
-from faceRecognition import imageRecognition as imrec
-from faceRecognition import trainer
+#from faceRecognition import facerecognition as facerec
+#from faceRecognition import imageRecognition as imrec
+#from faceRecognition import trainer
 
 
 class ProfileGetter():

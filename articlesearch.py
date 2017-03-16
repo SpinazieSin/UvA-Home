@@ -7,7 +7,7 @@ from nltk.stem.snowball import SnowballStemmer
 from collections import Counter
 from difflib import SequenceMatcher
 
-word = re.compile(r'\w+')
+
 
 class ArticleSearch(object):
     """
@@ -21,6 +21,7 @@ class ArticleSearch(object):
         """
         self.stemmer = SnowballStemmer("english")
         self.article_list = article_list.news
+        self.word = re.compile(r'\w+')
 
     # an empty search term should let it return all articles, so only the other filters are used
     # This should at one point be extend to deal with multiple keywords
@@ -112,8 +113,7 @@ class ArticleSearch(object):
         Split string with /w
         @param text String to be split
         """
-        global word
-        return Counter(word.findall(text)) # cosine similarity method
+        return Counter(self.word.findall(text)) # cosine similarity method
 
     def similar(self, count1, count2):
         """

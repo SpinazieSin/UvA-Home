@@ -1,4 +1,4 @@
-# -*-coding:utf-8-*-
+2# -*-coding:utf-8-*-
 """Part of speech (POS) tagging natural (news) language parser class file for the media understanding 2017 project.
 
 File name: article.py
@@ -137,7 +137,7 @@ class POSParse(object):
                 return dates[0]
             return None
         return out
-
+        
     # The NLP equivalent of processCommand from chatengine.py
     def process_query(self, query):
         # Replaced with server implementation, should be removed.
@@ -150,9 +150,9 @@ class POSParse(object):
           })
         ptree = Tree.fromstring(parse['sentences'][0]['parse'])
 
-        # search is the command the chat enging has to carry out.
+        # search is the command the chat engine has to carry out.
         # Maybe add ways to differentiate if the user wants news or not
-        cmd = "present_news"
+        cmd = "present_news_preferences"
         args = self.process_tree(ptree)
         return cmd, args
 
@@ -166,21 +166,24 @@ class POSParse(object):
 
     def process_tree(self, tree, debug=False):
         np_trees = self._find_NP_Leaves(tree)
-        nps = {" ".join(t.leaves()).lower() for t in np_trees}
-        nps = {np[4:] if np[:3] == 'the' else np for np in nps}
+#        logical_leaves = self._find_logical_leaves(tree)
+        
+        nps = [" ".join(t.leaves()).lower() for t in np_trees]
+        nps = [np[4:] if np[:3] == 'the' else np for np in nps]
         if debug:
             print("NPs:", list(nps))
         # see if NPs contain places or news sources
-        sources = {np for np in nps if np in self.source_ents}
-        places = {np for np in nps if np in self.place_ents}
-        dates = {np for np in nps if self.find_dates(np)}
-        cats = {np for np in nps if np in self.categories}
-        nps -= sources | dates | places | cats # union
-
-        keywords = {np for np in nps if not len(set(np.split(" ")) & self.non_keywords)} # no commons
-
+        sources = [np for np in nps if np in self.source_ents]
+        places = [np for np in nps if np in self.place_ents]
+        dates = [np for np in nps if self.find_dates(np)]
         dates = [self.to_datetime(np) for np in dates]
         dates.sort()
+        cats = [np for np in nps if np in self.categories]
+        filters = set(sources) | set(dates) | set(places) | set(cats) # union
+        nps = set(nps) - filters
+#        keywords = {np for np in nps if not len(set(np.split(" ")) & self.non_keywords)}
+        keywords = {np for np in nps if not set(np.split(" ")) & self.non_keywords} # no commons 
+
         if debug:
             print("sources:", list(sources))
             print("places", list(places))
@@ -188,6 +191,8 @@ class POSParse(object):
             print("keywords:", list(keywords))
             print("categories:", list(cats))
 
+        if not len(filters | keywords):
+            return "failed_search", "I'm not sure what you mean by '%s'." % (" ".join(tree.leaves()))
 
         if len(dates) > 2:
             return "failed_search", "Try to use less dates in your question."
@@ -206,9 +211,9 @@ class POSParse(object):
         # dictionary get like operator for list
         get = lambda l, i: None if i > len(l)-1 else list(l)[i]
         # maybe create this dict dynamically?
-        return [{"term1" : get(keywords, 0), "term2" : get(keywords, 1), "cat1" : get(cats, 0),  
+        return {"term1" : get(keywords, 0), "term2" : get(keywords, 1), "cat1" : get(cats, 0),  
         "cat2" : get(cats, 1), "date1" : get(dates, 0), "date2" : get(dates, 1), 
-        "place": get(places, 0), "source1" : get(sources, 0), "source2" : get(sources, 1)}]
+        "place": get(places, 0), "source1" : get(sources, 0), "source2" : get(sources, 1)}
 
 
     # Function that asks the news extractor for it's sources
@@ -233,16 +238,27 @@ class POSParse(object):
         # Generate subtrees at the lowest 'NP' node
         return t.subtrees(filter=lambda t: t.label()=='NP' and t.height()==3)
 
-    def _find_logical_Leaves(self, t):
+    def _find_logical_leaves(self, t):
         # If connectitive found, traverse up until NP, and then take the first NP leave of that NP
         # as an logical argument
-        and_or_t = t.subtrees(filter=lambda t: t.label()=='CC' and t.height()==1)
-        nottree = t.subtrees(filter=lambda t: t.label()=='RB' and t.height()==1)
+        nleaves = len(t.leaves())
+
+        for i in range(nleaves):
+            l = t.leaf_treeposition(i)
+            print(l)
+            print(t[l])
+            continue
+            if l.parent().label() == "CC": # and/or
+                # search the modified terms
+                print("Yes CC!")
+            elif l.parent().label() == "RB": # not
+                print("Yes RB!")
 
 
 if __name__ == "__main__":
     with open("testcorpus.txt", "r") as f:
-        questions = f.read().splitlines()
+#        questions = f.read().splitlines()
+        questions = ["I want some news related to Donald Trump but not Bernie Sanders.", "I want some news related to Donald Trump and Bernie Sanders."]
         parser = POSParse()
 
         # Replaced, to be removed.
