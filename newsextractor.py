@@ -15,11 +15,15 @@ import sys
 import pickle
 import os.path
 import datefinder
+import itertools
 import keywords as k
 
 import re
+from multiprocessing.dummy import Pool as ThreadPool
 from bs4 import BeautifulSoup
 from nltk.stem.snowball import SnowballStemmer
+from collections import Counter
+
 
 # set global so file is read only once
 keywords = k.KeyWords()
@@ -47,7 +51,7 @@ class NewsExtractor(object):
 
     def __init__(self, newspapers=["cnn", "bbc", "reuters", "nytimes"]):
         """Initialize all values."""
-        stemmer = SnowballStemmer("english")
+        self.stemmer = SnowballStemmer("english")
         self.newspapers = newspapers
         self.supported_news_papers = ["cnn", "bbc", "reuters", "nytimes"]
         self.articles_parsed = 0
@@ -61,33 +65,37 @@ class NewsExtractor(object):
         resets parsed counter.
         """
         self.articles_parsed = 0
-        entry_list = []
-        for newspaper in self.newspapers:
-            if newspaper in self.supported_news_papers:
-                if newspaper == "cnn":
-                    cnn_entries = self.extract_cnn_rss()
-                    entry_list = entry_list + cnn_entries
-                if newspaper == "bbc":
-                    bbc_entries = self.extract_bbc_rss()
-                    entry_list = entry_list + bbc_entries
-                if newspaper == "reuters":
-                    reuters_entries = self.extract_reuters_rss()
-                    entry_list = entry_list + reuters_entries
-                if newspaper == "nytimes":
-                    nytimes_entries = self.extract_nytimes_rss()
-                    entry_list = entry_list + nytimes_entries
-            else:
-                print("the source: " + str(newspaper) + ", is not supported.")
+        # I assume you have 4 threads :)
+        pool = ThreadPool(4)
+        entry_lists = pool.map(self.extract_newspaper, self.newspapers)
+        entry_list = list(itertools.chain(*entry_lists))
 
         self.articles_parsed += len(entry_list)
-
-        # INSERT HERE METODS TO ADD FULL TEXT TO ARTICLE FORMAT,
-        # all cnn body text is wrapped in class="zn-body__paragraph"
-        # all bbc body text is wrapped in class="story-body__inner"
         self.news = entry_list
         print("parsed articles, available in OBJECT.news")
 
+    def extract_newspaper(self, newspaper):
+        """Do all extraction and parsing newspaper, need for threading."""
+        entry_list = []
+        if newspaper in self.supported_news_papers:
+            if newspaper == "cnn":
+                cnn_entries = self.extract_cnn_rss()
+                entry_list = entry_list + cnn_entries
+            if newspaper == "bbc":
+                bbc_entries = self.extract_bbc_rss()
+                entry_list = entry_list + bbc_entries
+            if newspaper == "reuters":
+                reuters_entries = self.extract_reuters_rss()
+                entry_list = entry_list + reuters_entries
+            if newspaper == "nytimes":
+                nytimes_entries = self.extract_nytimes_rss()
+                entry_list = entry_list + nytimes_entries
+            else:
+                print("the source: " + str(newspaper) + ", is not supported.")
+        return entry_list
+
     def parse_rss(self, rss_category_list, source):
+        """Parse urls."""
         parsed_entry_list = []
         duplicate_url_list = set()
         duplicate_title_list = set()
@@ -120,7 +128,6 @@ class NewsExtractor(object):
                     published = list(datefinder.find_dates(entry.published))[0]
                 except BaseException:
                     print("skipped date in: " + source + " title: " + title)
-
 
                 category = cat  # WATCH OUT! THIS SHOULD CHANGE WHEN USING
                 # A NEW RSS FEED.
@@ -278,6 +285,10 @@ class NewsExtractor(object):
 
         return self.parse_rss(rss_category_list, "nytimes")
 
+    def extract_slashdot_rss(self):
+        """Not implemented yet."""
+        return []
+
     def get_full_article_url(self, url, newspaper):
         """Get the full article text and tags from url.
 
@@ -289,6 +300,16 @@ class NewsExtractor(object):
         if newspaper == "cnn":
             text_divs = soup.find_all("div", {"class": "zn-body__paragraph"})
         if newspaper == "bbc":
+            # for div in soup.findall("div", {"class:": "bbccom_advert"}):
+            #     div.decompose()
+            # for div in soup.findall("figure", {"class:": "media-landscape no-caption full-width lead"}):
+            #     div.decompose()
+            # for div in soup.findall("figure", {"class:": "media-landscape has-caption full-width lead"}):
+            #     div.decompose()
+            # for div in soup.findall("figure", {"class:": "media-landscape no-caption full-width"}):
+            #     div.decompose()
+            # for div in soup.findall("figure", {"class:": "  media-landscape has-caption full-width"}):
+            #     div.decompose()
             text_divs = soup.find_all("div", {"class": "story-body__inner"})
         if newspaper == "reuters":
             text_divs = soup.find_all("span", {"id": "article-text"})
@@ -309,19 +330,20 @@ class NewsExtractor(object):
         algorithm_tags = set(keywords.extract(result_text))
         return result_text, algorithm_tags
 
-
     def get_full_article_text(self, article):
         """Wrapper around get_full_article_url for easier debugging."""
         text, tags = self.get_full_article_url(article.url, article.source)
         return text
 
     def text_to_list(self, text):
+        """Someone please explain what this does."""
         global word
         return word.findall(text)
 
     def convert_to_terms(self, article_title, article_keywords):
+        """Explain this as well."""
         stemmed_terms = Counter()
-        title_vector = self.text_to_list(article.title.lower())
+        title_vector = self.text_to_list(article_title.lower())
         for term in title_vector:
             stem = self.stemmer.stem(term)
             if len(stem) > 1:
@@ -339,18 +361,26 @@ class NewsExtractor(object):
 
     def add_full_article_all(self):
         """Add full text to all articles in self.news."""
-        for i in range(len(self.news)):
-            try:
-                self.news[i].text, self.news[i].keywords = \
-                    self.get_full_article_url(self.news[i].url,
-                                              self.news[i].source)
-                self.news[i].term_count = self.convert_to_terms(self.news[i].title, self.news[i].keywords)
-            except BaseException:
-                print(" skipped entry: " + str(i) + ", " + self.news[i].title)
-            sys.stdout.write("\r{0}".format("parsed: " + str(i + 1) + "/" +
-                                            str(len(self.news)) + " articles"))
-            sys.stdout.flush()
+        pool = ThreadPool(4)
+        indices = range(len(self.news))
+        pool.map(self.thread_build, indices)
+        pool.close()
+        pool.join()
         print("\nDone parsing.")
+
+    def thread_build(self, i):
+        """Build single entry, needed for threading."""
+        try:
+            self.news[i].text, self.news[i].keywords = \
+                self.get_full_article_url(self.news[i].url,
+                                          self.news[i].source)
+            self.news[i].term_count = self.convert_to_terms(
+                self.news[i].title, self.news[i].keywords)
+        except BaseException:
+            print(" skipped entry: " + str(i) + ", " + self.news[i].title)
+        sys.stdout.write("\r{0}".format("parsed index: " + str(i + 1) + "/" +
+                                        str(len(self.news)) + " articles"))
+        sys.stdout.flush()
 
     def build_all(self, save=True, force=False):
         """Build the entire database with full article text.

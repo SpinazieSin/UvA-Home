@@ -164,21 +164,21 @@ def known_face(use_nao=True, timeout=True):
             test_persons = person_list[-4:]
             test_confidences = confidenceList[-4:]
             # sorry for terribly ugly if statement
-            if test_persons.count(test_persons[0]) >= len(test_persons) and \
-                    test_persons[0] != "_unknown":
+            if test_persons.count(test_persons[-1]) > 1 and \
+                    person_list[-1] != "_unknown":
                 # 0.8 threshold for known faces
                 # the code previously written recognizes a face above 0.5
                 # confidence score, I think thats a bit low so I added a
                 # 0.8 minimal score here.
-                if all(i >= 0.65 for i in test_confidences):
-                    print(test_confidences)
-                    print("found 4 high confidence scores")
-                    if not use_nao:
-                        video_capture.release()
-                        cv2.destroyAllWindows()
-                        camProxy.unsubscribe(videoClient)
-                        headmotions.stiffnessOff()
-                    return True, test_persons[0]
+                # if all(i >= 0.65 for i in test_confidences):
+                #     print(test_confidences)
+                print("found 4 high confidence scores")
+                if not use_nao:
+                    video_capture.release()
+                    cv2.destroyAllWindows()
+                    camProxy.unsubscribe(videoClient)
+                    headmotions.stiffnessOff()
+                return True, test_persons[-1]
         except:
             # If there is no face detected, confidences matrix will be empty.
             # We can simply ignore it.

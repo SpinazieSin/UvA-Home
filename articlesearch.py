@@ -39,6 +39,9 @@ class ArticleSearch(object):
 #        if sources is None:
 #            sources = newsextractor.NewsExtractor().supported_news_papers
 
+        if term1 == None:
+            term1 = ""
+
         min_date = datetime.datetime.fromtimestamp(0) if date1 is None else date1
         max_date = datetime.datetime.now() if date2 is None else date2
 
@@ -74,10 +77,11 @@ class ArticleSearch(object):
                 if not place_found:
                     break
 
-            if not term1 == "":         
+
+            if not term1 == "": 
                 highest_score = self.similar(search_term_stemmed, article.term_count)
                 if highest_score > 0:
-                    scored_articles.append([article, highest_score])
+                    scored_articles.append([article, highest_score, highest_score])
                 if highest_score > normalize_score:
                     normalize_score = highest_score
             else:
@@ -117,12 +121,11 @@ class ArticleSearch(object):
 
     def similar(self, count1, count2):
         """
-        Check the similarity between two strings, in case of wrong spelling
+        Count the similarity between the two Counter objects.
+        Unique elements are scored higher than repeated elements.
         @param word1 string1
         @param word2 string2
         """
-        # length_word1 = len(word1)
-        # length_word2 = len(word2)
         score = 0.0
         for term in count1:
             temp_score = count2[term]

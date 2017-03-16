@@ -3,6 +3,7 @@
 from random import choice, randrange, randint, random
 from collections import deque, Counter
 import newsextractor as extract
+<<<<<<< HEAD
 import collections
 import articlesearch
 import re
@@ -21,6 +22,17 @@ class Conversation(object):
         self.chat = chat 
         self.article_context = collections.deque([None]*art_history, maxlen=art_history) 
         self.context = [] # more general context 
+=======
+import articlesearch
+import keywords
+
+class Conversation(object):
+
+    def __init__(self, chat, news=None):
+        self.chat = chat
+        self.newscontext = deque() # stack of the news
+        self.newscontext = [] # more general context
+>>>>>>> 8483fcd13c9c40a0137da425885eb383c8cb2cb5
         # get all articles
         n = news
         self.AFFIRMATIVE = ["Okay.", "Good.", "Sure.", "That's cool bro."]
@@ -28,6 +40,7 @@ class Conversation(object):
             n = extract.NewsExtractor()
             n.build_all()
 
+        self.keywords = keywords.KeyWords()
         self.searcher = articlesearch.ArticleSearch(n)
 
     # A little introduction to the conversation
@@ -45,13 +58,18 @@ class Conversation(object):
             if not len(arts):
                 tries -= 1
                 continue
+<<<<<<< HEAD
             # add article to context
             self.article_context.appendleft(list(arts)[0])
             phrase = "I found an article on '%s' for you. Pretty cool right?" % (list(arts)[0].title) 
+=======
+            phrase = "I found an article on '%s' for you. Pretty cool right?" % (list(arts)[0].title)
+>>>>>>> 8483fcd13c9c40a0137da425885eb383c8cb2cb5
             break
 
         if not tries:
             phrase = "What kind of news do you want to talk about today?"
+<<<<<<< HEAD
             
 #        if self.chat.mode == "human_speech":
 #            self.chat.speak(phrase)
@@ -233,19 +251,40 @@ class Conversation(object):
             return None
         
     def related_news_parse(self, query, article): # Wijnands thingy
+=======
+
+        if self.chat.mode == "human_speech":
+            self.chat.speak(phrase)
+
+        print(phrase)
+
+
+    def related_news_parse(self, article): # Wijnands thingy
+        article.keywords # lange keywords
+        keys.extract_top(article.text, True) # most frequent keywords
+>>>>>>> 8483fcd13c9c40a0137da425885eb383c8cb2cb5
         pass
-        
+
     def query_parse(self, query):
         # add to context
         # do a posparse
-        # Do you want me to read 'title' etc. 
+        # Do you want me to read 'title' etc.
         pass
 
+<<<<<<< HEAD
     
+=======
+    # Talk about query results/await the information retrievel answer
+    # So yes/no to questions about the query
+    def ir_answer(self, answer):
+        pass
+
+>>>>>>> 8483fcd13c9c40a0137da425885eb383c8cb2cb5
     # The rest of this class will contain other conversational keypoints/modes
-    
+
     def end_conversation(self):
         return "Goodbye?"
+<<<<<<< HEAD
         
         
         
@@ -257,3 +296,20 @@ if __name__ == "__main__":
 
 
 
+=======
+
+if __name__ == "__main__":
+    with open("testcorpus.txt", "r") as f:
+        questions = f.read().splitlines()
+        parser = POSParse()
+        # parser.process_queries(questions, debug=True)
+        # for dp in parser.date_phrases:
+        #     print("--------------------")
+        #     print(dp)
+        #     print(parser.to_datetime(dp))
+
+        for q in questions:
+            print("------------")
+            print(q)
+            parser.process_query(q)
+>>>>>>> 8483fcd13c9c40a0137da425885eb383c8cb2cb5

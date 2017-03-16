@@ -8,26 +8,20 @@ Date last modified: 2/3/2017
 Python Version: 2.7
 """
 
-import time
-import argparse
 import cv2
 import os
 import pickle
-import collections
 import sys
-import os
 import numpy as np
 from PIL import Image
 from sklearn.mixture import GMM
 import openface
-from PIL import Image
 from naoqi import ALProxy
 # forgive my hackeries but this should work on all or computers
 dir_path = os.path.dirname(os.path.realpath(__file__))
 up_dir = os.path.dirname(os.path.dirname(dir_path))
 
 sys.path.append(up_dir)
-# import naoqiutils
 import headmotions
 
 
@@ -58,10 +52,6 @@ videoClient = camProxy.subscribe("python_client", resolution, colorSpace, 5)
 
 
 def saveNewUser(images, fName, lName):
-    # fName = raw_input("I don't know you, what is your first name?\n")
-    # lName = raw_input("And what is your last name?\n")
-    # Create folder with name
-    # rgbImg = cv2.cvtColor(images, cv2.COLOR_BGR2RGB)
     fileDir = os.path.join(os.path.dirname(__file__), '')
     fileDir = os.path.dirname(os.path.realpath(__file__))
     trainDir = os.path.join(fileDir, 'training-images')
@@ -74,11 +64,12 @@ def saveNewUser(images, fName, lName):
         n = max([int(d.split("-")[2]) for d in os.listdir(trainDir)
             if d.startswith(fName + "-" + lName)] + [0]) + 1
         os.makedirs(directory)
+
     for i, img in enumerate(images):
         print("iteration over images")
         goodimg = Image.fromarray(img)
         goodimg.save(directory + "/image" + str(i) + ".png")
-        # cv2.imwrite(directory + "/image" + str(i) + ".png", img)
+    #     cv2.imwrite(directory + "/image" + str(i) + ".png", img)
     return fName + "-" + lName + "-" + str(n)
 
 
@@ -112,9 +103,13 @@ def take_photos(use_nao=True):
             frame = np.array(naoqi_frame)
         else:
             # line for using with webcams
+            video_capture = cv2.VideoCapture(0)
+            video_capture.set(3, WIDTH)
+            video_capture.set(4, HEIGHT)
             ret, frame = video_capture.read()
+            print("photo taken")
 
-        persons, confidences = infer(frame, align, net)
+        persons, confidences = infer(frame, align, net, use_nao)
         for i, c in enumerate(confidences):
             if c <= THRESHOLD:
                 persons[i] = "_unknown"
@@ -133,7 +128,7 @@ def take_photos(use_nao=True):
         # Quit the program on the press of key 'q'
         # if cv2.waitKey(1) & 0xFF == ord('q'):
         #     break
-        # picturesTaken += 1
+        picturesTaken += 1
     if not use_nao:
         video_capture.release()
         cv2.destroyAllWindows()
@@ -142,14 +137,14 @@ def take_photos(use_nao=True):
     return images
 
 
-def infer(img, align, net):
+def infer(img, align, net, use_nao):
     ospath = os.path.join(os.path.dirname(__file__), '')
     classifierModel = ospath + '/generated-embeddings/classifier.pkl'
 
     with open(classifierModel, 'r') as f:
         (le, clf) = pickle.load(f)  # le - label and clf - classifer
 
-    reps = getRep(img, align, net)
+    reps = getRep(img, align, net, use_nao)
     persons = []
     confidences = []
     for rep in reps:
@@ -173,7 +168,7 @@ def infer(img, align, net):
             pass
     return (persons, confidences)
 
-def getRep(bgrImg, align, net):
+def getRep(bgrImg, align, net, use_nao):
     if bgrImg is None:
         raise Exception("Unable to load image/frame")
 
@@ -189,7 +184,7 @@ def getRep(bgrImg, align, net):
     if bb is None:
         # raise Exception("Unable to find a face: {}".format(imgPath))
         return None
-    if len(bb) > 0:
+    if len(bb) > 0 and use_nao:
         # print("image size: " + str(rgbImg.shape))
         # print("position of face: " + str(bb[0].center()))
         center = bb[0].center()

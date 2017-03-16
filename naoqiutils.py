@@ -14,13 +14,14 @@ import PIL.Image as Image
 
 IP = "mio.local"
 PORT = 9559
+import sys
 
 
 def speak(phrase):
     # errors if not converted to ascii :(
     phrase = phrase.encode('ascii', 'ignore')
     tts = ALProxy("ALTextToSpeech", IP, PORT)
-    tts.setVolume(0.005)
+    tts.setVolume(0.3)
     tts.say(phrase)
 
 def get_images(amount):
@@ -52,7 +53,9 @@ def get_images(amount):
 
 def get_image():
     camProxy = ALProxy("ALVideoDevice", IP, PORT)
-    resolution = 2    # VGA
+    # Found the chart! its at
+    # http://doc.aldebaran.com/2-1/family/robots/video_robot.html
+    resolution = 2    # VGA 640*480px
     colorSpace = 11  # RGB
 
     videoClient = camProxy.subscribe("python_client", resolution, colorSpace, 5)
@@ -69,3 +72,12 @@ def get_image():
     # Create a PIL Image from our pixel array.
     im = Image.fromstring("RGB", (imageWidth, imageHeight), array)
     return im
+
+def play_sine(frequency):
+    try:
+        aup = ALProxy("ALAudioPlayer", IP, PORT)
+    except Exception, e:
+        print "Could not create proxy to ALAudioPlayer"
+        print "Error was: ", e
+        sys.exit(1)
+    aup.playSine(frequency, 40, 0, 0.5)

@@ -25,7 +25,12 @@ import os
 import platform
 import conversation
 import profilegetter
+<<<<<<< HEAD
 import userprofile
+=======
+from speechRecognition import speech as STT
+
+>>>>>>> 8483fcd13c9c40a0137da425885eb383c8cb2cb5
 
 class ChatEngine(object):
     """
@@ -34,7 +39,8 @@ class ChatEngine(object):
     The engine runs in a mode which determines how it will answer. Possible
     modes are human and debug. Human parses queries as natural language
     (it tries to understand them), and debug calls a function ("command")
-    assigned to a specific query string. 'human_speech' is the same as human, but
+    assigned to a specific query string. 'human_speech' is the same as human,
+    but...
     """
 
     def __init__(self, user=None, mode="human", news=None):
@@ -54,6 +60,7 @@ class ChatEngine(object):
         self.newsprinter = prettynews.PrettyNews(self.conv.searcher, self.mode, self)
         # Commands is a dict of named conversation action scripts
         self.commands = {
+<<<<<<< HEAD
             "help" : self.print_commands,
             "quit" : self.quit,
             "present_news" : self.newsprinter.show_news,
@@ -68,11 +75,18 @@ class ChatEngine(object):
         debug_commands = {
             "topics" : self.get_topics, "switch" : self.switch, 
             "quit" : self.quit,
+=======
+            "topics": self.get_topics, "switch": self.switch, "help": self.print_commands,
+            "quit": self.quit, "search": self.searcher.search,
+            "present_news": self.newsprinter.show_news,
+            "failed_search": self.newsprinter.search_help
+>>>>>>> 8483fcd13c9c40a0137da425885eb383c8cb2cb5
         }
         
         if mode == "debug":
             self.commands = dict(self.commands.items() + debug_commands.items())
         self.posparser = posparse.POSParse()
+<<<<<<< HEAD
 
 
     def start(self):
@@ -82,15 +96,40 @@ class ChatEngine(object):
             self.process_command_args(cmd, args)
             
         cmd = None        
+=======
+        if platform.system() == 'Darwin':  # OS X
+            self.speak = self.osx_speak
+        else:  # Assume linux/naoqi
+            import naoqiutils
+            self.speak = naoqiutils.speak
+
+    def start(self):
+        conv = conversation.Conversation(self)
+        if self.mode == 'human' or self.mode == 'human_speech':
+            conv.start_conversation()
+>>>>>>> 8483fcd13c9c40a0137da425885eb383c8cb2cb5
 
         while True:
-            
-            q = raw_input("> ")
+
+            # q = raw_input("> ")
+            q = STT.wait_for_voice()
+            if q == "":
+                self.speak("Sorry I didn't hear that can you say it again?")
+                q = STT.wait_for_voice()
+            if q == "":
+                self.speak("One More time please.")
+                q = STT.wait_for_voice()
+            if q == "":
+                self.speak("I assume you just want another article, don't you? Here is something.")
+                # currently if no question is found after 3 tries, random news
+                # is requested.
+                q = "can you get me the latest news"
             if self.mode == 'debug':
                 self.process_command(q)
             elif self.mode.startswith('human'):
                 # Differentiate between IR queries and opinion related stuff
                 # Something like: read me the first article/article by title/article approxiatmely
+<<<<<<< HEAD
                 # by title? 
                 # ^ This should go into (pos)parsing! cus that class is concerned with unnderstanding
                 # sentences. It could/should go into the process_query() method
@@ -110,6 +149,23 @@ class ChatEngine(object):
         return None, None
 
     
+=======
+                # by title?
+                cmd, args = self.posparser.process_query(q)
+                if self.mode == 'human_speech':
+                    answer = self.process_command_args(cmd, args)
+                    if answer is None:
+                        self.speak("I don't understand what you just said. Can you say it again.")
+                    else:
+                        self.speak(answer)
+                else:
+                    self.process_command_args(cmd, args)
+
+
+    def osx_speak(self, phrase):
+        os.system("say " + phrase)
+
+>>>>>>> 8483fcd13c9c40a0137da425885eb383c8cb2cb5
     def quit(self):
         import sys
         print("Goodbye!")
@@ -132,6 +188,7 @@ class ChatEngine(object):
 
     def not_found(self, *args):
         print("Command not found!")
+<<<<<<< HEAD
         
     def osx_say(self, phrase):
         os.system("say \"" + phrase.encode('utf-8') + "\"")
@@ -143,6 +200,13 @@ class ChatEngine(object):
 
         
     # This function extracts the arguments from a 
+=======
+
+    def process_command_args(self, cmd, args):
+        return self.commands.get(cmd, self.not_found)(*args)
+
+    # This function extracts the arguments from a
+>>>>>>> 8483fcd13c9c40a0137da425885eb383c8cb2cb5
     def process_command(self, cmd):
         # TODO capability to do gdb like command synonyms
         cmd = cmd.lower().split(" ")
@@ -154,7 +218,7 @@ class ChatEngine(object):
             args = []
         # cmd, *args = cmd # rip beatiful python3 syntax
         self.commands.get(cmd, self.not_found)(*args)
-        
+
 
 
 if __name__ == "__main__":

@@ -140,6 +140,7 @@ class POSParse(object):
         
     # The NLP equivalent of processCommand from chatengine.py
     def process_query(self, query):
+        query = query.encode('utf-8')
         # Replaced with server implementation, should be removed.
         # ptree = list(self.parser.raw_parse(query))[0]
 
@@ -206,14 +207,20 @@ class POSParse(object):
             return "failed_search", "Try specifying just one or two news sources."
 
 
-      
-        
+
+
         # dictionary get like operator for list
         get = lambda l, i: None if i > len(l)-1 else list(l)[i]
         # maybe create this dict dynamically?
+<<<<<<< HEAD
         return {"term1" : get(keywords, 0), "term2" : get(keywords, 1), "cat1" : get(cats, 0),  
         "cat2" : get(cats, 1), "date1" : get(dates, 0), "date2" : get(dates, 1), 
         "place": get(places, 0), "source1" : get(sources, 0), "source2" : get(sources, 1)}
+=======
+        return [{"term1" : get(keywords, 0), "term2" : get(keywords, 1), "cat1" : get(cats, 0),
+        "cat2" : get(cats, 1), "date1" : get(dates, 0), "date2" : get(dates, 1),
+        "place": get(places, 0), "source1" : get(sources, 0), "source2" : get(sources, 1)}]
+>>>>>>> 8483fcd13c9c40a0137da425885eb383c8cb2cb5
 
 
     # Function that asks the news extractor for it's sources
