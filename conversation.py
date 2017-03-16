@@ -49,9 +49,9 @@ class Conversation(object):
         print(phrase)
 
 
-    def related_news_parse(self, article): # Wijnands thingy
-        article.keywords # lange keywords
-        keys.extract_top(article.text, True) # most frequent keywords
+    def related_news_parse(self, article):  # Wijnands thingy
+        article.keywords  # lange keywords
+        keys.extract_top(article.text, True)  # most frequent keywords
         pass
 
     def query_parse(self, query):

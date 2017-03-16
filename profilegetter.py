@@ -12,6 +12,7 @@ import random
 import os
 import pickle
 import naoqiutils
+
 from faceRecognition import facerecognition as facerec
 from faceRecognition import imageRecognition as imrec
 from faceRecognition import trainer

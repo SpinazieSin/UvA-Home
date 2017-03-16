@@ -7,6 +7,8 @@ Date created: 13/2/2017
 Date last modified: 13/2/2017
 Python Version: 3.5
 """
+import os
+import pickle
 
 
 class UserProfile():
@@ -64,6 +66,15 @@ class UserProfile():
         self.interests["health"] = 0.5
         self.interests["baseball"] = 0.5
         self.interests["environment"] = 0.5
+
+    def save_user(self):
+        """Save current user profile."""
+        PATH = "users/" + self.username + "/" + self.username + ".pickle"
+        # this makes it work in 2.7 idk why
+        ospath = os.path.join(os.path.dirname(__file__), '')
+        fullpath = ospath + PATH
+        with open(fullpath, 'wb') as handle:
+            pickle.dump(self, handle)
 
     def __repr__(self):
         """Print user name."""
