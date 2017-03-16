@@ -21,7 +21,7 @@ class UserProfile():
 
     def __init__(self, username="NAMELESS", facial_features="FILENAME"):
         """Initialize all values."""
-        self.keywords = []
+        self.keywords = {}
         self.username = username
         self.interests = {}
         self.facial_features = facial_features
@@ -64,6 +64,16 @@ class UserProfile():
         self.interests["health"] = 0.5
         self.interests["baseball"] = 0.5
         self.interests["environment"] = 0.5
+        
+    def update_preferences(self, sentiment, article):
+        self.interest[article.category] += 0.1 * sentiment
+        if sentiment > 1:
+            self.keywords.update(article.keywords)
+        if sentiment < 0:
+            self.keywords -= article.keywords
+        self.save_profile()
+        return None, [None]
+
 
     def __repr__(self):
         """Print user name."""
