@@ -44,7 +44,7 @@ class ChatEngine(object):
             self.user = userprofile.UserProfile()
         else:
             self.user = user
-        
+
         self.mode = mode
         self.conv = conversation.Conversation(self, news=news)
         if platform.system() == 'Darwin': # OS X
@@ -68,10 +68,10 @@ class ChatEngine(object):
             "get_preference" : self.conv.get_preference,
         }
         debug_commands = {
-            "topics" : self.get_topics, "switch" : self.switch, 
+            "topics" : self.get_topics, "switch" : self.switch,
             "quit" : self.quit,
         }
-        
+
         if mode == "debug":
             self.commands = dict(self.commands.items() + debug_commands.items())
         self.posparser = posparse.POSParse()
@@ -100,16 +100,16 @@ class ChatEngine(object):
             elif self.mode.startswith('human'):
                 # Differentiate between IR queries and opinion related stuff
                 # Something like: read me the first article/article by title/article approxiatmely
-                # by title? 
+                # by title?
                 # ^ This should go into (pos)parsing! cus that class is concerned with unnderstanding
                 # sentences. It could/should go into the process_query() method
                 cmd, args = self.posparser.process_query(q)
                 while cmd is not None:
                     cmd, args = self.process_command_args(cmd, *args)
-                    
+
         conv.end_conversation()
 
-    
+
     def speak(self, phrase):
         if self.mode == "human_speech":
             print(phrase)
@@ -127,7 +127,7 @@ class ChatEngine(object):
         import sys
         print("Goodbye!")
         sys.exit(0)
-        
+
     def select_random_command(self):
         pass
 
@@ -145,11 +145,11 @@ class ChatEngine(object):
 
     def not_found(self, *args):
         print("Command not found!")
-        
+
     def osx_say(self, phrase):
         os.system("say \"" + phrase.encode('utf-8') + "\"")
 
-        
+
     def process_command_args(self, cmd, *args):
         return self.commands.get(cmd, self.not_found)(*args)
 
