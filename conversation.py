@@ -10,8 +10,8 @@ class Conversation(object):
 
     def __init__(self, chat, news=None):
         self.chat = chat
-        self.newscontext = deque() # stack of the news
-        self.newscontext = [] # more general context
+        self.newscontext = deque()  # stack of the news
+        self.newscontext = []  # more general context
         # get all articles
         n = news
         if n is None:
