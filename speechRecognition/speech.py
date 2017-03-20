@@ -47,6 +47,9 @@ def wait_for_voice():
     except sr.RequestError as e:
         print("Could not request results from Google Speech Recognition service; {0}".format(e))
         return ""
+    except KeyError as e:
+        print("uhhh.... keyerror? I don't know why this happens just continue please")
+        return ""
 
 
 @timeout(8)

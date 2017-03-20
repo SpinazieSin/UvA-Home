@@ -23,13 +23,11 @@ import prettynews
 import userprofile
 import os
 import platform
-import random
 import conversation
 import profilegetter
 import userprofile
 from speechRecognition import speech as STT
-question_repeat_list = []
-
+from random import choice
 
 class ChatEngine(object):
     """
@@ -42,19 +40,26 @@ class ChatEngine(object):
     but...
     """
 
-    def __init__(self, user=None, mode="human", news=None):
+    def __init__(self, user=None, mode="human", news=None, speech_recog=True):
         with open("sentences/question_repeat.txt") as f:
-            content = f.readlines()
-        question_repeat_list = [x.rstrip("\n") for x in content]
+            question_repeat = f.readlines()
+        with open("sentences/continue_phrases.txt") as f:
+            continue_phrases = f.readlines()
+
+        self.Q_REPEAT_PHRASES = [x.rstrip("\n") for x in question_repeat]
+        self.CONTINUE_PHRASES = [x.rstrip("\n") for x in continue_phrases]
 
         if not user:
             self.user = userprofile.UserProfile()
         else:
             self.user = user
 
+
         self.mode = mode
         self.conv = conversation.Conversation(self, news=news)
+        self.speech_recog = speech_recog
         if platform.system() == 'Darwin': # OS X
+            self.speech_recog = False
             self.say = self.osx_say
         else: # Assume linux/naoqi
             import naoqiutils
@@ -86,22 +91,23 @@ class ChatEngine(object):
     def start(self):
         conv = conversation.Conversation(self)
         if self.mode == 'human' or self.mode == 'human_speech':
-            conv.start_conversation()
+            self.speak(conv.start_conversation())
         while True:
+            if self.speech_recog:
+                tries = 0
+                q = ""
+                while tries < 4 and q == "":
+                    q = STT.wait_for_voice()
+                    if q == "" and tries < 3:
+                        self.speak(choice(self.Q_REPEAT_PHRASES))
+                    tries += 1
 
-            # q = raw_input("> ")
-            tries = 0
-            q = ""
-            while tries < 4 and q == "":
-                q = STT.wait_for_voice()
+                # currently if no question is found after 3 tries, random news
+                # is requested.
                 if q == "":
-                    self.speak(random.choice(question_repeat_list))
-                tries += 1
-
-            # currently if no question is found after 3 tries, random news
-            # is requested.
-            if q == "":
-                q = "What has happened in the last three days?"
+                    q = "What has happened in the last three days?"
+            else:
+                q = raw_input("> ")
             if self.mode == 'debug':
                 self.process_command(q)
             elif self.mode.startswith('human'):
@@ -113,9 +119,9 @@ class ChatEngine(object):
                 cmd, args = self.posparser.process_query(q)
                 while cmd is not None:
                     cmd, args = self.process_command_args(cmd, *args)
-
+                    if cmd is None:
+                        self.speak(choice(self.CONTINUE_PHRASES))
         conv.end_conversation()
-
 
     def speak(self, phrase):
         if self.mode == "human_speech":
@@ -123,7 +129,7 @@ class ChatEngine(object):
             self.say(phrase.replace('"', '\"'))
         elif self.mode == "human":
             print(phrase)
-        return None, None
+        return None, [None]
 
 
     def osx_speak(self, phrase):
@@ -176,6 +182,6 @@ class ChatEngine(object):
 
 if __name__ == "__main__":
     getter = profilegetter.ProfileGetter([])
-    user = getter.get_profile("Jonathon-Gorbscheid")
+    user = getter.get_profile("jonathan-gerbscheid")
     c = ChatEngine(user=user)
     c.start()

@@ -67,6 +67,16 @@ class UserProfile():
         self.interests["baseball"] = 0.5
         self.interests["environment"] = 0.5
 
+        
+    def update_preferences(self, sentiment, article):
+        self.interests[article.category] += 0.1 * sentiment
+        if sentiment > 1:
+            self.keywords.update(article.keywords)
+        if sentiment < 0:
+            self.keywords -= article.keywords
+        self.save_profile()
+        return None, [None]
+
     def save_user(self):
         """Save current user profile."""
         PATH = "users/" + self.username + "/" + self.username + ".pickle"
