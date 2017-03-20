@@ -13,7 +13,7 @@ def warn(*args, **kwargs):
 import warnings
 warnings.warn = warn
 
-#... import sklearn stuff...
+# ... import sklearn stuff...
 
 # import other classes here, like NLP class
 
@@ -23,10 +23,13 @@ import prettynews
 import userprofile
 import os
 import platform
+import random
 import conversation
 import profilegetter
 import userprofile
 from speechRecognition import speech as STT
+question_repeat_list = []
+
 
 class ChatEngine(object):
     """
@@ -40,6 +43,10 @@ class ChatEngine(object):
     """
 
     def __init__(self, user=None, mode="human", news=None):
+        with open("sentences/question_repeat.txt") as f:
+            content = f.readlines()
+        question_repeat_list = [x.rstrip("\n") for x in content]
+
         if not user:
             self.user = userprofile.UserProfile()
         else:
@@ -83,17 +90,17 @@ class ChatEngine(object):
         while True:
 
             # q = raw_input("> ")
-            q = STT.wait_for_voice()
-            if q == "":
-                self.speak("Sorry I didn't hear that can you say it again?")
+            tries = 0
+            q = ""
+            while tries < 4 and q == "":
                 q = STT.wait_for_voice()
+                if q == "":
+                    self.speak(random.choice(question_repeat_list))
+                tries += 1
+
+            # currently if no question is found after 3 tries, random news
+            # is requested.
             if q == "":
-                self.speak("One More time please.")
-                q = STT.wait_for_voice()
-            if q == "":
-                self.speak("I assume you just want another article, don't you? Here is something.")
-                # currently if no question is found after 3 tries, random news
-                # is requested.
                 q = "What has happened in the last three days?"
             if self.mode == 'debug':
                 self.process_command(q)
