@@ -27,6 +27,7 @@ import conversation
 import profilegetter
 import userprofile
 from speechRecognition import speech as STT
+from random import choice
 
 class ChatEngine(object):
     """
@@ -39,15 +40,19 @@ class ChatEngine(object):
     but...
     """
 
-    def __init__(self, user=None, mode="human", news=None):
+    def __init__(self, user=None, mode="human", news=None, speech_recog=True):
         if not user:
             self.user = userprofile.UserProfile()
         else:
             self.user = user
 
+        self.CONTINUE_PHRASES = ["What can I do for you know?", "Is there anything else I can help you with?", "What would you like to do now?"]
+
         self.mode = mode
         self.conv = conversation.Conversation(self, news=news)
+        self.speech_recog = speech_recog
         if platform.system() == 'Darwin': # OS X
+            self.speech_recog = False
             self.say = self.osx_say
         else: # Assume linux/naoqi
             import naoqiutils
@@ -79,22 +84,23 @@ class ChatEngine(object):
     def start(self):
         conv = conversation.Conversation(self)
         if self.mode == 'human' or self.mode == 'human_speech':
-            conv.start_conversation()
+            self.speak(conv.start_conversation())
         while True:
-
-            # q = raw_input("> ")
-            q = STT.wait_for_voice()
-            if q == "":
-                self.speak("Sorry I didn't hear that can you say it again?")
+            if self.speech_recog:
                 q = STT.wait_for_voice()
-            if q == "":
-                self.speak("One More time please.")
-                q = STT.wait_for_voice()
-            if q == "":
-                self.speak("I assume you just want another article, don't you? Here is something.")
-                # currently if no question is found after 3 tries, random news
-                # is requested.
-                q = "What has happened in the last three days?"
+                if q == "":
+                    self.speak("Sorry I didn't hear that can you say it again?")
+                    q = STT.wait_for_voice()
+                if q == "":
+                    self.speak("One More time please.")
+                    q = STT.wait_for_voice()
+                if q == "":
+                    self.speak("I assume you just want another article, don't you? Here is something.")
+                    # currently if no question is found after 3 tries, random news
+                    # is requested.
+                    q = "What has happened in the last three days?"
+            else:
+                q = raw_input("> ")
             if self.mode == 'debug':
                 self.process_command(q)
             elif self.mode.startswith('human'):
@@ -106,9 +112,9 @@ class ChatEngine(object):
                 cmd, args = self.posparser.process_query(q)
                 while cmd is not None:
                     cmd, args = self.process_command_args(cmd, *args)
-
+                    if cmd is None:
+                        self.speak(choice(self.CONTINUE_PHRASES))
         conv.end_conversation()
-
 
     def speak(self, phrase):
         if self.mode == "human_speech":
@@ -116,7 +122,7 @@ class ChatEngine(object):
             self.say(phrase.replace('"', '\"'))
         elif self.mode == "human":
             print(phrase)
-        return None, None
+        return None, [None]
 
 
     def osx_speak(self, phrase):
@@ -169,6 +175,6 @@ class ChatEngine(object):
 
 if __name__ == "__main__":
     getter = profilegetter.ProfileGetter([])
-    user = getter.get_profile("Jonathon-Gorbscheid")
+    user = getter.get_profile("jonathan-gerbscheid")
     c = ChatEngine(user=user)
     c.start()

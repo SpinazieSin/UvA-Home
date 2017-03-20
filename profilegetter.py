@@ -13,9 +13,9 @@ import os
 import pickle
 import naoqiutils
 
-from faceRecognition import facerecognition as facerec
-from faceRecognition import imageRecognition as imrec
-from faceRecognition import trainer
+#from faceRecognition import facerecognition as facerec
+#from faceRecognition import imageRecognition as imrec
+#from faceRecognition import trainer
 from speechRecognition import speech as STT
 
 
