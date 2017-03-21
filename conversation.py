@@ -72,7 +72,7 @@ class Conversation(object):
                     return "get_preference", [article]
             else:
                 if randrange(0,1) < opinion_chance:
-                    return "present_opinion", [article]
+                    return "present_opinion_article", [article]
             return None, [None]
         else:
             start_lines = randint(2, start_end)
@@ -94,7 +94,7 @@ class Conversation(object):
                     return "get_preference", [article]
             else:
                 if randrange(0,1) < opinion_chance:
-                    return "present_opinion", [article]
+                    return "present_opinion_article", [article]
             return None, [None]
                 
         self.chat.speak("Do you want me to continue reading?")
@@ -107,7 +107,7 @@ class Conversation(object):
                     return "get_preference", [article]
             else:
                 if randrange(0,1) < opinion_chance:
-                    return "present_opinion", [article]
+                    return "present_opinion_article", [article]
         return None, [None]
 
 

@@ -79,8 +79,8 @@ class ChatEngine(object):
             "read_article" : self.conv.read,
             "update_preference" : self.user.update_preferences,
             "get_preference" : self.conv.get_preference,
-            "present_opinion_article" : self.opinion_engine.,
-            "present_opinion_subject" : self.opinion_engine.,
+            "present_opinion_article" : self.opinion_engine.present_opinion_article,
+            "present_opinion_subject" : self.opinion_engine.get_relevant_opinion,
         }
         debug_commands = {
             "topics" : self.get_topics, "switch" : self.switch,

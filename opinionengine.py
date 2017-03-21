@@ -9,6 +9,7 @@
 import sys, os, random
 import sentimentanalysis
 
+
 class OpinionEngine(object):
 	"""The OpinionEngine object keeps track of the computed opinions."""
 	
@@ -112,7 +113,14 @@ class OpinionEngine(object):
 		else:
 			return random.choice(neutral_replies).replace('[SUBJ]', subject)
 			
-    def 
+    def present_opinion_article(self, article):
+        # Actually extract the article subject first
+        keyword = random.choice(list(article.keywords))
+        opinion = get_relevant_opinion(keyword)
+        if opinion is not None:
+            return "speak", [opinion]
+        return None, [None]
+        
 
 # The sentence database
 positive_replies = ["Isn't [SUBJ] just the best?",
