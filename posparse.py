@@ -86,7 +86,7 @@ class POSParse(object):
 
         # maybe updates is a keywords in some contextes?
         self.non_keywords = {"news", "i", "updates", "me", "you"}
-        
+
         self.opinion_questions = ["what do you think about", "what's your opinion on", "what is your opinion on"]
 
     def to_datetime(self, date_phrase):
@@ -159,7 +159,6 @@ class POSParse(object):
                 args = [args.strip()]
                 break
 
-                       
         if cmd is None:
             # Parse the sentence and make a tree from the resulting string.
             parse = self.parser.annotate(query, properties={

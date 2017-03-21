@@ -31,6 +31,7 @@ IMG_DIM = 96
 WIDTH = 320
 HEIGHT = 240
 THRESHOLD = 0.65
+IMAGECOUNT = 10
 IP = "mio.local"
 PORT = 9559
 camProxy = ALProxy("ALVideoDevice", IP, PORT)
@@ -52,6 +53,7 @@ videoClient = camProxy.subscribe("python_client", resolution, colorSpace, 5)
 
 
 def saveNewUser(images, fName, lName):
+    """"Create new directory for user and save the photos."""
     fileDir = os.path.join(os.path.dirname(__file__), '')
     fileDir = os.path.dirname(os.path.realpath(__file__))
     trainDir = os.path.join(fileDir, 'training-images')
@@ -74,6 +76,7 @@ def saveNewUser(images, fName, lName):
 
 
 def take_photos(use_nao=True):
+    """Take images containing faces until IMAGECOUNT is reached."""
     fileDir = os.path.dirname(os.path.realpath(__file__))
     print(fileDir)
     modelDir = os.path.join(fileDir, 'models')
@@ -96,7 +99,7 @@ def take_photos(use_nao=True):
     picturesTaken = 0
     # possiblePersons = collections.Counter()
     images = []
-    while (picturesTaken < 10):
+    while (picturesTaken < IMAGECOUNT):
         if use_nao:
             naoqi_frame = get_image()
             # naoqi_frame is an rgb image, I checked this.

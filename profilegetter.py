@@ -13,9 +13,7 @@ import os
 import pickle
 import naoqiutils
 import platform
-
-if not platform.system() == 'Darwin': # OS X
-
+if not platform.system() == 'Darwin':  # OS X
     from faceRecognition import facerecognition as facerec
     from faceRecognition import imageRecognition as imrec
     from faceRecognition import trainer

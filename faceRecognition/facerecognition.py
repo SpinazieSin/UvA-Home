@@ -31,7 +31,8 @@ IMG_DIM = 96
 WIDTH = 320
 HEIGHT = 240
 THRESHOLD = 0.5
-IP = "mio.local"
+REQUIRED_TRIALS = 2
+IP = "mio.local"  # change is another robot is used
 PORT = 9559
 camProxy = ALProxy("ALVideoDevice", IP, PORT)
 motionProxy = ALProxy("ALMotion", IP, PORT)
@@ -127,7 +128,7 @@ def known_face(use_nao=True, timeout=True):
     person_list = []
     images_taken_count = 0
     while True:
-        # if it takes longer than 10 seconds, stop and return False and ""
+        # if it takes longer than 10 images, stop and return False and ""
         if images_taken_count > 10 and timeout:
             if not use_nao:
                 video_capture.release()
@@ -146,33 +147,34 @@ def known_face(use_nao=True, timeout=True):
             ret, frame = video_capture.read()
 
         persons, confidences = infer(frame, align, net)
-        # print(persons, confidences)
         for i, c in enumerate(confidences):
-            if c <= THRESHOLD:  # 0.5 is kept as threshold for known face.
+            if c <= THRESHOLD:  # threshold for known faces.
                 persons[i] = "_unknown"
         print("P: " + str(persons) + " C: " + str(confidences))
-        # print(persons)
 
         try:
             # append with two floating point precision
             confidenceList.append('%.2f' % confidences[0])
             person_list.append(persons[0])
-            # enforce length of 10 for test_persons
-            if len(person_list) <= 4:
-                continue
-            # get the last 10 items of the confidenceList
+            # uncomment if you want to run a few cycles before recognition
+
+            # if len(person_list) <= 4:
+            #     continue
+
+            # only check for equal persons in the last 4 entries.
             test_persons = person_list[-4:]
-            test_confidences = confidenceList[-4:]
+            # test_confidences = confidenceList[-4:]
             # sorry for terribly ugly if statement
-            if test_persons.count(test_persons[-1]) > 1 and \
-                    person_list[-1] != "_unknown":
+            # if the last person is recognised more than once in list
+            if test_persons.count(test_persons[-1]) >= REQUIRED_TRIALS and \
+                    test_persons[-1] != "_unknown":
                 # 0.8 threshold for known faces
                 # the code previously written recognizes a face above 0.5
                 # confidence score, I think thats a bit low so I added a
                 # 0.8 minimal score here.
                 # if all(i >= 0.65 for i in test_confidences):
                 #     print(test_confidences)
-                print("found 4 high confidence scores")
+                print("Found " + str(REQUIRED_TRIALS) + " high confidences.")
                 if not use_nao:
                     video_capture.release()
                     cv2.destroyAllWindows()
@@ -189,8 +191,8 @@ def known_face(use_nao=True, timeout=True):
         #             (255, 255, 255), 1)
         # cv2.imshow('', frame)
         # quit the program on the press of key 'q'
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
         images_taken_count += 1
     # When everything is done, release the capture
     # this only runs when someone breaks the loop by pressin gq, don't know

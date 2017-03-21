@@ -28,7 +28,7 @@ import profilegetter
 import userprofile
 from speechRecognition import speech as STT
 from random import choice
-import opinionengine
+from sentiment import opinionengine
 
 class ChatEngine(object):
     """
@@ -41,7 +41,7 @@ class ChatEngine(object):
     but...
     """
 
-    def __init__(self, user=None, mode="human", news=None, speech_recog=True):
+    def __init__(self, user=None, mode="human", news=None, speech_recog=False):
         with open("sentences/question_repeat.txt") as f:
             question_repeat = f.readlines()
         with open("sentences/continue_phrases.txt") as f:
@@ -59,7 +59,7 @@ class ChatEngine(object):
         self.conv = conversation.Conversation(self, news=news)
         self.opinion_engine = opinionengine.OpinionEngine()
         self.speech_recog = speech_recog
-        if platform.system() == 'Darwin': # OS X
+        if platform.system() == 'Darwin':  # OS X
             self.speech_recog = False
             self.say = self.osx_say
         else: # Assume linux/naoqi
@@ -102,7 +102,7 @@ class ChatEngine(object):
                 # currently if no question is found after 3 tries, random news
                 # is requested.
                 q = "What has happened in the last three days?"
-                
+
             if self.mode == 'debug':
                 self.process_command(q)
             elif self.mode.startswith('human'):
@@ -117,7 +117,7 @@ class ChatEngine(object):
                     if cmd is None:
                         self.speak(choice(self.CONTINUE_PHRASES))
         conv.end_conversation()
-        
+
     def listen(self):
         q = "" # assume empty string when no asnwer found, migth work for most functions
         if self.speech_recog:
@@ -130,7 +130,7 @@ class ChatEngine(object):
                 tries += 1
         else:
             q = raw_input("> ").lower()
-        return q 
+        return q
 
     def speak(self, phrase):
         if self.mode == "human_speech":
