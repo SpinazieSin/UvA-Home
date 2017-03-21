@@ -12,12 +12,7 @@ import random
 import os
 import pickle
 import naoqiutils
-
-<<<<<<< HEAD
-
-if platform.system() == 'Darwin': # OS X
-=======
->>>>>>> a6e30599bf2a5f75edc22458ddd75ace94d22ca4
+# if platform.system() == 'Darwin': # OS X
 from faceRecognition import facerecognition as facerec
 from faceRecognition import imageRecognition as imrec
 from faceRecognition import trainer
