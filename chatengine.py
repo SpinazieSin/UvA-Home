@@ -13,7 +13,7 @@ def warn(*args, **kwargs):
 import warnings
 warnings.warn = warn
 
-#... import sklearn stuff...
+# ... import sklearn stuff...
 
 # import other classes here, like NLP class
 
@@ -42,6 +42,14 @@ class ChatEngine(object):
     """
 
     def __init__(self, user=None, mode="human", news=None, speech_recog=True):
+        with open("sentences/question_repeat.txt") as f:
+            question_repeat = f.readlines()
+        with open("sentences/continue_phrases.txt") as f:
+            continue_phrases = f.readlines()
+
+        self.Q_REPEAT_PHRASES = [x.rstrip("\n") for x in question_repeat]
+        self.CONTINUE_PHRASES = [x.rstrip("\n") for x in continue_phrases]
+
         if not user:
             self.user = userprofile.UserProfile()
         else:
@@ -90,6 +98,7 @@ class ChatEngine(object):
         if self.mode == 'human' or self.mode == 'human_speech':
             self.speak(conv.start_conversation())
         while True:
+<<<<<<< HEAD
             q = self.listen()
             if q is None:
                 self.speak("I assume you just want another article, don't you? Here is something.")
@@ -97,6 +106,23 @@ class ChatEngine(object):
                 # is requested.
                 q = "What has happened in the last three days?"
                 
+=======
+            if self.speech_recog:
+                tries = 0
+                q = ""
+                while tries < 4 and q == "":
+                    q = STT.wait_for_voice()
+                    if q == "" and tries < 3:
+                        self.speak(choice(self.Q_REPEAT_PHRASES))
+                    tries += 1
+
+                # currently if no question is found after 3 tries, random news
+                # is requested.
+                if q == "":
+                    q = "What has happened in the last three days?"
+            else:
+                q = raw_input("> ")
+>>>>>>> a6e30599bf2a5f75edc22458ddd75ace94d22ca4
             if self.mode == 'debug':
                 self.process_command(q)
             elif self.mode.startswith('human'):
