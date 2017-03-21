@@ -146,27 +146,23 @@ class Conversation(object):
         
         while tries and article is None:
             q = self.chat.listen()
-            if len(articles) == 1:
-                if any(a in q for a in ["yes", "y", "yeah"]):
-                    article = articles[0]
-                elif "no" in q:
-                    return "speak", "Okay, what else can I do for you?"
-                else:
-                    self.chat.speak("Sorry, I didn't get that. Please answer yes or no.")
-                    tries -= 1                    
-            else:
-                article_idx = self.article_by_title(q, titles)
-                if article_idx:
-                    article = articles[article_idx]
-                for r_tuple, v in art_ref.iteritems():
-                    if any(r in q for r in r_tuple):
-                        article = articles[v]
+            if any(a in q for a in ["yes", "y", "yeah"]):
+                article = articles[0]
+            elif "no" in q:
+                return None, [None]
 
-                if article is not None: # found
-                    break
-                else:
-                    self.chat.speak("Please refer to the article you want me to read.")
-                    tries -= 1
+            article_idx = self.article_by_title(q, titles)
+            if article_idx:
+                article = articles[article_idx]
+            for r_tuple, v in art_ref.iteritems():
+                if any(r in q for r in r_tuple):
+                    article = articles[v]
+
+            if article is not None: # found
+                break
+            else:
+                self.chat.speak("Please refer to the article you want me to read.")
+                tries -= 1
         
         if tries == 0:
             return "speak", ["Oops! Didn't quite get you there."]

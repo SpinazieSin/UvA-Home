@@ -169,7 +169,6 @@ class ChatEngine(object):
 
     def not_found(self, *args):
         print("Command not found!")
-        print(args)
         return None, [None]
 
     def osx_say(self, phrase):
