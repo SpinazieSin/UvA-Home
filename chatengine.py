@@ -57,7 +57,7 @@ class ChatEngine(object):
 
         self.mode = mode
         self.conv = conversation.Conversation(self, news=news)
-        self.opinion_engine = OpinionEngine()
+        self.opinion_engine = opinionengine.OpinionEngine()
         self.speech_recog = speech_recog
         if platform.system() == 'Darwin': # OS X
             self.speech_recog = False

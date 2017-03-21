@@ -14,7 +14,7 @@ class OpinionEngine(object):
     """The OpinionEngine object keeps track of the computed opinions."""
     
     def __init__(self):
-        self.opinion_data_file = sentiment_analysis.output_filename
+        self.opinion_data_file = sentimentanalysis.output_filename
         self.opinions = None
         self.read_opinions()
     
@@ -38,7 +38,7 @@ class OpinionEngine(object):
         opinions = {}
         try:
             file = open(self.opinion_data_file, 'r')
-        except FileNotFoundError as e:
+        except IOError as e:
             print("No opinion data file called '" + self.opinion_data_file +
                 "' was found. You may need to create one, or rename " + 
                 "the existing file.")
