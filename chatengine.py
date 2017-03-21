@@ -55,8 +55,6 @@ class ChatEngine(object):
         else:
             self.user = user
 
-        self.CONTINUE_PHRASES = ["What can I do for you now?", "Is there anything else I can help you with?", "What would you like to do now?"]
-
         self.mode = mode
         self.conv = conversation.Conversation(self, news=news)
         self.opinion_engine = OpinionEngine()
@@ -98,7 +96,6 @@ class ChatEngine(object):
         if self.mode == 'human' or self.mode == 'human_speech':
             self.speak(conv.start_conversation())
         while True:
-<<<<<<< HEAD
             q = self.listen()
             if q is None:
                 self.speak("I assume you just want another article, don't you? Here is something.")
@@ -106,23 +103,6 @@ class ChatEngine(object):
                 # is requested.
                 q = "What has happened in the last three days?"
                 
-=======
-            if self.speech_recog:
-                tries = 0
-                q = ""
-                while tries < 4 and q == "":
-                    q = STT.wait_for_voice()
-                    if q == "" and tries < 3:
-                        self.speak(choice(self.Q_REPEAT_PHRASES))
-                    tries += 1
-
-                # currently if no question is found after 3 tries, random news
-                # is requested.
-                if q == "":
-                    q = "What has happened in the last three days?"
-            else:
-                q = raw_input("> ")
->>>>>>> a6e30599bf2a5f75edc22458ddd75ace94d22ca4
             if self.mode == 'debug':
                 self.process_command(q)
             elif self.mode.startswith('human'):
@@ -141,14 +121,13 @@ class ChatEngine(object):
     def listen(self):
         q = "" # assume empty string when no asnwer found, migth work most functions
         if self.speech_recog:
-            q = STT.wait_for_voice()
-            if q == "":
-                # Add phrases about not understanding the user
-                self.speak("Sorry I didn't hear that can you say it again?")
+            tries = 0
+            q = ""
+            while tries < 4 and q == "":
                 q = STT.wait_for_voice()
-            if q == "":
-                self.speak("One More time please.")
-                q = STT.wait_for_voice()
+                if q == "" and tries < 3:
+                    self.speak(choice(self.Q_REPEAT_PHRASES))
+                tries += 1
         else:
             q = raw_input("> ").lower()
         return q 

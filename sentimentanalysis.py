@@ -49,7 +49,7 @@ model_resource_folder = "en"	# folder that contains '/model' folder
 lucene_path = "dbpedia-spotlight-quickstart-0.6.5/"
 lucene_jar_file = "dbpedia-spotlight-0.6.5-jar-with-dependencies.jar"
 sentistrength_jar = "SentiStrengthCom.jar"
-sentistrength_data_location = "SentStrength_Data/"
+sentistrength_data_location = "SentStrengthData/"
 sentistrength_tmp_filename = ".context-words-temp"
 output_filename = ".sentiment_scores"
 

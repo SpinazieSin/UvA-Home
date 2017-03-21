@@ -7,7 +7,7 @@
 # description:		Creates, stores, retrieves and provides opinions.
 
 import sys, os, random
-import sentiment_analysis
+import sentimentanalysis
 
 class OpinionEngine(object):
 	"""The OpinionEngine object keeps track of the computed opinions."""
@@ -15,6 +15,7 @@ class OpinionEngine(object):
 	def __init__(self):
 		self.opinion_data_file = sentiment_analysis.output_filename
 		self.opinions = None
+		self.read_opinions()
 	
 	def update_opinions(self, keywords):
 		"""Removes the old opinions and replaces them by computing new opinions
@@ -26,7 +27,7 @@ class OpinionEngine(object):
 		"""
 		os.remove(self.opinion_data_file)
 		for search in keywords:
-			sentiment_analysis.sentiment_analysis(search)
+			sentimentanalysis.sentiment_analysis(search)
 	
 	def read_opinions(self):
 		"""Reads the current opinions into memory. In case of duplicates,
@@ -89,6 +90,8 @@ class OpinionEngine(object):
 		"""
 		return random.choice(questions).replace('[SUBJ]', subject)
 	
+	
+	
 	def get_opinion(self, subject):
 		"""Returns an appropriate sentence according to the opinion.
 		
@@ -108,6 +111,8 @@ class OpinionEngine(object):
 			return random.choice(negative_replies).replace('[SUBJ]', subject)
 		else:
 			return random.choice(neutral_replies).replace('[SUBJ]', subject)
+			
+    def 
 
 # The sentence database
 positive_replies = ["Isn't [SUBJ] just the best?",
