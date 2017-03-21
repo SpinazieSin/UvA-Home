@@ -80,7 +80,7 @@ class ChatEngine(object):
             "update_preference" : self.user.update_preferences,
             "get_preference" : self.conv.get_preference,
             "present_opinion_article" : self.opinion_engine.present_opinion_article,
-            "present_opinion_subject" : self.opinion_engine.get_relevant_opinion,
+            "present_opinion_subject" : self.opinion_engine.present_opinion_subject,
         }
         debug_commands = {
             "topics" : self.get_topics, "switch" : self.switch,
@@ -119,7 +119,7 @@ class ChatEngine(object):
         conv.end_conversation()
         
     def listen(self):
-        q = "" # assume empty string when no asnwer found, migth work most functions
+        q = "" # assume empty string when no asnwer found, migth work for most functions
         if self.speech_recog:
             tries = 0
             q = ""
@@ -169,6 +169,8 @@ class ChatEngine(object):
 
     def not_found(self, *args):
         print("Command not found!")
+        print(args)
+        return None, [None]
 
     def osx_say(self, phrase):
         os.system("say \"" + phrase.encode('utf-8') + "\"")

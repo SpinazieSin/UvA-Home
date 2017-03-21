@@ -112,14 +112,22 @@ class OpinionEngine(object):
             return random.choice(negative_replies).replace('[SUBJ]', subject)
         else:
             return random.choice(neutral_replies).replace('[SUBJ]', subject)
-            
+
+    def present_opinion_subject(self, subject):
+        opinion = self.get_relevant_opinion(subject)
+        if opinion is not None:
+            # Extract from a list?
+            opinion = "I'm not sure."
+        return "speak", [opinion]
+
+
     def present_opinion_article(self, article):
         # Actually extract the article subject first
         keyword = random.choice(list(article.keywords))
-        opinion = get_relevant_opinion(keyword)
+        opinion = self.get_relevant_opinion(keyword)
         if opinion is not None:
-            return "speak", [opinion]
-        return None, [None]
+            opinion = "I'm not sure."
+        return "speak", [opinion]
         
 
 # The sentence database

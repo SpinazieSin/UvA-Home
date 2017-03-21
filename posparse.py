@@ -149,14 +149,16 @@ class POSParse(object):
         cmd = None
         for p in self.opinion_questions:
             idx = query.find(p)
-
             if idx >= 0:
                 cmd = "present_opinion_subject"
                 # extract the phrase subject
                 args = query[idx+len(p):]
                 if any(args[-1] == s for s in [".", "?", " "]):
                     args = args[:-1]
+                # args should be in list form 
+                args = [args.strip()]
                 break
+
                        
         if cmd is None:
             # Parse the sentence and make a tree from the resulting string.
@@ -166,10 +168,9 @@ class POSParse(object):
               })
             ptree = Tree.fromstring(parse['sentences'][0]['parse'])
 
-
-
             cmd = "present_news_preferences"
             args = self.process_tree(ptree)
+
         return cmd, args
 
     # No longer necessary.
