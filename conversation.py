@@ -62,13 +62,18 @@ class Conversation(object):
     def read(self, article):
         lines = article.text.split(".") # maybe split on sentence markers.
         preference_chance = 0.35
+        opinion_chance = 0.5
         start_end = 6
         if len(lines) < start_end:
             self.chat.speak("Okay, I will read you '%s'. %s" % (article.title, lines))
-            if randrange(0,1) < preference_chance:
-                return "get_preference", [article]
-            else: 
-                return "speak", ["what can I do for you now?"]
+            # either present an opinion or ask the user about preferences
+            if randrange(0,1):
+                if randrange(0,1) < preference_chance:
+                    return "get_preference", [article]
+            else:
+                if randrange(0,1) < opinion_chance:
+                    return "present_opinion", [article]
+            return None, [None]
         else:
             start_lines = randint(2, start_end)
 
@@ -78,30 +83,38 @@ class Conversation(object):
         third_part = ".".join(lines[second_end:])
         self.chat.speak("Okay, I will read you '%s'. %s" % (article.title, ".".join(first_lines)))
         self.chat.speak("Do you want me to continue reading?")
-        q = raw_input("> ").lower()
+        q = self.chat.listen()
         self.chat.speak(choice(self.AFFIRMATIVE))
 
         if "yes" in q:
             self.chat.speak(second_part)
         if "no" in q:
-            if randrange(0,1) < preference_chance:
-                return "get_preference", [article]
-            return "speak", ["what can I do for you now?"]
+            if randrange(0,1):
+                if randrange(0,1) < preference_chance:
+                    return "get_preference", [article]
+            else:
+                if randrange(0,1) < opinion_chance:
+                    return "present_opinion", [article]
+            return None, [None]
                 
         self.chat.speak("Do you want me to continue reading?")
-        q = raw_input("> ").lower()
+        q = self.chat.listen()
         self.chat.speak(choice(self.AFFIRMATIVE))            
         if "yes" in q:
             self.chat.speak(third_part)
-        if randrange(0,1) < preference_chance:
-            return "get_preference", [article]
-        return "speak",  ["what can I do for you now?"]
+            if randrange(0,1):
+                if randrange(0,1) < preference_chance:
+                    return "get_preference", [article]
+            else:
+                if randrange(0,1) < opinion_chance:
+                    return "present_opinion", [article]
+        return None, [None]
 
 
 
     def get_preference(self, article):
         self.chat.speak("What did you think about %s?" % (article.title))
-        q = raw_input("> ")
+        q = self.chat.listen()
         sentiment_command = "java -jar ./SentiStrengthCom.jar sentidata ./SentiStrengthData/ text \"" + q + "\""  
         proc = subprocess.Popen(sentiment_command, stdout=subprocess.PIPE, shell=True)
         sentiment = proc.stdout.read().strip().split(" ")
@@ -132,7 +145,7 @@ class Conversation(object):
         article = None
         
         while tries and article is None:
-            q = raw_input("> ").lower()
+            q = self.chat.listen()
             if len(articles) == 1:
                 if any(a in q for a in ["yes", "y", "yeah"]):
                     article = articles[0]

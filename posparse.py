@@ -86,6 +86,8 @@ class POSParse(object):
 
         # maybe updates is a keywords in some contextes?
         self.non_keywords = {"news", "i", "updates", "me", "you"}
+        
+        self.opinion_questions = ["what do you think about", "what's your opinion on", "what is your opinion on"]
 
     def to_datetime(self, date_phrase):
         now = datetime.now()
@@ -144,17 +146,30 @@ class POSParse(object):
         # Replaced with server implementation, should be removed.
         # ptree = list(self.parser.raw_parse(query))[0]
 
-        # Parse the sentence and make a tree from the resulting string.
-        parse = self.parser.annotate(query, properties={
-          'annotators': 'parse',
-          'outputFormat': 'json'
-          })
-        ptree = Tree.fromstring(parse['sentences'][0]['parse'])
+        cmd = None
+        for p in self.opinion_questions:
+            idx = query.find(p)
 
-        # search is the command the chat engine has to carry out.
-        # Maybe add ways to differentiate if the user wants news or not
-        cmd = "present_news_preferences"
-        args = self.process_tree(ptree)
+            if idx >= 0:
+                cmd = "present_opinion_subject"
+                # extract the phrase subject
+                args = query[idx+len(p):]
+                if any(args[-1] == s for s in [".", "?", " "]):
+                    args = args[:-1]
+                break
+                       
+        if cmd is None:
+            # Parse the sentence and make a tree from the resulting string.
+            parse = self.parser.annotate(query, properties={
+              'annotators': 'parse',
+              'outputFormat': 'json'
+              })
+            ptree = Tree.fromstring(parse['sentences'][0]['parse'])
+
+
+
+            cmd = "present_news_preferences"
+            args = self.process_tree(ptree)
         return cmd, args
 
     # No longer necessary.

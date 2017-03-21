@@ -28,6 +28,7 @@ import profilegetter
 import userprofile
 from speechRecognition import speech as STT
 from random import choice
+import opinionengine
 
 class ChatEngine(object):
     """
@@ -46,10 +47,11 @@ class ChatEngine(object):
         else:
             self.user = user
 
-        self.CONTINUE_PHRASES = ["What can I do for you know?", "Is there anything else I can help you with?", "What would you like to do now?"]
+        self.CONTINUE_PHRASES = ["What can I do for you now?", "Is there anything else I can help you with?", "What would you like to do now?"]
 
         self.mode = mode
         self.conv = conversation.Conversation(self, news=news)
+        self.opinion_engine = OpinionEngine()
         self.speech_recog = speech_recog
         if platform.system() == 'Darwin': # OS X
             self.speech_recog = False
@@ -71,6 +73,8 @@ class ChatEngine(object):
             "read_article" : self.conv.read,
             "update_preference" : self.user.update_preferences,
             "get_preference" : self.conv.get_preference,
+            "present_opinion_article" : self.opinion_engine.,
+            "present_opinion_subject" : self.opinion_engine.,
         }
         debug_commands = {
             "topics" : self.get_topics, "switch" : self.switch,
@@ -86,21 +90,13 @@ class ChatEngine(object):
         if self.mode == 'human' or self.mode == 'human_speech':
             self.speak(conv.start_conversation())
         while True:
-            if self.speech_recog:
-                q = STT.wait_for_voice()
-                if q == "":
-                    self.speak("Sorry I didn't hear that can you say it again?")
-                    q = STT.wait_for_voice()
-                if q == "":
-                    self.speak("One More time please.")
-                    q = STT.wait_for_voice()
-                if q == "":
-                    self.speak("I assume you just want another article, don't you? Here is something.")
-                    # currently if no question is found after 3 tries, random news
-                    # is requested.
-                    q = "What has happened in the last three days?"
-            else:
-                q = raw_input("> ")
+            q = self.listen()
+            if q is None:
+                self.speak("I assume you just want another article, don't you? Here is something.")
+                # currently if no question is found after 3 tries, random news
+                # is requested.
+                q = "What has happened in the last three days?"
+                
             if self.mode == 'debug':
                 self.process_command(q)
             elif self.mode.startswith('human'):
@@ -115,11 +111,28 @@ class ChatEngine(object):
                     if cmd is None:
                         self.speak(choice(self.CONTINUE_PHRASES))
         conv.end_conversation()
+        
+    def listen(self):
+        q = "" # assume empty string when no asnwer found, migth work most functions
+        if self.speech_recog:
+            q = STT.wait_for_voice()
+            if q == "":
+                # Add phrases about not understanding the user
+                self.speak("Sorry I didn't hear that can you say it again?")
+                q = STT.wait_for_voice()
+            if q == "":
+                self.speak("One More time please.")
+                q = STT.wait_for_voice()
+        else:
+            q = raw_input("> ").lower()
+        return q 
 
     def speak(self, phrase):
         if self.mode == "human_speech":
             print(phrase)
-            self.say(phrase.replace('"', '\"'))
+            if platform.system() == 'Darwin': # OS X
+                phrase = phrase.replace('"', '\"')
+            self.say(phrase)
         elif self.mode == "human":
             print(phrase)
         return None, [None]
