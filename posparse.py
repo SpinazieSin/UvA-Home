@@ -154,7 +154,7 @@ class POSParse(object):
                 cmd = "present_opinion_subject"
                 # extract the phrase subject
                 args = query[idx+len(p):]
-                if any(args[-1] == s for s i5n [".", "?", " "]):
+                if any(args[-1] == s for s in [".", "?", " "]):
                     args = args[:-1]
                 break
                        

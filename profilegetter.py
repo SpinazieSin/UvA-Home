@@ -12,16 +12,14 @@ import random
 import os
 import pickle
 import naoqiutils
+import platform
 
-<<<<<<< HEAD
+if not platform.system() == 'Darwin': # OS X
 
-if platform.system() == 'Darwin': # OS X
-=======
->>>>>>> a6e30599bf2a5f75edc22458ddd75ace94d22ca4
-from faceRecognition import facerecognition as facerec
-from faceRecognition import imageRecognition as imrec
-from faceRecognition import trainer
-from speechRecognition import speech as STT
+    from faceRecognition import facerecognition as facerec
+    from faceRecognition import imageRecognition as imrec
+    from faceRecognition import trainer
+    from speechRecognition import speech as STT
 
 
 class ProfileGetter():
