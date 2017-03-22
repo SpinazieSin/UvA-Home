@@ -16,3 +16,4 @@ A lot of people are talking about [SUBJ].
 [SUBJ] is a really hot topic right now.
 [SUBJ] is in the news again.
 I heard something about [SUBJ]?
+[SUBJ].
