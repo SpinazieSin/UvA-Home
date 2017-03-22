@@ -30,6 +30,8 @@ class OpinionEngine(object):
                     open('sentiment/neutral_replies.txt',  'r').readlines()]
         self.que = [w.strip() for w in
                     open('sentiment/question_replies.txt', 'r').readlines()]
+        self.random = [w.strip() for w in
+                       open('sentences/rand_statements.txt', 'r').readlines()]
         self.read_opinions()
 
     def update_opinions(self, keywords,
@@ -139,11 +141,16 @@ class OpinionEngine(object):
         else:
             return random.choice(self.neu).replace('[SUBJ]', subject)
 
+    def get_random_statement(self):
+        """guys this fix is because your code returns nothing and crashes."""
+
+
     def present_opinion_subject(self, subject):
         """Doc here plz."""
         opinion = self.get_relevant_opinion(subject)
         if opinion is None:
-            return ''
+            opinion = self.get_random_statement()
+            return opinion
         return "speak", [opinion]
 
     def present_opinion_article(self, article):
