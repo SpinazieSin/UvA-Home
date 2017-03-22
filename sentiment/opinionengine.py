@@ -30,7 +30,7 @@ class OpinionEngine(object):
                     open('sentiment/neutral_replies.txt',  'r').readlines()]
         self.que = [w.strip() for w in
                     open('sentiment/question_replies.txt', 'r').readlines()]
-        self.read_opinions()                    
+        self.read_opinions()
 
     def update_opinions(self, keywords,
                         tweet_limit=sentimentanalysis.max_tweets):
@@ -47,7 +47,7 @@ class OpinionEngine(object):
             os.remove(self.opinion_data_file)
         for search in keywords:
             sentimentanalysis.sentiment_analysis(search,
-                                                  tweet_limit=tweet_limit)
+                                                 tweet_limit=tweet_limit)
 
     def read_opinions(self):
         """Read the current opinions into memory.
@@ -141,25 +141,18 @@ class OpinionEngine(object):
             return random.choice(self.neu).replace('[SUBJ]', subject)
 
     def present_opinion_subject(self, subject):
+        """Doc here plz."""
         opinion = self.get_relevant_opinion(subject)
         if opinion is None:
             # Extract from a list?
             opinion = "I'm not sure."
         return "speak", [opinion]
 
-
     def present_opinion_article(self, article):
+        """Doc here plz."""
         # Actually extract the article subject first
         keyword = random.choice(list(article.keywords))
         opinion = self.get_relevant_opinion(keyword)
         if opinion is None:
             opinion = "I'm not sure."
         return "speak", [opinion]
-        
-
-
-
-
-
-
-
