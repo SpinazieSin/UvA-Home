@@ -21,7 +21,8 @@ def annotate(sample):
         A list of tuples with all named entities, including duplicates.
 
     """
-    sentences = sent_tokenize(sample)
+    dirty_sentences = sent_tokenize(sample)
+    sentences = [stringy.encode("ascii", "ignore") for stringy in dirty_sentences]
     tokenized_sentences = [word_tokenize(sentence) for sentence in sentences]
     tagged_sentences = [pos_tag(sentence) for sentence in tokenized_sentences]
     chunked_sentences = ne_chunk_sents(tagged_sentences, binary=True)
