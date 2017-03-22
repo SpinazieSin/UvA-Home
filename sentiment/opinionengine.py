@@ -142,9 +142,7 @@ class OpinionEngine(object):
     def present_opinion_subject(self, subject):
         """Doc here plz."""
         opinion = self.get_relevant_opinion(subject)
-        if opinion is None:
-            # Extract from a list?
-            opinion = "I'm not sure."
+        if opinion is None: return ''
         return "speak", [opinion]
 
     def present_opinion_article(self, article):
