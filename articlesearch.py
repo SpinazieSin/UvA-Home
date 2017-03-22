@@ -73,7 +73,7 @@ class ArticleSearch(object):
                 for k in article.keywords: # search the full text maybe?
                     if str(place) in k.lower():
                         place_found = True
-                        break
+#                        break
                 if not place_found:
                     break
 #                search_term_stemmed.append(place)
