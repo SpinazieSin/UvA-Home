@@ -111,6 +111,38 @@ class Conversation(object):
         return None, [None]
 
 
+    def read_text(self, text):
+        lines = article.text.split(".") # maybe split on sentence markers.
+        preference_chance = 0.35
+        opinion_chance = 0.5
+        start_end = 6
+        if len(lines) < start_end:
+            self.chat.speak("%s" % (lines))
+            return None, [None]
+        else:
+            start_lines = randint(2, start_end)
+
+        first_lines = lines[:start_lines]
+        second_end = randint(start_lines, ((len(lines)-start_lines)//2)+3)
+        second_part = ".".join(lines[start_lines:second_end])
+        third_part = ".".join(lines[second_end:])
+        self.chat.speak("%s" % (".".join(first_lines)))
+        self.chat.speak("Do you want me to continue reading?")
+        q = self.chat.listen()
+        self.chat.speak(choice(self.AFFIRMATIVE))
+
+        if "yes" in q:
+            self.chat.speak(second_part)
+        if "no" in q:
+            return None, [None]
+                
+        self.chat.speak("Do you want me to continue reading?")
+        q = self.chat.listen()
+        self.chat.speak(choice(self.AFFIRMATIVE))            
+        if "yes" in q:
+            self.chat.speak(third_part)
+        return None, [None]
+
 
     def get_preference(self, article):
         self.chat.speak("What did you think about %s?" % (article.title))

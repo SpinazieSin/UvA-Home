@@ -146,6 +146,12 @@ class POSParse(object):
         # Replaced with server implementation, should be removed.
         # ptree = list(self.parser.raw_parse(query))[0]
 
+        # do some fun parsing first
+        if "meaning of life" in query:
+            with open("nihilism.txt", "r") as f:
+                return "read_text", [f.read()]
+        if "hate you" in query:
+            return "speak", ["I hate you too."]
         cmd = None
         for p in self.opinion_questions:
             idx = query.find(p)
