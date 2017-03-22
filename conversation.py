@@ -58,7 +58,6 @@ class Conversation(object):
 #        print(phrase)
         return phrase
 
-
     def read(self, article):
         lines = article.text.split(".") # maybe split on sentence markers.
         preference_chance = 0.35
@@ -110,9 +109,8 @@ class Conversation(object):
                     return "present_opinion_article", [article]
         return None, [None]
 
-
     def read_text(self, text):
-        lines = text.split(".") # maybe split on sentence markers.
+        lines = text.split(".")  # maybe split on sentence markers.
         preference_chance = 0.35
         opinion_chance = 0.5
         start_end = 6
@@ -142,7 +140,6 @@ class Conversation(object):
         if "yes" in q:
             self.chat.speak(third_part)
         return None, [None]
-
 
     def get_preference(self, article):
         self.chat.speak("What did you think about %s?" % (article.title))
