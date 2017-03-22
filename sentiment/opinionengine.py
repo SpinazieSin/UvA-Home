@@ -30,6 +30,7 @@ class OpinionEngine(object):
                     open('sentiment/neutral_replies.txt',  'r').readlines()]
         self.que = [w.strip() for w in
                     open('sentiment/question_replies.txt', 'r').readlines()]
+        self.read_opinions()                    
 
     def update_opinions(self, keywords,
                         tweet_limit=sentimentanalysis.max_tweets):
@@ -57,7 +58,7 @@ class OpinionEngine(object):
         opinions = {}
         try:
             file = open(self.opinion_data_file, 'r')
-        except FileNotFoundError as e:
+        except IOError as e:
             print(e)
             print("No opinion data file called '" + self.opinion_data_file +
                   "' was found. You may need to create one, or rename " +
@@ -69,6 +70,7 @@ class OpinionEngine(object):
             opinions[line.split(',')[0].strip()] = \
                 int(line.split(',')[1].strip())
         self.opinions = opinions
+        print(opinions)
 
     def get_relevant_opinion(self, text, question=True):
         """Check the text for opinionated words and returns an opinion.
@@ -138,11 +140,27 @@ class OpinionEngine(object):
         else:
             return random.choice(self.neu).replace('[SUBJ]', subject)
 
+    def present_opinion_subject(self, subject):
+        print(subject)
+        opinion = self.get_relevant_opinion(subject)
+        if opinion is None:
+            # Extract from a list?
+            opinion = "I'm not sure."
+        return "speak", [opinion]
+
+
     def present_opinion_article(self, article):
-        """Plz doc this."""
         # Actually extract the article subject first
         keyword = random.choice(list(article.keywords))
         opinion = self.get_relevant_opinion(keyword)
-        if opinion is not None:
-            return "speak", [opinion]
-        return None, [None]
+        if opinion is None:
+            opinion = "I'm not sure."
+        return "speak", [opinion]
+        
+
+
+
+
+
+
+
