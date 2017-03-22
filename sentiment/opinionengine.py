@@ -67,7 +67,7 @@ class OpinionEngine(object):
         for line in file:
             if line.split(',')[0].strip() in list(opinions.keys()):
                 continue
-            opinions[line.split(',')[0].strip()] = \
+            opinions[line.split(',')[0].strip().lower()] = \
                 int(line.split(',')[1].strip())
         self.opinions = opinions
         print(opinions)
