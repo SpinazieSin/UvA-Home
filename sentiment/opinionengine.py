@@ -141,7 +141,6 @@ class OpinionEngine(object):
             return random.choice(self.neu).replace('[SUBJ]', subject)
 
     def present_opinion_subject(self, subject):
-        print(subject)
         opinion = self.get_relevant_opinion(subject)
         if opinion is None:
             # Extract from a list?
