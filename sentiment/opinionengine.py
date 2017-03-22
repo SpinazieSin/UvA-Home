@@ -70,7 +70,6 @@ class OpinionEngine(object):
             opinions[line.split(',')[0].strip().lower()] = \
                 int(line.split(',')[1].strip())
         self.opinions = opinions
-        print(opinions)
 
     def get_relevant_opinion(self, text, question=True):
         """Check the text for opinionated words and returns an opinion.
@@ -141,7 +140,7 @@ class OpinionEngine(object):
             return random.choice(self.neu).replace('[SUBJ]', subject)
 
     def present_opinion_subject(self, subject):
-        opinion = self.get_relevant_opinion(subject)
+        opinion = self.get_opinion(subject)
         if opinion is None:
             # Extract from a list?
             opinion = "I'm not sure."
@@ -150,8 +149,8 @@ class OpinionEngine(object):
 
     def present_opinion_article(self, article):
         # Actually extract the article subject first
-        keyword = random.choice(list(article.keywords))
-        opinion = self.get_relevant_opinion(keyword)
+#        keyword = random.choice(list(article.keywords))
+        opinion = self.get_relevant_opinion(article.text)
         if opinion is None:
             opinion = "I'm not sure."
         return "speak", [opinion]
