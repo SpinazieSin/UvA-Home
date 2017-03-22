@@ -91,3 +91,4 @@ ENV/
 # Project specific settings
 faceRecognition/training-images/*
 faceRecognition/aligned-images/*
+faceRecognition/models/*
