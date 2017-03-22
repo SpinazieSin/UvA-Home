@@ -58,9 +58,9 @@ sentistrength_tmp_filename = "sentiment/.context-words-temp"
 output_filename = "sentiment/.sentiment_scores"
 
 # Algorithm parameters
-max_tweets = 2500				# rate limit: 2500/15min
-amount_of_named_entites = 10  # 0 means no limit (not advisable)
-subj_threshold = 0.05
+max_tweets = 1000				# rate limit: 2500/15min
+amount_of_named_entites = 5     # 0 means no limit (not advisable)
+subj_threshold = 0.00005
 
 # Twitter API keys
 CK = "62f3T5JZjXXSZmKWQ5OyEIRxe"
