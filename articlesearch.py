@@ -71,7 +71,7 @@ class ArticleSearch(object):
             if place is not None:
                 place_found = False
                 for k in article.keywords: # search the full text maybe?
-                    if self.place.substring(k.lower()):
+                    if str(place) in k.lower():
                         place_found = True
                         break
                 if not place_found:

@@ -41,7 +41,7 @@ class ChatEngine(object):
     but...
     """
 
-    def __init__(self, user=None, mode="human", news=None, speech_recog=False):
+    def __init__(self, user=None, mode="human_speech", news=None, speech_recog=False):
         with open("sentences/question_repeat.txt") as f:
             question_repeat = f.readlines()
         with open("sentences/continue_phrases.txt") as f:

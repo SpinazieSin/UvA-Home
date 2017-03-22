@@ -112,9 +112,7 @@ class Conversation(object):
 
 
     def read_text(self, text):
-        lines = article.text.split(".") # maybe split on sentence markers.
-        preference_chance = 0.35
-        opinion_chance = 0.5
+        lines = text.split(".") # maybe split on sentence markers.
         start_end = 6
         if len(lines) < start_end:
             self.chat.speak("%s" % (lines))

@@ -147,7 +147,7 @@ class POSParse(object):
         # ptree = list(self.parser.raw_parse(query))[0]
 
         # do some fun parsing first
-        if "meaning of life" in query:
+        if any(s in query for s in  ["meaning of life", "so negative"]):
             with open("nihilism.txt", "r") as f:
                 return "read_text", [f.read()]
         if "hate you" in query:
