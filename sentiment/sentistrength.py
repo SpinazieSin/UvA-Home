@@ -41,6 +41,9 @@ def prior_sentiment(contextual_features, input_file, jar_file, data_location):
     subp = subprocess.Popen(command, stdin=subprocess.PIPE,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     time.sleep(1)
+    if os.path.isfile("sentiment/0_out.txt"):
+        os.rename("sentiment/0_out.txt", "sentiment/.context-words-temp0_out.txt")
+
     file = open(input_file + sentistrength_postfix, 'r')
     file.readline()
     for line in file:

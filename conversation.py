@@ -18,9 +18,9 @@ import keywords
 class Conversation(object):
 
     def __init__(self, chat, art_history=8, news=None):
-        self.chat = chat 
-        self.article_context = collections.deque([None]*art_history, maxlen=art_history) 
-        self.context = [] # more general context 
+        self.chat = chat
+        self.article_context = collections.deque([None]*art_history, maxlen=art_history)
+        self.context = [] # more general context
         # get all articles
         n = news
         self.AFFIRMATIVE = ["Okay.", "Good.", "Sure.", "That's cool bro."]
@@ -48,21 +48,20 @@ class Conversation(object):
                 continue
             # add article to context
             self.article_context.appendleft(list(arts)[0])
-            phrase = "I found an article on '%s' for you. Pretty cool right?" % (list(arts)[0].title) 
+            phrase = "I found an article on '%s' for you. Pretty cool right?" % (list(arts)[0].title)
             break
         if not tries:
             phrase = "What kind of news do you want to talk about today?"
-            
+
 #        if self.chat.mode == "human_speech":
 #            self.chat.speak(phrase)
 #        print(phrase)
         return phrase
-        
-        
+
     def read(self, article):
         lines = article.text.split(".") # maybe split on sentence markers.
-        preference_chance = 0.35
-        opinion_chance = 0.5
+        preference_chance = 0.3
+        opinion_chance = 1
         start_end = 6
         if len(lines) < start_end:
             self.chat.speak("Okay, I will read you '%s'. %s" % (article.title, lines))
@@ -96,13 +95,13 @@ class Conversation(object):
                 if randrange(0,1) < opinion_chance:
                     return "present_opinion_article", [article]
             return None, [None]
-                
+
         self.chat.speak("Do you want me to continue reading?")
         q = self.chat.listen()
-        self.chat.speak(choice(self.AFFIRMATIVE))            
+        self.chat.speak(choice(self.AFFIRMATIVE))
         if "yes" in q:
             self.chat.speak(third_part)
-            if randrange(0,1):
+            if randrange(0,2):
                 if randrange(0,1) < preference_chance:
                     return "get_preference", [article]
             else:
@@ -110,9 +109,10 @@ class Conversation(object):
                     return "present_opinion_article", [article]
         return None, [None]
 
-
     def read_text(self, text):
-        lines = text.split(".") # maybe split on sentence markers.
+        lines = text.split(".")  # maybe split on sentence markers.
+        preference_chance = 0.35
+        opinion_chance = 0.5
         start_end = 6
         if len(lines) < start_end:
             self.chat.speak("%s" % (lines))
@@ -133,24 +133,23 @@ class Conversation(object):
             self.chat.speak(second_part)
         if "no" in q:
             return None, [None]
-                
+
         self.chat.speak("Do you want me to continue reading?")
         q = self.chat.listen()
-        self.chat.speak(choice(self.AFFIRMATIVE))            
+        self.chat.speak(choice(self.AFFIRMATIVE))
         if "yes" in q:
             self.chat.speak(third_part)
         return None, [None]
 
-
     def get_preference(self, article):
         self.chat.speak("What did you think about %s?" % (article.title))
         q = self.chat.listen()
-        sentiment_command = "java -jar ./SentiStrengthCom.jar sentidata ./SentiStrengthData/ text \"" + q + "\""  
+        sentiment_command = "java -jar ./SentiStrengthCom.jar sentidata ./SentiStrengthData/ text \"" + q + "\""
         proc = subprocess.Popen(sentiment_command, stdout=subprocess.PIPE, shell=True)
         sentiment = proc.stdout.read().strip().split(" ")
         pos_sent = int(sentiment[0])
         neg_sent = int(sentiment[1])
-        
+
         # Do sentiment analysis with sentistrength (as much negative as postive is negative)
         if abs(neg_sent) > (pos_sent + 1):
             self.chat.speak("I'm sorry to hear that.")
@@ -161,19 +160,19 @@ class Conversation(object):
         else:
             return "speak", ["Okay, that's fine."]
 
-        
-        
+
+
 
     # Parse the answer to a news retrieval query
     # context is a list of previously read articles
     def ir_parse(self, articles, tries=3):
-    
+
         art_ref = {("first", "1st", "1") : 0, ("second", "2nd", "2") : 1, ("third", "3rd", "3", "last") : 2}
         self.article_context.extendleft(articles)
-        
+
         titles = [a.title.lower() for a in articles]
         article = None
-        
+
         while tries and article is None:
             q = self.chat.listen()
             if any(a in q for a in ["yes", "y", "yeah"]):
@@ -193,7 +192,7 @@ class Conversation(object):
             else:
                 self.chat.speak("Please refer to the article you want me to read.")
                 tries -= 1
-        
+
         if tries == 0:
             return "speak", ["Oops! Didn't quite get you there."]
 
@@ -229,7 +228,7 @@ class Conversation(object):
                 stemmed_question[stem] += 1
             else:
                 stemmed_question[w] += 1
-        
+
         for idx, t in enumerate(titles):
             parse = posparser.parser.annotate(self.remove_non_ascii(t), properties={
             'annotators' : 'parse',
@@ -245,7 +244,7 @@ class Conversation(object):
                         stemmed_titles[idx][stem] += 1
                     else:
                         stemmed_titles[idx][w] += 1
-        
+
         parse = posparser.parser.annotate(q, properties={
         'annotators': 'parse',
         'outputFormat': 'json'
@@ -259,7 +258,7 @@ class Conversation(object):
                     stemmed_question[stem] += 1
                 else:
                     stemmed_question[w] += 1
-        
+
         scores = [self.searcher.similar(stemmed_question, t) for t in stemmed_titles]
         score_idx, max_score = max(enumerate(scores), key=operator.itemgetter(1))
         if max_score > 0.15:
@@ -267,7 +266,7 @@ class Conversation(object):
             return score_idx
         else:
             return None
-        
+
     def related_news_parse(self, query, article): # Wijnands thingy
         if self.chat.mode == "human_speech":
             self.chat.speak(phrase)
@@ -295,9 +294,9 @@ class Conversation(object):
     def end_conversation(self):
         return "Goodbye?"
 
-        
-        
-        
+
+
+
 if __name__ == "__main__":
     # Needs a chat
     conv = Conversation()

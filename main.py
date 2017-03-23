@@ -15,5 +15,5 @@ getter = pg.ProfileGetter(db.news, use_Nao=True, use_STT=False)
 # getter.train_model()
 user = getter.start()
 c = chatengine.ChatEngine(user=user, news=db, mode="human_speech",
-                          speech_recog=True)
+                          speech_recog=False)
 c.start()
