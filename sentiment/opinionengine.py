@@ -152,7 +152,6 @@ class OpinionEngine(object):
 #        keyword = random.choice(list(article.keywords))
         opinion = self.get_relevant_opinion(article.text)
         if opinion is None:
-            opinion = None
             return None, [None]
         return "speak", [opinion]
         
