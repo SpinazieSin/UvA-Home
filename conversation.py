@@ -62,11 +62,11 @@ class Conversation(object):
         lines = article.text.split(".") # maybe split on sentence markers.
         preference_chance = 0.3
         opinion_chance = 1
-        start_end = 6
+        start_end = 4
         if len(lines) < start_end:
             self.chat.speak("Okay, I will read you '%s'. %s" % (article.title, lines))
             # either present an opinion or ask the user about preferences
-            if randrange(0,1):
+            if randrange(0,2):
                 if randrange(0,1) < preference_chance:
                     return "get_preference", [article]
             else:
@@ -88,7 +88,7 @@ class Conversation(object):
         if "yes" in q:
             self.chat.speak(second_part)
         if "no" in q:
-            if randrange(0,1):
+            if randrange(0,2):
                 if randrange(0,1) < preference_chance:
                     return "get_preference", [article]
             else:

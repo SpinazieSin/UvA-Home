@@ -24,13 +24,16 @@ class PrettyNews(object):
         
     # Extract a few articles for presentation according to some parameters
     def filter_news(self, filters, items=5, score_thresh=0.5):
-        articles = self.searcher.search(**filters)[:items]
+        articles = self.searcher.search(**filters)[:items]           
         articles = [a for a in articles if a[1] > score_thresh]
         articles.sort(key=operator.itemgetter(1), reverse=True)
         return [a[0] for a in articles]
 
     def show_news(self, filters, items=5, score_thresh=0.5):
-        articles = self.filter_news(filters, items=items, score_thresh=0.5)
+        try:
+            articles = self.filter_news(filters, items=items, score_thresh=0.5)
+        except:
+            return "speak", [choice(["I'm not sure what you mean.", "I'm afraid I can't help you with that.", "Sorry, I didn't catch that?", "I'm sorry %s, I'm afraid I can't do that" % (self.chat.user.username)])]
         if not len(articles):
             phrase = choice(self.NOTHING_FOUND)
 #            print(phrase)
@@ -46,7 +49,10 @@ class PrettyNews(object):
     def show_news_preferences(self, filters, score_thresh=0.5):
         user = self.chat.user
         fave_categories = {c for c, i in user.interests.iteritems() if i > 0.6}
-        articles = self.filter_news(filters, items=None, score_thresh=0.5) # l[None:None] == l[:]
+        try:
+            articles = self.filter_news(filters, items=None, score_thresh=0.5) # l[None:None] == l[:]
+        except:
+            return "speak", [choice(["I'm not sure what you mean.", "I'm afraid I can't help you with that.", "Sorry, I didn't catch that?", "I'm sorry %s, I'm afraid I can't do that" % (self.chat.user.username)])]
         if not len(articles):
             fail_phrase = choice(self.NOTHING_FOUND)
             return "speak", [fail_phrase]
