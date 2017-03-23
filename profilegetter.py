@@ -55,7 +55,7 @@ class ProfileGetter():
         self.newsDB = news
         self.use_STT = use_STT
         self.questions = 10  # amount of question about categories
-        self.topics = 5
+        self.topics = 3
         self.use_Nao = use_Nao
 
     def start(self):

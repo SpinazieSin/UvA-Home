@@ -131,7 +131,6 @@ def take_photos(use_nao=True):
         # Quit the program on the press of key 'q'
         # if cv2.waitKey(1) & 0xFF == ord('q'):
         #     break
-        picturesTaken += 1
     if not use_nao:
         video_capture.release()
         cv2.destroyAllWindows()

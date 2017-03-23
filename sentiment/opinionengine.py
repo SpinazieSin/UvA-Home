@@ -30,7 +30,9 @@ class OpinionEngine(object):
                     open('sentiment/neutral_replies.txt',  'r').readlines()]
         self.que = [w.strip() for w in
                     open('sentiment/question_replies.txt', 'r').readlines()]
-        self.read_opinions()                    
+        self.random = [w.strip() for w in
+                       open('sentences/rand_statements.txt', 'r').readlines()]
+        self.read_opinions()
 
     def update_opinions(self, keywords,
                         tweet_limit=sentimentanalysis.max_tweets):
@@ -139,26 +141,26 @@ class OpinionEngine(object):
         else:
             return random.choice(self.neu).replace('[SUBJ]', subject)
 
+    def get_random_statement(self):
+        """guys this fix is because your code returns nothing and crashes."""
+        return random.choice(self.random)
+
     def present_opinion_subject(self, subject):
+        """Doc here plz."""
         opinion = self.get_relevant_opinion(subject)
         if opinion is None:
-            # Extract from a list?
-            opinion = "I'm not sure."
+            opinion = self.get_random_statement()
+            print(opinion)
+            if opinion is None:
+                opinion = "I don't know."
+            return "speak", [opinion]
         return "speak", [opinion]
-
 
     def present_opinion_article(self, article):
         # Actually extract the article subject first
-#        keyword = random.choice(list(article.keywords))
+        # keyword = random.choice(list(article.keywords))
         opinion = self.get_relevant_opinion(article.text)
         if opinion is None:
+            opinion = None
             return None, [None]
         return "speak", [opinion]
-        
-
-
-
-
-
-
-

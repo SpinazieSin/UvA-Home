@@ -195,6 +195,6 @@ class ChatEngine(object):
 
 if __name__ == "__main__":
     getter = profilegetter.ProfileGetter([])
-    user = getter.get_profile("jonathan-gerbscheid")
+    user = getter.get_profile("Jonathan-Gerbscheid")
     c = ChatEngine(user=user)
     c.start()
