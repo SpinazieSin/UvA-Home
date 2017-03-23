@@ -167,7 +167,7 @@ class Conversation(object):
     # context is a list of previously read articles
     def ir_parse(self, articles, tries=3):
 
-        art_ref = {("first", "1st", "1") : 0, ("second", "2nd", "2") : 1, ("third", "3rd", "3", "last") : 2}
+        art_ref = {("first", "1st", "1", "one") : 0, ("second", "2nd", "2") : 1, ("third", "3rd", "3", "last") : 2}
         self.article_context.extendleft(articles)
 
         titles = [a.title.lower() for a in articles]
