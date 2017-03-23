@@ -49,7 +49,7 @@ class OpinionEngine(object):
             os.remove(self.opinion_data_file)
         for search in keywords:
             sentimentanalysis.sentiment_analysis(search,
-                                                 tweet_limit=tweet_limit)
+                                                  tweet_limit=tweet_limit)
 
     def read_opinions(self):
         """Read the current opinions into memory.
@@ -144,7 +144,6 @@ class OpinionEngine(object):
     def get_random_statement(self):
         """guys this fix is because your code returns nothing and crashes."""
 
-
     def present_opinion_subject(self, subject):
         """Doc here plz."""
         opinion = self.get_relevant_opinion(subject)
@@ -154,10 +153,10 @@ class OpinionEngine(object):
         return "speak", [opinion]
 
     def present_opinion_article(self, article):
-        """Doc here plz."""
         # Actually extract the article subject first
-#        keyword = random.choice(list(article.keywords))
+        # keyword = random.choice(list(article.keywords))
         opinion = self.get_relevant_opinion(article.text)
         if opinion is None:
-            opinion = "I'm not sure."
+            opinion = None
+            return None, [None]
         return "speak", [opinion]
