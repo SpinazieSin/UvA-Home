@@ -143,13 +143,17 @@ class OpinionEngine(object):
 
     def get_random_statement(self):
         """guys this fix is because your code returns nothing and crashes."""
+        return random.choice(self.random)
 
     def present_opinion_subject(self, subject):
         """Doc here plz."""
         opinion = self.get_relevant_opinion(subject)
         if opinion is None:
             opinion = self.get_random_statement()
-            return opinion
+            print(opinion)
+            if opinion is None:
+                opinion = "I don't know."
+            return "speak", [opinion]
         return "speak", [opinion]
 
     def present_opinion_article(self, article):
