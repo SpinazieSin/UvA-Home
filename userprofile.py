@@ -71,10 +71,11 @@ class UserProfile():
     def update_preferences(self, sentiment, article):
         self.interests[article.category] += 0.1 * sentiment
         if sentiment > 1:
-            self.keywords.update(article.keywords)
+            self.keywords.append(article.keywords)
         if sentiment < 0:
-            self.keywords -= article.keywords
-        self.save_profile()
+#            self.keywords -= article.keywords
+            self.keywords = list(set(self.keywords) - set(article.keywords))
+        self.save_user()
         return None, [None]
 
     def save_user(self):

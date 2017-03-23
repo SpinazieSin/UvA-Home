@@ -147,8 +147,13 @@ class Conversation(object):
         sentiment_command = "java -jar ./SentiStrengthCom.jar sentidata ./SentiStrengthData/ text \"" + q + "\""
         proc = subprocess.Popen(sentiment_command, stdout=subprocess.PIPE, shell=True)
         sentiment = proc.stdout.read().strip().split(" ")
-        pos_sent = int(sentiment[0])
-        neg_sent = int(sentiment[1])
+        try: 
+            pos_sent = int(sentiment[0])
+            neg_sent = int(sentiment[1])
+            
+        except:
+            self.chat.speak("I am not sure what you meant with that.")
+            return "get_preference", [article]
 
         # Do sentiment analysis with sentistrength (as much negative as postive is negative)
         if abs(neg_sent) > (pos_sent + 1):

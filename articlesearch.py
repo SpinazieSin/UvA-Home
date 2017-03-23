@@ -68,14 +68,8 @@ class ArticleSearch(object):
                 
                 if article.category != cat1:
                     continue
-            if place is not None:
-                place_found = False
-                for k in article.keywords: # search the full text maybe?
-                    if str(place) in k.lower():
-                        place_found = True
-#                        break
-                if not place_found:
-                    break
+            if place is not None and (term1=="" or term1 is None):
+                place = term1
 #                search_term_stemmed.append(place)
                 # place_found = False
                 # for k in article.keywords: # search the full text maybe?
