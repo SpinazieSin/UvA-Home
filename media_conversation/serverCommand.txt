@@ -1,0 +1,1 @@
+nohup java -mx1500m -cp /usr/local/Cellar/stanford-parser/3.6.0/libexec/stanford-parser-full-2016-10-31/stanford-parser.jar edu.stanford.nlp.tagger.maxent.MaxentTaggerServer -model edu.stanford.nlp.parser.lexparser.LexicalizedParser englishPCFG.ser.gz -port 2020 >& /dev/null

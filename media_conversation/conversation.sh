@@ -1,0 +1,3 @@
+#!/bin/bash
+GITFOLDER=${PWD}
+export PYTHONPATH=${PYTHONPATH}:$GITFOLDER/UvA-Home/
