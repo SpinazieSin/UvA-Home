@@ -1,0 +1,49 @@
+{
+    "data": {
+      "train_idl": "../TUD-Brussels/smallish/smallnotation.idl",
+      "test_idl": "../TUD-Brussels/smallish/smallnotation.idl",
+      "truncate_data": false
+  },
+  "logging": {
+      "display_iter": 50,
+      "save_iter": 50
+  },
+  "solver": {
+      "opt": "RMS",
+      "use_jitter": false,
+      "rnd_seed": 1,
+      "epsilon": 0.00001,
+      "learning_rate": 0.001,
+      "learning_rate_step": 100,
+      "hungarian_iou": 0.25,
+      "weights": "",
+      "head_weights": [1.0, 0.1]
+  },
+  "use_lstm": false,
+  "use_rezoom": true,
+  "biggest_box_px": 10000,
+  "rezoom_change_loss": "center",
+  "rezoom_w_coords": [-0.25, 0.25],
+  "rezoom_h_coords": [-0.25, 0.25],
+  "reregress": true,
+  "focus_size": 1.8,
+  "early_feat_channels": 128,
+  "later_feat_channels": 416,
+  "avg_pool_size": 5,
+  "slim_top_lname": "Mixed_5b",
+  "slim_attention_lname": "Mixed_3b",
+  "slim_basename": "InceptionV1",
+  "slim_ckpt": "inception_v1.ckpt",
+  "num_lstm_layers": 2,
+  "image_width": 300,
+  "image_height": 240,
+  "grid_height": 8,
+  "grid_width": 10,
+  "batch_size": 1,
+  "region_size": 30,
+  "clip_norm": 1.0,
+  "lstm_size": 500,
+  "deconv": false,
+  "num_classes": 2,
+  "rnn_len": 1
+}
