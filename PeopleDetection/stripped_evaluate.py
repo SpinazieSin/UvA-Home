@@ -20,7 +20,7 @@ from utils.train_utils import add_rectangles, rescale_boxes
 import cv2
 import sys
 import argparse
-import image3D_test as blobfinder
+import blobfinder
 from naoqi import ALProxy
 from naoqi import ALBroker
 use_dataset = False
