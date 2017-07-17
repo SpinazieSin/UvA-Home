@@ -54,7 +54,9 @@ def detect():
 	
 	# A list of all recognized faces
 	recognized_faces = []
-	for i in range(1,15):
+	start_time = time.time()
+	current_time = 0.0
+	while current_time < 8.0:
 		# Get image
 		try:
 			image = video_service.getImageRemote(video_client)
@@ -77,7 +79,8 @@ def detect():
 		faces = faceCascade.detectMultiScale(predict_image)
 		if len(faces) > 0:
 			for (x, y, w, h) in faces:
-				recognized_faces.append(predict_image_pil.crop((x,y,x+w,y+h)))
+				recognized_faces.append(predict_image[y: y + h, x: x + w])
+		current_time = time.time() - start_time
 
 	# Close video session
 	video_service.unsubscribe(video_client)
