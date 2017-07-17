@@ -41,8 +41,7 @@ class SoundLocatorModule(ALModule):
         except RuntimeError:
             pass
 
-        self.tts.say("heard you")
-        self.soundFound = True
+        # self.tts.say("heard you")
         # print(_args)
         soundLocation = memory.getData("ALSoundLocalization/SoundLocated")
         angles = soundLocation[1]
@@ -58,6 +57,7 @@ class SoundLocatorModule(ALModule):
         if azimuth < -180:
             azimuth = azimuth + 360
         self.soundAngle = azimuth
+        self.soundFound = True
         # print("angle: " + str(azimuth))
 
         # Subscribe again to the event
@@ -65,7 +65,7 @@ class SoundLocatorModule(ALModule):
 
     def reset_variables(self):
         self.soundFound = False
-        self.soundAngle = 0.0
+        # self.soundAngle = 0.0 # idk if this is necessary
 
 
 def main():
