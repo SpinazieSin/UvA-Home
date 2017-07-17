@@ -9,6 +9,7 @@ SoundLocator = None
 memory = None
 navigation = None
 
+
 class SoundLocatorModule(ALModule):
     """ A simple module able to react
     to facedetection events
@@ -20,10 +21,11 @@ class SoundLocatorModule(ALModule):
         # we have our Python broker connected to NAOqi broker
 
         self.tts = ALProxy("ALTextToSpeech")
+        self.soundFound = False # continuesly gets updated during runtime
+        self.soundAngle = 0.0 # continuesly gets updated during runtime
 
         # Subscribe to the FaceDetected event:
         global memory
-        global navigation
         memory = ALProxy("ALMemory")
         memory.subscribeToEvent("ALSoundLocalization/SoundLocated", "SoundLocator", "onSoundLocated")
 
@@ -34,10 +36,13 @@ class SoundLocatorModule(ALModule):
         """
         # Unsubscribe to the event when talking,
         # to avoid repetitions
-        memory.unsubscribeToEvent("ALSoundLocalization/SoundLocated", "SoundLocator")
+        try:
+            memory.unsubscribeToEvent("ALSoundLocalization/SoundLocated", "SoundLocator")
+        except RuntimeError:
+            pass
 
         self.tts.say("heard you")
-        # print("STUFF")
+        self.soundFound = True
         # print(_args)
         soundLocation = memory.getData("ALSoundLocalization/SoundLocated")
         angles = soundLocation[1]
@@ -52,10 +57,15 @@ class SoundLocatorModule(ALModule):
 
         if azimuth < -180:
             azimuth = azimuth + 360
-        print("angle: " + str(azimuth))
+        self.soundAngle = azimuth
+        # print("angle: " + str(azimuth))
 
         # Subscribe again to the event
         memory.subscribeToEvent("ALSoundLocalization/SoundLocated", "SoundLocator", "onSoundLocated")
+
+    def reset_variables(self):
+        self.soundFound = False
+        self.soundAngle = 0.0
 
 
 def main():
