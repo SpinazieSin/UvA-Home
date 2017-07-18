@@ -24,8 +24,8 @@ import argparse
 import blobfinder
 from naoqi import ALProxy
 from naoqi import ALBroker
-use_dataset = True
-show_images = True
+use_dataset = False
+show_images = False
 setname = "images_crowd_all"
 detectionstack = []
 

@@ -1,11 +1,13 @@
 # MAIN File
 # Sculpted with love by Thomas Groot en Jonathan Gerbscheid <3
 
-# Imports #
+# Naoqi Imports #
 from naoqi import ALProxy
 from naoqi import ALBroker
 from naoqi import ALModule
-# from PIL import Image
+
+# additional Imports
+import math
 
 # Local modules #
 import facedetection
@@ -13,25 +15,39 @@ import facerecognition
 import speech
 import soundlocalization # thomas stuff
 from Sound import locateSound # jonathans naoqi stuff
+# from PeopleDetection import peopledetector
 
 # Global variables #
-IP = "127.0.0.1"
+IP = "pepper.local"
+PORT = 9559
 cascadePath = "haarcascade_frontalface_default.xml"
 
 SoundLocator = None
 memory = None
+motionProxy  = None
+postureProxy = None
+camProxy = None
+pplDetectionargs = None
 
 
 #############
 # Functions #
 #############
+def setup_people_detection():
+	global pplDetectionargs
+	global camProxy
+	camProxy = ALProxy("ALVideoDevice", IP, PORT)
+	pplDetectionargs = peopledetector.setup_network()
+
+def detect_people():
+	return peopledetector.detect_people(camProxy, *pplDetectionargs)
+
 
 # return detected faces
 def detect_faces():
 	print("Finding faces...")
 	face_list = facedetection.detect()
 	return face_list
-
 
 # Train a set of faces to be associated with a label
 def train_recognize_faces(face_list, labels, recognizer=None):
@@ -66,6 +82,14 @@ def init_soundLocalization():
 	global SoundLocator
 	SoundLocator = locateSound.SoundLocatorModule("SoundLocator")
 
+
+def init_navigation():
+	global motionProxy
+	global postureProxy
+	motionProxy = ALProxy("ALMotion", IP, PORT)
+	postureProxy = ALProxy("ALRobotPosture", IP, PORT)
+
+
 # Main function that is run once upon startup
 def main():
 	# faces = detect_faces()
@@ -90,14 +114,30 @@ def main():
         "pepper.local",         # parent broker IP
         9559)
 	init_soundLocalization()
-	while True:
-		# do a lot of stuff here
-		# finally turn to sound if it was recognized
-		# print(locateSound.soundFound)
-		# locateSound.soundFound = False
-		if SoundLocator.soundFound:
-			print("angle found: " + str(SoundLocator.soundAngle))
-			SoundLocator.reset_variables()
+	init_navigation()
+	# test_main.main()
+	# setup_people_detection()
+	# look around for a crowd
+    # x     = 0.0
+    # y     = 0.0
+    # theta = 0.5
+    # frequency = 1.0
+    # motionProxy.moveToward(x, y, theta, [["Frequency", frequency]])
+	# # find ppl
+	# motionProxy.stopMove()
+
+
+	# while True:
+	# 	# do a lot of stuff here
+	# 	# finally turn to sound if it was recognized
+	# 	# print(locateSound.soundFound)
+	# 	# locateSound.soundFound = False
+	# 	if SoundLocator.soundFound:
+	# 		# move to the source of the sound
+	# 		print("angle found: " + str(SoundLocator.soundAngle))
+	# 		motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
+	# 		SoundLocator.reset_variables()
+
 
 	print("Done")
 
