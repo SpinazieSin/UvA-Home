@@ -3,6 +3,8 @@
 
 # Imports #
 from naoqi import ALProxy
+from naoqi import ALBroker
+from naoqi import ALModule
 # from PIL import Image
 import time
 
@@ -11,11 +13,16 @@ import facedetection
 import facerecognition
 import speech
 import slam
+from Sound import locateSound # jonathans naoqi stuff
 
 # Global variables #
 # IP = "127.0.0.1"
 IP = "pepper.local"
 cascadePath = "haarcascade_frontalface_default.xml"
+
+SoundLocator = None
+memory = None
+
 
 #############
 # Functions #
@@ -57,8 +64,26 @@ def speech_recognition(max_tries = 4):
 		tries += 1
 	return sentence
 
+def init_soundLocalization():
+	global SoundLocator
+	SoundLocator = locateSound.SoundLocatorModule("SoundLocator")
+
 # Main function that is run once upon startup
 def main():
+	myBroker = ALBroker("myBroker",
+        "0.0.0.0",   # listen to anyone
+        0,           # find a free port and use it
+        "pepper.local",         # parent broker IP
+        9559)
+	init_soundLocalization()
+	while True:
+		# do a lot of stuff here
+		# finally turn to sound if it was recognized
+		# print(locateSound.soundFound)
+		# locateSound.soundFound = False
+		if SoundLocator.soundFound:
+			print("angle found: " + str(SoundLocator.soundAngle))
+			SoundLocator.reset_variables()
 	print("Done")
 
 # Use the main function
