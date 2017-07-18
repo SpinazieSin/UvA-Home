@@ -4,15 +4,17 @@
 # Imports #
 from naoqi import ALProxy
 # from PIL import Image
+import time
 
 # Local modules #
 import facedetection
 import facerecognition
 import speech
-import soundlocalization
+import slam
 
 # Global variables #
-IP = "127.0.0.1"
+# IP = "127.0.0.1"
+IP = "pepper.local"
 cascadePath = "haarcascade_frontalface_default.xml"
 
 #############
@@ -57,22 +59,6 @@ def speech_recognition(max_tries = 4):
 
 # Main function that is run once upon startup
 def main():
-	# faces = detect_faces()
-	# if len(faces) > 0:
-	# 	print("Hi thomas")
-	# print(speech_recognition(1))
-	# face_list = detect_faces()
-	# if len(face_list) > 0:
-	# 	print(len(face_list))
-	# 	labels = []
-	# 	for i in face_list:
-	# 		labels.append(0)
-	# 	recognizer = train_recognize_faces(face_list, labels)
-	# 	recognized_faces_list = recognize_faces(recognizer)
-	# 	print(recognized_faces_list)
-	# else:
-	# 	print("Failed")
-	print(soundlocalization.localize_sound(40, True))
 	print("Done")
 
 # Use the main function
