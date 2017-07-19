@@ -6,12 +6,13 @@ import vision_definitions
 import numpy as np
 import time
 import sys
+from math import floor
 from PIL import Image
 from cv2 import CascadeClassifier
 from naoqi import ALProxy
 
 # Local modules #
-# EMPTY
+import tracking
 
 # Global variables #
 cascadePath = "haarcascade_frontalface_default.xml"
@@ -36,7 +37,8 @@ cascadePath = "haarcascade_frontalface_default.xml"
 # [11]: bottomAngle (radian).
 # Try to take an image
 
-def detect(video_service):
+def collect_faces(video_service, motionProxy=None):
+    print("Making face database...")
     # Create classifier
     faceCascade = CascadeClassifier(cascadePath)
     # predict_image_pil = Image.open('face.jpg').convert('L')
@@ -55,6 +57,7 @@ def detect(video_service):
     recognized_faces = []
     start_time = time.time()
     current_time = 0.0
+    (px, py, pw, ph) = (0, 0, 0, 0)
     while current_time < 8.0:
         # Get image
         try:
@@ -79,11 +82,46 @@ def detect(video_service):
         if len(faces) > 0:
             for (x, y, w, h) in faces:
                 recognized_faces.append(predict_image[y: y + h, x: x + w])
+                (px, py, pw, ph) = (x, y, w, h)
         current_time = time.time() - start_time
-
+        if floor(current_time)%2 == 0.0 and motionProxy != None and (px, py, pw, ph) != (0, 0, 0, 0):
+        	tracking.track_face_with_head(px, py, pw, ph, imageWidth, imageHeight, motionProxy)
     # Close video session
     video_service.unsubscribe(video_client)
 
-    # Save the image.
-
     return recognized_faces
+
+
+# Take a single picture and attempt to detect faces
+def detect_once(video_service):
+    resolution = 2
+    colorSpace = 11
+    cameraID = 0
+    faceCascade = CascadeClassifier(cascadePath)
+    print("Detecting faces...")
+    face_list = []
+    video_client = video_service.subscribe("python_client", resolution, colorSpace, 5)
+    try:
+    	image = video_service.getImageRemote(video_client)
+        if image == None:
+            raise
+    except:
+        print("Failed image")
+        return []
+    # Get the image size and pixel array.subscribe
+    imageWidth = image[0]
+    imageHeight = image[1]
+    array = image[6]
+    image_string = str(bytearray(array))
+    # Create a PIL Image from our pixel array.
+    im = Image.fromstring("RGB", (imageWidth, imageHeight), image_string)
+    predict_image_pil = im.convert("L")
+    predict_image = np.array(predict_image_pil, "uint8")
+    # Faces contains and array with the coordinates of recognized faces in the original image
+    # The structure is: [[int int int int]] for one face
+    faces = faceCascade.detectMultiScale(predict_image)
+    if len(faces) > 0:
+        for (x, y, w, h) in faces:
+            face_list.append([[x,y],[x+w,y+h]])
+    video_service.unsubscribe(video_client)
+    return face_list, predict_image

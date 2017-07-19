@@ -20,7 +20,7 @@ from Sound import locateSound # jonathans naoqi stuff
 
 # Global variables #
 # IP = "127.0.0.1"
-IP = "pepper.local"
+IP = "146.50.60.15"
 PORT = 9559
 
 TextToSpeech = None
@@ -51,11 +51,23 @@ def detect_people():
 
 
 # return detected faces
+def make_face_database(tracking=False):
+    global VideoDevice
+    if tracking:
+        if motionProxy == None:
+            init_localization()    
+        print("Finding faces...")
+        face_list = facedetection.collect_faces(VideoDevice, motionProxy)
+    else:
+        print("Finding faces...")
+        face_list = facedetection.collect_faces(VideoDevice)
+    return face_list
+
 def detect_faces():
     global VideoDevice
-    print("Finding faces...")
-    face_list = facedetection.detect(VideoDevice)
+    face_list = facedetection.detect_once(VideoDevice)
     return face_list
+    
 
 # Train a set of faces to be associated with a label
 def train_recognize_faces(face_list, labels, recognizer=None):
@@ -125,7 +137,7 @@ def init_navigation():
     global Navigation
     Navigation = ALProxy("ALNavigation", IP, 9559)
 
-def init_navigation():
+def init_localization():
     global motionProxy
     global postureProxy
     motionProxy = ALProxy("ALMotion", IP, PORT)
@@ -180,17 +192,11 @@ def general_purpose_service():
 
 # Main function that is run once upon startup
 def main():
-    myBroker = ALBroker("myBroker",
-        "0.0.0.0",   # listen to anyone
-        0,           # find a free port and use it
-        IP,         # parent broker IP
-        9559)
-
-	lifeProxy = ALProxy("ALAutonomousLife", IP, PORT)
+	# lifeProxy = ALProxy("ALAutonomousLife", IP, PORT)
 	# lifeProxy.setState("disabled")
-	print(lifeProxy.getState())
-	init_soundLocalization()
-	init_navigation()
+	# print(lifeProxy.getState())
+	# init_soundLocalization()
+	# init_navigation()
 	# test_main.main()
 	# setup_people_detection()
 	# look around for a crowd
@@ -202,23 +208,26 @@ def main():
 	# # find ppl
 	# motionProxy.stopMove()
 	# time.sleep(5)
-	speech_test()
+	# speech_test()
 	# print("start talking")
 	# sentence = speech_recognition()
 	# print(sentence)
+    init_videoDevice()
 
-
+    for i in range(5):
+        x = detect_faces()
+        print(x)
 	# MAIN WHILE LOOP
-	while True:
-		# do a lot of stuff here
-		# speech_recognition
+	# while True:
+	# 	# do a lot of stuff here
+	# 	# speech_recognition
 
-		# finally turn to sound if it was recognized
-		if SoundLocator.soundFound:
-			# move to the source of the sound
-			print("angle found: " + str(SoundLocator.soundAngle))
-			motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
-			SoundLocator.reset_variables()
+	# 	# finally turn to sound if it was recognized
+	# 	if SoundLocator.soundFound:
+	# 		# move to the source of the sound
+	# 		print("angle found: " + str(SoundLocator.soundAngle))
+	# 		motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
+	# 		SoundLocator.reset_variables()
 	print("Done")
 
 
