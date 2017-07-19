@@ -25,8 +25,7 @@ class FaceRecognizer(object):
 		self.recognizer.train(images, labels)
 
 	# Returns the name of the person in front of the camera
-	def recognize(self):
-		video_service = ALProxy("ALVideoDevice", "127.0.0.1", 9559)
+	def recognize(self, video_service):
 		resolution = 2
 		colorSpace = 11
 		# Top camera

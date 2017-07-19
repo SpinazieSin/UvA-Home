@@ -20,6 +20,10 @@ from Sound import locateSound # jonathans naoqi stuff
 IP = "pepper.local"
 cascadePath = "haarcascade_frontalface_default.xml"
 
+TextToSpeech = None
+VideoDevice = None
+AudioRecorder = None
+AudioDevice = None
 SoundLocator = None
 memory = None
 
@@ -30,8 +34,9 @@ memory = None
 
 # return detected faces
 def detect_faces():
+	global VideoDevice
 	print("Finding faces...")
-	face_list = facedetection.detect()
+	face_list = facedetection.detect(VideoDevice)
 	return face_list
 
 
@@ -45,28 +50,52 @@ def train_recognize_faces(face_list, labels, recognizer=None):
 
 # Return names from a list of recognized faces
 def recognize_faces(recognizer):
+	global VideoDevice
 	print("Recognizing faces...")
-	recognized_faces = recognizer.recognize()
+	recognized_faces = recognizer.recognize(VideoDevice)
 	return recognized_faces
 
 # Testing speech synthesis
 def speech_test():
-	speech_proxy = ALProxy("ALTextToSpeech", IP, 9559)
-	speech_proxy.say("Hi thomas")
+	global TextToSpeech
+	TextToSpeech.say("Hi thomas")
 
 # Return recognized speech
 def speech_recognition(max_tries = 4):
+	global AudioRecorder
+	global AudioDevice
 	print("Recognizing speech...")
 	tries = 0
 	sentence = ""
 	while tries < max_tries and sentence == "":
-		sentence = speech.wait_for_voice()
+		sentence = speech.wait_for_voice(AudioRecorder, AudioDevice)
 		tries += 1
 	return sentence
 
+# Allows the robot to say text
+def init_textToSpeech():
+	global TextToSpeech
+	TextToSpeech = ALProxy("ALTextToSpeech", IP, 9559)
+
+# Soundlocator is for locating sound
 def init_soundLocalization():
 	global SoundLocator
 	SoundLocator = locateSound.SoundLocatorModule("SoundLocator")
+
+# Videodevice is for taking images from the videostream
+def init_videoDevice():
+	global VideoDevice
+	VideoDevice = ALProxy("ALVideoDevice", IP, 9559)
+
+# AudioRecorder is for sound recording
+def init_audioRecorder():
+	global AudioRecorder
+    AudioRecorder = ALProxy("ALAudioRecorder", IP, 9559)
+
+# AudioDevice is for sound level registration
+def init_audioDevice():
+	global AudioDevice
+	AudioDevice = ALProxy("ALAudioDevice", IP, 9559)
 
 # Main function that is run once upon startup
 def main():

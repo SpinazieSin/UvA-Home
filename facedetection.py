@@ -36,13 +36,12 @@ cascadePath = "haarcascade_frontalface_default.xml"
 # [11]: bottomAngle (radian).
 # Try to take an image
 
-def detect():
+def detect(video_service):
 	# Create classifier
 	faceCascade = CascadeClassifier(cascadePath)
 	# predict_image_pil = Image.open('face.jpg').convert('L')
 	# predict_image = np.array(predict_image_pil, 'uint8')
 	# faces = faceCascade.detectMultiScale(predict_image)
-	video_service = ALProxy("ALVideoDevice", "127.0.0.1", 9559)
 	resolution = 2
 	colorSpace = 11
 	# Top camera

@@ -16,17 +16,17 @@ import time
 from timeout import timeout
 from naoqi import ALProxy
 
-def wait_for_voice():
+def wait_for_voice(mic, audioproxy):
     """Wait for voice."""
     # obtain audio from microphone, perhaps this should be changed for pepper
     r = sr.Recognizer()
     try:
-        audio = get_audio(r)
+        audio = get_audio(r, mic, audioproxy)
     except:
         print("Something went wrong while retrieving audio")
         return ""
 
-    print("I heard you!")
+    print("Heard...")
     # recognize speech using Google Speech Recognition
     try:
         # for testing purposes, we're just using the default API key
@@ -48,7 +48,7 @@ def wait_for_voice():
 
 
 @timeout(8)
-def get_audio(recognizer):
+def get_audio(recognizer, mic, audioproxy):
     """Get audio from microphone, time out after 8 seconds.""" 
     mic = ALProxy("ALAudioRecorder", "127.0.0.1", 9559)
     audioproxy = ALProxy("ALAudioDevice", "127.0.0.1", 9559)
@@ -65,9 +65,8 @@ def get_audio(recognizer):
         final_energy = (energy+audioproxy.getFrontMicEnergy())/3
         print(final_energy)
         if final_energy < 800.0:
-            print("break")
+            print("Done listening...")
             break
-        print("No break")
     mic.stopMicrophonesRecording()
     # initial audio value
     audio = None
