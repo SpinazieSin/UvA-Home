@@ -85,7 +85,7 @@ def collect_faces(video_service, motionProxy=None):
                 (px, py, pw, ph) = (x, y, w, h)
         current_time = time.time() - start_time
         if floor(current_time)%2 == 0.0 and motionProxy != None and (px, py, pw, ph) != (0, 0, 0, 0):
-        	tracking.track_face_with_head(px, py, pw, ph, imageWidth, imageHeight, motionProxy)
+            tracking.track_face_with_head(px, py, pw, ph, imageWidth, imageHeight, motionProxy)
     # Close video session
     video_service.unsubscribe(video_client)
 
@@ -102,7 +102,7 @@ def detect_once(video_service):
     face_list = []
     video_client = video_service.subscribe("python_client", resolution, colorSpace, 5)
     try:
-    	image = video_service.getImageRemote(video_client)
+        image = video_service.getImageRemote(video_client)
         if image == None:
             raise
     except:
