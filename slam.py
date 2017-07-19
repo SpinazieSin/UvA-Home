@@ -12,61 +12,66 @@
 from naoqi import ALProxy
 
 class Localization(object):
-	def __init__(self):
-		# self.proxy = ALProxy("ALNavigation", "pepper.local", 9559)
-		self.proxy = ALProxy("ALNavigation", "127.0.0.1", 9559)
-		self.map_path = None
-		self.map = None
-		self.estimate_location = None
+    def __init__(self, Navigation=None):
+        if Navigation:
+            self.proxy = Navigation
+        else:
+            self.proxy = ALProxy("ALNavigation", "127.0.0.1", 9559)
+        # map_path contains the path to the recently saved map
+        self.map_path = None
+        # map contains the map object, structure is described in get_map()
+        self.map = None
+        # this is where the robot thinks he is
+        self.estimate_location = [0., 0.]
 
-	# save the map and return the path where it is saved
-	def save_exploration(self):
-		self.map_path = self.proxy.saveExploration()
+    # save the map and return the path where it is saved
+    def save_exploration(self):
+        self.map_path = self.proxy.saveExploration()
 
-	# get the most recent version of the map.
-	# the map has the format [mpp, width, height, [originOffsetX, originOffsetY], [pxlVal, ...]]
-	# Where mpp is the resolution of the map in meters per pixel,
-	# width and height are the size of the image in pixels,
-	# originOffset is the metrical offset of the pixel (0, 0) of the map,
-	# and [pxlVal, ...] is the buffer of pixel floating point values between 0 (occupied space) and 100 (free space).
-	def get_map(self):
-		self.map = self.proxy.getMetricalMap()
+    # get the most recent version of the map.
+    # the map has the format [mpp, width, height, [originOffsetX, originOffsetY], [pxlVal, ...]]
+    # Where mpp is the resolution of the map in meters per pixel,
+    # width and height are the size of the image in pixels,
+    # originOffset is the metrical offset of the pixel (0, 0) of the map,
+    # and [pxlVal, ...] is the buffer of pixel floating point values between 0 (occupied space) and 100 (free space).
+    def get_map(self):
+        self.map = self.proxy.getMetricalMap()
 
-	# load a map from a given path
-	def load_exploration(self, path):
-		self.map = self.proxy.loadExploration(path)
+    # load a map from a given path
+    def load_exploration(self, path):
+        self.map = self.proxy.loadExploration(path)
 
-	# radius is the size of the exploration area in meters
-	def explore(self, radius):
-		self.proxy.explore(radius)
+    # radius is the size of the exploration area in meters
+    def explore(self, radius):
+        self.proxy.explore(radius)
 
-	# stop explore()
-	def stop_exploration(self):
-		self.proxy.stopExploration()
-		self.save_exploration()
+    # stop explore()
+    def stop_exploration(self):
+        self.proxy.stopExploration()
+        self.save_exploration()
 
-	# target is of format [x, y]
-	def move_to(self, target):
-		self.proxy.navigateToInMap(target)
-		self.estimate_location = target
+    # target is of format [x, y]
+    def move_to(self, target):
+        self.proxy.navigateToInMap(target)
+        self.estimate_location = target
 
-	# return an estimate of the current robot position. LOCALIZATION HAS TO BE RUN FIRST
-	def get_robot_position(self):
-		self.estimate_location =  self.proxy.getRobotPositionInMap()[0]
-		return self.estimate_location
+    # return an estimate of the current robot position. LOCALIZATION HAS TO BE RUN FIRST
+    def get_robot_position(self):
+        self.estimate_location =  self.proxy.getRobotPositionInMap()[0]
+        return self.estimate_location
 
-	# start localization loop so the robot can estimate its own position. a map has to be loaded
-	def start_localization(self):
-		self.proxy.startLocalization()
+    # start localization loop so the robot can estimate its own position. a map has to be loaded
+    def start_localization(self):
+        self.proxy.startLocalization()
 
-	# stop the localization loop
-	def stop_localization(self):
-		self.proxy.stopLocatization()
+    # stop the localization loop
+    def stop_localization(self):
+        self.proxy.stopLocatization()
 
-	# estimate target is an estimate of the current position of the robot
-	# relocalize in map returns [[x,y], uncertainty]
-	def relocalize(self, estimate_target):
-		self.estimate_location = self.proxy.relocalizeInMap(estimate_target)[0]
+    # estimate target is an estimate of the current position of the robot
+    # relocalize in map returns [[x,y], uncertainty]
+    def relocalize(self, estimate_target):
+        self.estimate_location = self.proxy.relocalizeInMap(estimate_target)[0]
 
 
 # GETTING A MAP
