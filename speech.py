@@ -49,7 +49,7 @@ def wait_for_voice():
 
 @timeout(8)
 def get_audio(recognizer):
-    """Get audio from microphone, time out after 8 seconds.""" 
+    """Get audio from microphone, time out after 8 seconds."""
     mic = ALProxy("ALAudioRecorder", "127.0.0.1", 9559)
     audioproxy = ALProxy("ALAudioDevice", "127.0.0.1", 9559)
     audioproxy.enableEnergyComputation()

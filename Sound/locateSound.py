@@ -60,11 +60,12 @@ class SoundLocatorModule(ALModule):
         self.soundFound = True
         # print("angle: " + str(azimuth))
 
-        # Subscribe again to the event
-        memory.subscribeToEvent("ALSoundLocalization/SoundLocated", "SoundLocator", "onSoundLocated")
 
     def reset_variables(self):
         self.soundFound = False
+        
+        # Subscribe again to the event
+        memory.subscribeToEvent("ALSoundLocalization/SoundLocated", "SoundLocator", "onSoundLocated")
         # self.soundAngle = 0.0 # idk if this is necessary
 
 
