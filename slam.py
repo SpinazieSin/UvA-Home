@@ -22,7 +22,7 @@ class Localization(object):
         # map contains the map object, structure is described in get_map()
         self.map = None
         # this is where the robot thinks he is
-        self.estimate_location = [0., 0.]
+        self.estimate_location = [0., 0., 0.]
 
     # save the map and return the path where it is saved
     def save_exploration(self):
@@ -50,7 +50,7 @@ class Localization(object):
         self.proxy.stopExploration()
         self.save_exploration()
 
-    # target is of format [x, y]
+    # target is of format [x, y., theta]
     def move_to(self, target):
         self.proxy.navigateToInMap(target)
         self.estimate_location = target
@@ -66,10 +66,10 @@ class Localization(object):
 
     # stop the localization loop
     def stop_localization(self):
-        self.proxy.stopLocatization()
+        self.proxy.stopLocalization()
 
     # estimate target is an estimate of the current position of the robot
-    # relocalize in map returns [[x,y], uncertainty]
+    # relocalize in map returns [[x, y, theta], uncertainty]
     def relocalize(self, estimate_target):
         self.estimate_location = self.proxy.relocalizeInMap(estimate_target)[0]
 

@@ -10,7 +10,9 @@ from naoqi import ALModule
 import math
 import time
 import sys
-
+import Image
+import numpy
+import cv2
 # Local modules #
 import facedetection
 import facerecognition
@@ -21,8 +23,8 @@ from PeopleDetection import peopledetector
 
 # Global variables #
 # IP = "127.0.0.1"
-# IP = "pepper.local"
-IP = "146.50.60.15"
+IP = "pepper.local"
+# IP = "146.50.60.15"
 PORT = 9559
 
 TextToSpeech = None
@@ -167,8 +169,8 @@ def get_biggest_box_index(boxlist):
     index = None
     maxsize = 0
     for i in range(len(boxlist)):
-        width = boxlist[i][2] - boxlist[i]box[0]
-        height = boxlist[i]box[3] - boxlist[i]box[1]
+        width = boxlist[i][2] - boxlist[i][0]
+        height = boxlist[i][3] - boxlist[i][1]
         size = width * height
         if size > maxsize:
             maxsize = size
@@ -262,26 +264,43 @@ def main():
     # time.sleep(5)
 
     # correct head position
-    currentAngle = motionProxy.getAngles("HeadYaw", True)[0]
-    motionProxy.setAngles("HeadPitch", currentAngle + 0.08, 0.2)
+    # currentAngle = motionProxy.getAngles("HeadYaw", True)[0]
+    # motionProxy.setAngles("HeadPitch", currentAngle + 0.08, 0.2)
     speech_test()
+    # Localizer.explore(15)
+    # Localizer.save_exploration()
+    Localizer.stop_localization()
+    Localizer.load_exploration("/home/nao/.local/share/Explorer/2017-07-19T163238.071Z.explo")
+    # print("path: " + str(Localizer.map_path))
+    # result_map = Localizer.map
+    # map_width = result_map[1]
+    # map_height = result_map[2]
+    # img = numpy.array(result_map[4]).reshape(map_width, map_height)
+    # img = (100 - img) * 2.55 # from 0..100 to 255..0
+    # img = numpy.array(img, numpy.uint8)
+    # cv2.imwrite("iismap.png", img)
+    # Image.frombuffer('L',  (map_width, map_height), img, 'raw', 'L', 0, 1).show()
     # print("start talking")
     # sentence = speech_recognition()
     # print(sentence)
-
+    Localizer.start_localization()
+    Localizer.relocalize([0.,0.])
+    # Localizer.move_to([-1., -1.])
+    print("estimate location: " + str(Localizer.get_robot_position()))
+    # Localizer.stop_exploration()
 
     # MAIN WHILE LOOP
-    while True:
-        # do a lot of stuff here
-        peopleList = detect_people()
-        print("found " + str(len(peopleList)) + " people!")
-
-        # finally turn to sound if it was recognized
-        if SoundLocator.soundFound:
-            # move to the source of the sound
-            print("angle found: " + str(SoundLocator.soundAngle))
-            motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
-            SoundLocator.reset_variables()
+    # while True:
+    #     # do a lot of stuff here
+    #     peopleList = detect_people()
+    #     print("found " + str(len(peopleList)) + " people!")
+    #
+    #     # finally turn to sound if it was recognized
+    #     if SoundLocator.soundFound:
+    #         # move to the source of the sound
+    #         print("angle found: " + str(SoundLocator.soundAngle))
+    #         motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
+    #         SoundLocator.reset_variables()
 
     print("Done")
 
