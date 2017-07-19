@@ -14,8 +14,8 @@ import json
 import matplotlib.pyplot as plt
 
 from train import build_forward
-from utils.annolist import AnnotationLib as al
-from utils.train_utils import add_rectangles, rescale_boxes
+from PeopleDetection.utils.annolist import AnnotationLib as al
+from PeopleDetection.utils.train_utils import add_rectangles, rescale_boxes
 
 import cv2
 import re
@@ -25,13 +25,13 @@ import blobfinder
 from naoqi import ALProxy
 from naoqi import ALBroker
 use_dataset = False
-show_images = False
+show_images = True
 setname = "images_crowd_all"
 detectionstack = []
 
 def setup_network():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default="./trained_nets/combined_inception_60k/save.ckpt-40000")
+    parser.add_argument('--weights', default="./PeopleDetection/trained_nets/combined_inception_60k/save.ckpt-40000")
     parser.add_argument('--expname', default='')
     parser.add_argument('--test_boxes', default="./data/TUD-Brussels/small/smallnotation.idl")
     parser.add_argument('--gpu', default=0)

@@ -9,6 +9,7 @@ from naoqi import ALModule
 # additional Imports
 import math
 import time
+import sys
 
 # Local modules #
 import facedetection
@@ -16,11 +17,12 @@ import facerecognition
 import speech
 import slam
 from Sound import locateSound # jonathans naoqi stuff
-# from PeopleDetection import peopledetector
+from PeopleDetection import peopledetector
 
 # Global variables #
 # IP = "127.0.0.1"
-IP = "pepper.local"
+# IP = "pepper.local"
+IP = "146.50.60.15"
 PORT = 9559
 
 TextToSpeech = None
@@ -29,6 +31,7 @@ AudioRecorder = None
 AudioDevice = None
 SoundLocator = None
 Navigation = None
+Localizer = None
 memory = None
 motionProxy  = None
 postureProxy = None
@@ -40,14 +43,13 @@ pplDetectionargs = None
 # Functions #
 #############
 def setup_people_detection():
-	global pplDetectionargs
-	global camProxy
-	camProxy = ALProxy("ALVideoDevice", IP, PORT)
-	pplDetectionargs = peopledetector.setup_network()
+    global pplDetectionargs
+    global camProxy
+    camProxy = ALProxy("ALVideoDevice", IP, PORT)
+    pplDetectionargs = peopledetector.setup_network()
 
 def detect_people():
-	return peopledetector.detect_people(camProxy, *pplDetectionargs)
-
+    return peopledetector.detect_people(camProxy, *pplDetectionargs)
 
 
 # return detected faces
@@ -125,13 +127,16 @@ def init_navigation():
     global Navigation
     Navigation = ALProxy("ALNavigation", IP, 9559)
 
-def init_navigation():
+def init_motion():
     global motionProxy
     global postureProxy
     motionProxy = ALProxy("ALMotion", IP, PORT)
     postureProxy = ALProxy("ALRobotPosture", IP, PORT)
     motionProxy.wakeUp()
 
+def init_localization():
+    global Localizer
+    Localizer = slam.Localization(Navigation)
 ########
 # Main #
 ########
@@ -186,40 +191,56 @@ def main():
         IP,         # parent broker IP
         9559)
 
-	lifeProxy = ALProxy("ALAutonomousLife", IP, PORT)
-	# lifeProxy.setState("disabled")
-	print(lifeProxy.getState())
-	init_soundLocalization()
-	init_navigation()
-	# test_main.main()
-	# setup_people_detection()
-	# look around for a crowd
+    lifeProxy = ALProxy("ALAutonomousLife", IP, PORT)
+    # lifeProxy.setState("disabled")
+    print("AutonomousLife: " + lifeProxy.getState())
+    init_soundLocalization()
+    init_navigation()
+    init_textToSpeech()
+    init_videoDevice()
+    init_motion()
+    init_audioDevice()
+    init_audioRecorder()
+    init_localization()
+    setup_people_detection()
+    # Localizer.explore(2)
+    # Localizer.stop_exploration()
+
+    # test_main.main()
+    # setup_people_detection()
+    # look around for a crowd
     # x     = 0.0
     # y     = 0.0
     # theta = 0.5
     # frequency = 1.0
     # motionProxy.moveToward(x, y, theta, [["Frequency", frequency]])
-	# # find ppl
-	# motionProxy.stopMove()
-	# time.sleep(5)
-	speech_test()
-	# print("start talking")
-	# sentence = speech_recognition()
-	# print(sentence)
+    # # find ppl
+    # motionProxy.stopMove()
+    # time.sleep(5)
+
+    # correct head position
+    currentAngle = motionProxy.getAngles("HeadYaw", True)[0]
+    motionProxy.setAngles("HeadPitch", currentAngle + 0.08, 0.2)
+    speech_test()
+    # print("start talking")
+    # sentence = speech_recognition()
+    # print(sentence)
 
 
-	# MAIN WHILE LOOP
-	while True:
-		# do a lot of stuff here
-		# speech_recognition
+    # MAIN WHILE LOOP
+    while True:
+        # do a lot of stuff here
+        peopleList = detect_people()
+        print("found " + str(len(peopleList)) + " people!")
 
-		# finally turn to sound if it was recognized
-		if SoundLocator.soundFound:
-			# move to the source of the sound
-			print("angle found: " + str(SoundLocator.soundAngle))
-			motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
-			SoundLocator.reset_variables()
-	print("Done")
+        # finally turn to sound if it was recognized
+        if SoundLocator.soundFound:
+            # move to the source of the sound
+            print("angle found: " + str(SoundLocator.soundAngle))
+            motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
+            SoundLocator.reset_variables()
+
+    print("Done")
 
 
 # Use the main function
