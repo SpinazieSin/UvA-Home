@@ -35,7 +35,6 @@ Localizer = None
 memory = None
 motionProxy  = None
 postureProxy = None
-camProxy = None
 pplDetectionargs = None
 
 
@@ -44,12 +43,10 @@ pplDetectionargs = None
 #############
 def setup_people_detection():
     global pplDetectionargs
-    global camProxy
-    camProxy = ALProxy("ALVideoDevice", IP, PORT)
     pplDetectionargs = peopledetector.setup_network()
 
 def detect_people():
-    return peopledetector.detect_people(camProxy, *pplDetectionargs)
+    return peopledetector.detect_people(VideoDevice, *pplDetectionargs)
 
 
 # return detected faces
@@ -141,15 +138,53 @@ def init_localization():
 # Main #
 ########
 
+def turn_to_sound():
+    if SoundLocator.soundFound:
+        # move to the source of the sound
+        print("angle found: " + str(SoundLocator.soundAngle))
+        motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
+        SoundLocator.reset_variables()
+
+
+def get_biggest_box_index(boxlist):
+    index = None
+    maxsize = 0
+    for i in range(len(boxlist)):
+        width = boxlist[i][2] - boxlist[i]box[0]
+        height = boxlist[i]box[3] - boxlist[i]box[1]
+        size = width * height
+        if size > maxsize:
+            maxsize = size
+            index = i
+    return index
+
 
 def cocktail_party():
 	# this function gives an outline of how the cocktail_party function should look
 
 	# STEP 1: ENTER ROOM
 		# localize to center of room -> done-ish
+    Localizer.move_to([0,0])
 
 	# STEP 2: getting called
 	# find a person and approach them
+    setup_people_detection()
+    init_soundLocalization()
+    while True:
+        turn_to_sound()
+        peopleList = detect_people()
+        if len(peopleList) > 0:
+            continuousdetection = True
+            for _ in range(4):
+                peopleList = detect_people()
+                if len(peopleList) == 0:
+                    continuousdetection = False
+            if continuousdetection:
+                break
+    speech_test("I found you!")
+    boxindex = get_biggest_box_index(peopleList)
+    # turn to person
+    # move to person
 
 		# person can be calling, waving, or with an arm raised
 		# EITHER:
@@ -194,7 +229,7 @@ def main():
     lifeProxy = ALProxy("ALAutonomousLife", IP, PORT)
     # lifeProxy.setState("disabled")
     print("AutonomousLife: " + lifeProxy.getState())
-    init_soundLocalization()
+    # init_soundLocalization()
     init_navigation()
     init_textToSpeech()
     init_videoDevice()
@@ -202,7 +237,7 @@ def main():
     init_audioDevice()
     init_audioRecorder()
     init_localization()
-    setup_people_detection()
+    # setup_people_detection()
     # Localizer.explore(2)
     # Localizer.stop_exploration()
 
