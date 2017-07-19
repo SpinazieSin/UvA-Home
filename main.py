@@ -41,19 +41,34 @@ pplDetectionargs = None
 #############
 # Functions #
 #############
+
+
+# jonathan comment dit
 def setup_people_detection():
     global pplDetectionargs
     pplDetectionargs = peopledetector.setup_network()
 
+# jonathan comment dit
 def detect_people():
     return peopledetector.detect_people(VideoDevice, *pplDetectionargs)
 
-
 # return detected faces
+def make_face_database(tracking=False):
+    global VideoDevice
+    if tracking:
+        if motionProxy == None:
+            init_localization()
+        print("Finding faces...")
+        face_list = facedetection.collect_faces(VideoDevice, motionProxy)
+    else:
+        print("Finding faces...")
+        face_list = facedetection.collect_faces(VideoDevice)
+    return face_list
+
+# Detects faces in one image
 def detect_faces():
     global VideoDevice
-    print("Finding faces...")
-    face_list = facedetection.detect(VideoDevice)
+    face_list = facedetection.detect_once(VideoDevice)
     return face_list
 
 # Train a set of faces to be associated with a label
@@ -134,6 +149,8 @@ def init_motion():
 def init_localization():
     global Localizer
     Localizer = slam.Localization(Navigation)
+
+
 ########
 # Main #
 ########
@@ -160,7 +177,7 @@ def get_biggest_box_index(boxlist):
 
 
 def cocktail_party():
-	# this function gives an outline of how the cocktail_party function should look
+    # this function gives an outline of how the cocktail_party function should look
 
 	# STEP 1: ENTER ROOM
 		# localize to center of room -> done-ish
@@ -186,33 +203,34 @@ def cocktail_party():
     # turn to person
     # move to person
 
-		# person can be calling, waving, or with an arm raised
-		# EITHER:
-			# sound localize correct person --> done
-			# detect random person in room --> done
 
-		# move towards person, -> need distance measure
+        # person can be calling, waving, or with an arm raised
+        # EITHER:
+            # sound localize correct person --> done
+            # detect random person in room --> done
 
-		# learn person 	-> face recognition done
-		#				-> guide person in face recognition
+        # move towards person, -> need distance measure
 
-	# STEP 3: taking the order
-	# place the order
+        # learn person     -> face recognition done
+        #                -> guide person in face recognition
 
-		# tak additional orders from customers
-		# FKIN NOPE
-	# STEP 4: sitting person
+    # STEP 3: taking the order
+    # place the order
 
-		# do the same stuff as 2 but for a sitting person that does not call
-		# for help
-		# sitting people detector: --> filter on shape of detections
-		# NOPE
+        # tak additional orders from customers
+        # FKIN NOPE
+    # STEP 4: sitting person
 
-	# STEP 5: placing orders
-		# repeat drink, name and person description
+        # do the same stuff as 2 but for a sitting person that does not call
+        # for help
+        # sitting people detector: --> filter on shape of detections
+        # NOPE
 
-	# STEP 6,7,8: we are skipping these
-	print("nothing here")
+    # STEP 5: placing orders
+        # repeat drink, name and person description
+
+    # STEP 6,7,8: we are skipping these
+    print("nothing here")
 
 
 def general_purpose_service():
@@ -220,12 +238,6 @@ def general_purpose_service():
 
 # Main function that is run once upon startup
 def main():
-    myBroker = ALBroker("myBroker",
-        "0.0.0.0",   # listen to anyone
-        0,           # find a free port and use it
-        IP,         # parent broker IP
-        9559)
-
     lifeProxy = ALProxy("ALAutonomousLife", IP, PORT)
     # lifeProxy.setState("disabled")
     print("AutonomousLife: " + lifeProxy.getState())
@@ -244,11 +256,7 @@ def main():
     # test_main.main()
     # setup_people_detection()
     # look around for a crowd
-    # x     = 0.0
-    # y     = 0.0
-    # theta = 0.5
-    # frequency = 1.0
-    # motionProxy.moveToward(x, y, theta, [["Frequency", frequency]])
+
     # # find ppl
     # motionProxy.stopMove()
     # time.sleep(5)
