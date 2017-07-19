@@ -19,12 +19,16 @@ from Sound import locateSound # jonathans naoqi stuff
 # from PeopleDetection import peopledetector
 
 # Global variables #
-# IP = "pepper.local"
-IP = "127.0.0.1"
+# IP = "127.0.0.1"
+IP = "pepper.local"
 PORT = 9559
-cascadePath = "haarcascade_frontalface_default.xml"
 
+TextToSpeech = None
+VideoDevice = None
+AudioRecorder = None
+AudioDevice = None
 SoundLocator = None
+Navigation = None
 memory = None
 motionProxy  = None
 postureProxy = None
@@ -45,55 +49,93 @@ def detect_people():
 	return peopledetector.detect_people(camProxy, *pplDetectionargs)
 
 
+
 # return detected faces
 def detect_faces():
-	print("Finding faces...")
-	face_list = facedetection.detect()
-	return face_list
+    global VideoDevice
+    print("Finding faces...")
+    face_list = facedetection.detect(VideoDevice)
+    return face_list
 
 # Train a set of faces to be associated with a label
 def train_recognize_faces(face_list, labels, recognizer=None):
-	if recognizer == None:
-		recognizer = facerecognition.FaceRecognizer()
-	print("Training faces...")
-	recognizer.train(face_list, labels)
-	return recognizer
+    if recognizer == None:
+        recognizer = facerecognition.FaceRecognizer()
+    print("Training faces...")
+    recognizer.train(face_list, labels)
+    return recognizer
 
 # Return names from a list of recognized faces
 def recognize_faces(recognizer):
-	print("Recognizing faces...")
-	recognized_faces = recognizer.recognize()
-	return recognized_faces
+    global VideoDevice
+    print("Recognizing faces...")
+    recognized_faces = recognizer.recognize(VideoDevice)
+    return recognized_faces
 
 # Testing speech synthesis
 def speech_test(text="Hi human"):
-	speech_proxy = ALProxy("ALTextToSpeech", IP, PORT)
-	speech_proxy.say(text)
+    global TextToSpeech
+    TextToSpeech.say(text)
 
 # Return recognized speech
 def speech_recognition(max_tries = 4):
-	print("Recognizing speech...")
-	tries = 0
-	sentence = ""
-	while tries < max_tries and sentence == "":
-		sentence = speech.wait_for_voice()
-		tries += 1
-	return sentence
+    global AudioRecorder
+    global AudioDevice
+    print("Recognizing speech...")
+    tries = 0
+    sentence = ""
+    while tries < max_tries and sentence == "":
+        sentence = speech.wait_for_voice(AudioRecorder, AudioDevice)
+        tries += 1
+    return sentence
 
+
+######################
+# Proxy Initializers #
+######################
+
+
+# Allows the robot to say text
+def init_textToSpeech():
+    global TextToSpeech
+    TextToSpeech = ALProxy("ALTextToSpeech", IP, 9559)
+
+# Soundlocator is for locating sound
 def init_soundLocalization():
-	global SoundLocator
-	SoundLocator = locateSound.SoundLocatorModule("SoundLocator")
+    global SoundLocator
+    SoundLocator = locateSound.SoundLocatorModule("SoundLocator")
 
+# Videodevice is for taking images from the videostream
+def init_videoDevice():
+    global VideoDevice
+    VideoDevice = ALProxy("ALVideoDevice", IP, 9559)
+
+# AudioRecorder is for sound recording
+def init_audioRecorder():
+    global AudioRecorder
+    AudioRecorder = ALProxy("ALAudioRecorder", IP, 9559)
+
+# AudioDevice is for sound level registration
+def init_audioDevice():
+    global AudioDevice
+    AudioDevice = ALProxy("ALAudioDevice", IP, 9559)
+
+# Navigation module
+def init_navigation():
+    global Navigation
+    Navigation = ALProxy("ALNavigation", IP, 9559)
 
 def init_navigation():
-	global motionProxy
-	global postureProxy
-	motionProxy = ALProxy("ALMotion", IP, PORT)
-	postureProxy = ALProxy("ALRobotPosture", IP, PORT)
-	motionProxy.wakeUp()
-	# if motionProxy.robotIsWakeUp():
-	# 	pass
-	# else:
+    global motionProxy
+    global postureProxy
+    motionProxy = ALProxy("ALMotion", IP, PORT)
+    postureProxy = ALProxy("ALRobotPosture", IP, PORT)
+    motionProxy.wakeUp()
+
+########
+# Main #
+########
+
 
 def cocktail_party():
 	# this function gives an outline of how the cocktail_party function should look
@@ -134,15 +176,16 @@ def cocktail_party():
 
 
 def general_purpose_service():
-
+    print("nothing here")
 
 # Main function that is run once upon startup
 def main():
-	myBroker = ALBroker("myBroker",
+    myBroker = ALBroker("myBroker",
         "0.0.0.0",   # listen to anyone
         0,           # find a free port and use it
-        "pepper.local",         # parent broker IP
+        IP,         # parent broker IP
         9559)
+
 	lifeProxy = ALProxy("ALAutonomousLife", IP, PORT)
 	# lifeProxy.setState("disabled")
 	print(lifeProxy.getState())
@@ -178,6 +221,7 @@ def main():
 			SoundLocator.reset_variables()
 	print("Done")
 
+
 # Use the main function
 if __name__ == "__main__":
-	main()
+    main()
