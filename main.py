@@ -9,6 +9,7 @@ from naoqi import ALModule
 # additional Imports
 import math
 import time
+import sys
 
 # Local modules #
 import facedetection
@@ -16,10 +17,11 @@ import facerecognition
 import speech
 import slam
 from Sound import locateSound # jonathans naoqi stuff
-# from PeopleDetection import peopledetector
+from PeopleDetection import peopledetector
 
 # Global variables #
 # IP = "127.0.0.1"
+# IP = "pepper.local"
 IP = "146.50.60.15"
 PORT = 9559
 
@@ -29,6 +31,7 @@ AudioRecorder = None
 AudioDevice = None
 SoundLocator = None
 Navigation = None
+Localizer = None
 memory = None
 motionProxy  = None
 postureProxy = None
@@ -39,16 +42,18 @@ pplDetectionargs = None
 #############
 # Functions #
 #############
+
+
+# jonathan comment dit
 def setup_people_detection():
-	global pplDetectionargs
-	global camProxy
-	camProxy = ALProxy("ALVideoDevice", IP, PORT)
-	pplDetectionargs = peopledetector.setup_network()
+    global pplDetectionargs
+    global camProxy
+    camProxy = ALProxy("ALVideoDevice", IP, PORT)
+    pplDetectionargs = peopledetector.setup_network()
 
+# jonathan comment dit
 def detect_people():
-	return peopledetector.detect_people(camProxy, *pplDetectionargs)
-
-
+    return peopledetector.detect_people(camProxy, *pplDetectionargs)
 
 # return detected faces
 def make_face_database(tracking=False):
@@ -63,11 +68,11 @@ def make_face_database(tracking=False):
         face_list = facedetection.collect_faces(VideoDevice)
     return face_list
 
+# Detects faces in one image
 def detect_faces():
     global VideoDevice
     face_list = facedetection.detect_once(VideoDevice)
     return face_list
-    
 
 # Train a set of faces to be associated with a label
 def train_recognize_faces(face_list, labels, recognizer=None):
@@ -137,12 +142,17 @@ def init_navigation():
     global Navigation
     Navigation = ALProxy("ALNavigation", IP, 9559)
 
-def init_localization():
+def init_motion():
     global motionProxy
     global postureProxy
     motionProxy = ALProxy("ALMotion", IP, PORT)
     postureProxy = ALProxy("ALRobotPosture", IP, PORT)
     motionProxy.wakeUp()
+
+def init_localization():
+    global Localizer
+    Localizer = slam.Localization(Navigation)
+
 
 ########
 # Main #
@@ -150,41 +160,41 @@ def init_localization():
 
 
 def cocktail_party():
-	# this function gives an outline of how the cocktail_party function should look
+    # this function gives an outline of how the cocktail_party function should look
 
-	# STEP 1: ENTER ROOM
-		# localize to center of room -> done-ish
+    # STEP 1: ENTER ROOM
+        # localize to center of room -> done-ish
 
-	# STEP 2: getting called
-	# find a person and approach them
+    # STEP 2: getting called
+    # find a person and approach them
 
-		# person can be calling, waving, or with an arm raised
-		# EITHER:
-			# sound localize correct person --> done
-			# detect random person in room --> done
+        # person can be calling, waving, or with an arm raised
+        # EITHER:
+            # sound localize correct person --> done
+            # detect random person in room --> done
 
-		# move towards person, -> need distance measure
+        # move towards person, -> need distance measure
 
-		# learn person 	-> face recognition done
-		#				-> guide person in face recognition
+        # learn person     -> face recognition done
+        #                -> guide person in face recognition
 
-	# STEP 3: taking the order
-	# place the order
+    # STEP 3: taking the order
+    # place the order
 
-		# tak additional orders from customers
-		# FKIN NOPE
-	# STEP 4: sitting person
+        # tak additional orders from customers
+        # FKIN NOPE
+    # STEP 4: sitting person
 
-		# do the same stuff as 2 but for a sitting person that does not call
-		# for help
-		# sitting people detector: --> filter on shape of detections
-		# NOPE
+        # do the same stuff as 2 but for a sitting person that does not call
+        # for help
+        # sitting people detector: --> filter on shape of detections
+        # NOPE
 
-	# STEP 5: placing orders
-		# repeat drink, name and person description
+    # STEP 5: placing orders
+        # repeat drink, name and person description
 
-	# STEP 6,7,8: we are skipping these
-	print("nothing here")
+    # STEP 6,7,8: we are skipping these
+    print("nothing here")
 
 
 def general_purpose_service():
@@ -192,43 +202,52 @@ def general_purpose_service():
 
 # Main function that is run once upon startup
 def main():
-	# lifeProxy = ALProxy("ALAutonomousLife", IP, PORT)
-	# lifeProxy.setState("disabled")
-	# print(lifeProxy.getState())
-	# init_soundLocalization()
-	# init_navigation()
-	# test_main.main()
-	# setup_people_detection()
-	# look around for a crowd
-    # x     = 0.0
-    # y     = 0.0
-    # theta = 0.5
-    # frequency = 1.0
-    # motionProxy.moveToward(x, y, theta, [["Frequency", frequency]])
-	# # find ppl
-	# motionProxy.stopMove()
-	# time.sleep(5)
-	# speech_test()
-	# print("start talking")
-	# sentence = speech_recognition()
-	# print(sentence)
+    lifeProxy = ALProxy("ALAutonomousLife", IP, PORT)
+    # lifeProxy.setState("disabled")
+    print("AutonomousLife: " + lifeProxy.getState())
+    init_soundLocalization()
+    init_navigation()
+    init_textToSpeech()
     init_videoDevice()
+    init_motion()
+    init_audioDevice()
+    init_audioRecorder()
+    init_localization()
+    setup_people_detection()
+    # Localizer.explore(2)
+    # Localizer.stop_exploration()
 
-    for i in range(5):
-        x = detect_faces()
-        print(x)
-	# MAIN WHILE LOOP
-	# while True:
-	# 	# do a lot of stuff here
-	# 	# speech_recognition
+    # test_main.main()
+    # setup_people_detection()
+    # look around for a crowd
 
-	# 	# finally turn to sound if it was recognized
-	# 	if SoundLocator.soundFound:
-	# 		# move to the source of the sound
-	# 		print("angle found: " + str(SoundLocator.soundAngle))
-	# 		motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
-	# 		SoundLocator.reset_variables()
-	print("Done")
+    # # find ppl
+    # motionProxy.stopMove()
+    # time.sleep(5)
+
+    # correct head position
+    currentAngle = motionProxy.getAngles("HeadYaw", True)[0]
+    motionProxy.setAngles("HeadPitch", currentAngle + 0.08, 0.2)
+    speech_test()
+    # print("start talking")
+    # sentence = speech_recognition()
+    # print(sentence)
+
+
+    # MAIN WHILE LOOP
+    while True:
+        # do a lot of stuff here
+        peopleList = detect_people()
+        print("found " + str(len(peopleList)) + " people!")
+
+        # finally turn to sound if it was recognized
+        if SoundLocator.soundFound:
+            # move to the source of the sound
+            print("angle found: " + str(SoundLocator.soundAngle))
+            motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
+            SoundLocator.reset_variables()
+
+    print("Done")
 
 
 # Use the main function
