@@ -15,18 +15,23 @@ class SoundLocatorModule(ALModule):
     to facedetection events
 
     """
-    def __init__(self, name):
+    def __init__(self, name, IP, PORT):
+        myBroker = ALBroker("myBroker",
+            "0.0.0.0",   # listen to anyone
+            0,           # find a free port and use it
+            IP,         # parent broker IP
+            PORT)
         ALModule.__init__(self, name)
         # No need for IP and port here because
         # we have our Python broker connected to NAOqi broker
 
-        self.tts = ALProxy("ALTextToSpeech")
+        self.tts = ALProxy("ALTextToSpeech", IP, PORT)
         self.soundFound = False # continuesly gets updated during runtime
         self.soundAngle = 0.0 # continuesly gets updated during runtime
 
         # Subscribe to the FaceDetected event:
         global memory
-        memory = ALProxy("ALMemory")
+        memory = ALProxy("ALMemory", IP, PORT)
         memory.subscribeToEvent("ALSoundLocalization/SoundLocated", "SoundLocator", "onSoundLocated")
 
     def onSoundLocated(self, *_args):
@@ -63,7 +68,7 @@ class SoundLocatorModule(ALModule):
 
     def reset_variables(self):
         self.soundFound = False
-        
+
         # Subscribe again to the event
         memory.subscribeToEvent("ALSoundLocalization/SoundLocated", "SoundLocator", "onSoundLocated")
         # self.soundAngle = 0.0 # idk if this is necessary

@@ -37,7 +37,7 @@ class Localization(object):
     def get_map(self):
         self.map = self.proxy.getMetricalMap()
 
-    # load a map from a given path
+    # load a map from a given path`
     def load_exploration(self, path):
         self.map = self.proxy.loadExploration(path)
 
@@ -60,7 +60,7 @@ class Localization(object):
         self.estimate_location =  self.proxy.getRobotPositionInMap()[0]
         return self.estimate_location
 
-    # start localization loop so the robot can estimate its own position. a map has to be loaded
+    # start localization loop so the robot can es timate its own position. a map has to be loaded
     def start_localization(self):
         self.proxy.startLocalization()
 
@@ -71,7 +71,8 @@ class Localization(object):
     # estimate target is an estimate of the current position of the robot
     # relocalize in map returns [[x, y, theta], uncertainty]
     def relocalize(self, estimate_target):
-        self.estimate_location = self.proxy.relocalizeInMap(estimate_target)[0]
+        self.estimate_location = self.proxy.relocalizeInMap(estimate_target)[1][0]
+        print(self.estimate_location)
 
 
 # GETTING A MAP
