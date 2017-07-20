@@ -23,8 +23,8 @@ from PeopleDetection import peopledetector
 
 # Global variables #
 # IP = "127.0.0.1"
-IP = "pepper.local"
-# IP = "146.50.60.15"
+# IP = "pepper.local"
+IP = "146.50.60.15"
 PORT = 9559
 
 TextToSpeech = None
@@ -52,7 +52,11 @@ def setup_people_detection():
 
 # jonathan comment dit
 def detect_people():
-    return peopledetector.detect_people(VideoDevice, *pplDetectionargs)
+    detections = peopledetector.detect_people(VideoDevice, *pplDetectionargs)
+    outlist = []
+    for detection in detections:
+        outlist.append([detection[0][0], detection[0][1], detection[1][0], detection[1][1]])
+    return outlist
 
 # return detected faces
 def make_face_database(tracking=False):
@@ -119,7 +123,7 @@ def init_textToSpeech():
 # Soundlocator is for locating sound
 def init_soundLocalization():
     global SoundLocator
-    SoundLocator = locateSound.SoundLocatorModule("SoundLocator")
+    SoundLocator = locateSound.SoundLocatorModule("SoundLocator", IP, PORT)
 
 # Videodevice is for taking images from the videostream
 def init_videoDevice():
@@ -163,10 +167,47 @@ def turn_to_sound():
         print("angle found: " + str(SoundLocator.soundAngle))
         motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
         SoundLocator.reset_variables()
+        return True
+    return False
+
+def turn_to_person():
+    detectioncounter = 0
+    while True:
+        peopleList = detect_people()
+        if len(peopleList) > 0:
+            boxindex = get_biggest_box_index(peopleList)
+            width = peopleList[boxindex][2] - peopleList[boxindex][0]
+            height = peopleList[boxindex][3] - peopleList[boxindex][1]
+            size = width * height
+            if size > 10000:
+                detectioncounter += 1
+                # turn to person
+                box = peopleList[boxindex]
+                print(box)
+                print(box[0]/2.0)
+                boxcenter = box[0] +  ((box[2] - box[0])/2.0)
+                print(boxcenter)
+                im_width = 640
+
+                dwidth = im_width/55.20
+                pdiff = im_width/2.0 - boxcenter
+                turn = (math.radians(pdiff / dwidth))
+                print("angle: " + str(turn))
+                motionProxy.moveTo(0.0, 0.0, turn)
+                if detectioncounter > 3:
+                    speech_test("found you!")
+                    return peopleList
+            else:
+                detectioncounter = 0
+                motionProxy.moveTo(0.0, 0.0, math.radians(30))
+        else:
+            detectioncounter = 0
+            motionProxy.moveTo(0.0, 0.0, math.radians(30))
+
 
 
 def get_biggest_box_index(boxlist):
-    index = None
+    index = 0
     maxsize = 0
     for i in range(len(boxlist)):
         width = boxlist[i][2] - boxlist[i][0]
@@ -180,7 +221,10 @@ def get_biggest_box_index(boxlist):
 
 def cocktail_party():
     # this function gives an outline of how the cocktail_party function should look
-
+    init_localization()
+    Localizer.stop_localization()
+    Navigation.loadExploration("/home/nao/.local/share/Explorer/2017-07-20T123155.689Z.explo")
+    Localizer.start_localization()
 	# STEP 1: ENTER ROOM
 		# localize to center of room -> done-ish
     Localizer.move_to([0,0])
@@ -188,21 +232,16 @@ def cocktail_party():
 	# STEP 2: getting called
 	# find a person and approach them
     setup_people_detection()
-    init_soundLocalization()
-    while True:
-        turn_to_sound()
-        peopleList = detect_people()
-        if len(peopleList) > 0:
-            continuousdetection = True
-            for _ in range(4):
-                peopleList = detect_people()
-                if len(peopleList) == 0:
-                    continuousdetection = False
-            if continuousdetection:
-                break
-    speech_test("I found you!")
-    boxindex = get_biggest_box_index(peopleList)
-    # turn to person
+    # init_soundLocalization()
+    # localize using sound
+    # SoundLocator.reset_variables()
+    # while True:
+    #     turned = turn_to_sound()
+    #     if turned:
+    #         break
+
+    # localize using people detection
+    peopleList = turn_to_person()
     # move to person
 
 
@@ -250,8 +289,10 @@ def main():
     init_motion()
     init_audioDevice()
     init_audioRecorder()
-    init_localization()
+    # init_localization()
     # setup_people_detection()
+
+    cocktail_party()
     # Localizer.explore(2)
     # Localizer.stop_exploration()
 
@@ -266,27 +307,54 @@ def main():
     # correct head position
     # currentAngle = motionProxy.getAngles("HeadYaw", True)[0]
     # motionProxy.setAngles("HeadPitch", currentAngle + 0.08, 0.2)
-    speech_test()
-    # Localizer.explore(15)
+    # speech_test()
+    # Localizer.explore(1)
     # Localizer.save_exploration()
-    Localizer.stop_localization()
-    Localizer.load_exploration("/home/nao/.local/share/Explorer/2017-07-19T163238.071Z.explo")
-    # print("path: " + str(Localizer.map_path))
-    # result_map = Localizer.map
+    # Navigation.stopLocalization()
+    # # Localizer.start_localization()
+    # # Localizer.load_exploration("/home/nao/.local/share/Explorer/2017-07-19T163238.071Z.explo")
+    Navigation.loadExploration("/home/nao/.local/share/Explorer/2017-07-20T123155.689Z.explo")
+    # # Navigation.getMetricalMap()
+    # # print("path: " + str(Localizer.map_path))
+    # # Localizer.load_exploration("2017-07-20T123155.689Z.explo")
+    # result_map = Navigation.getMetricalMap()
     # map_width = result_map[1]
     # map_height = result_map[2]
     # img = numpy.array(result_map[4]).reshape(map_width, map_height)
     # img = (100 - img) * 2.55 # from 0..100 to 255..0
     # img = numpy.array(img, numpy.uint8)
-    # cv2.imwrite("iismap.png", img)
-    # Image.frombuffer('L',  (map_width, map_height), img, 'raw', 'L', 0, 1).show()
-    # print("start talking")
-    # sentence = speech_recognition()
-    # print(sentence)
-    Localizer.start_localization()
-    Localizer.relocalize([0.,0.])
-    # Localizer.move_to([-1., -1.])
-    print("estimate location: " + str(Localizer.get_robot_position()))
+    # # cv2.imwrite("iismap2.png", img)
+    # # pilimage = Image.frombuffer('L',  (map_width, map_height), img, 'raw', 'L', 0, 1)
+    #
+    # # for i in range(120):
+    # #     for j in range(120):
+    # #         img[i][j] = 1
+    # #         cv2.imshow("map", img)
+    # #         cv2.waitKey(1)
+    #
+    # est_position_maybe = Navigation.relocalizeInMap([0,0])
+    # # est_position = Navigation.getRobotPositionInMap()
+    # while True:
+    #     # Localizer.relocalize([0,0])
+    #     # est_position = Navigation.getRobotPositionInMap()
+    #     est_position = Navigation.relocalizeInMap([0,0])
+    #     print(est_position[1][0])
+    #     a = est_position[1][0][0]
+    #     b = est_position[1][0][1]
+    #     x = map_width * a
+    #     y = map_height * b
+    #     print("adjusted: " + str(x) + ", " + str(y))
+    #     Navigation.startLocalization()
+    #     Navigation.navigateToInMap([0.,0.])
+    #
+    # # print("start talking")
+    # # sentence = speech_recognition()
+    # # print(sentence)
+    # Localizer.start_localization()
+    # Localizer.relocalize([0.,0.])
+    # print("path: " + str(Localizer.map_path))
+    # # Localizer.move_to([-1., -1.])
+    # print("estimate location: " + str(Localizer.get_robot_position()))
     # Localizer.stop_exploration()
 
     # MAIN WHILE LOOP
@@ -294,7 +362,7 @@ def main():
     #     # do a lot of stuff here
     #     peopleList = detect_people()
     #     print("found " + str(len(peopleList)) + " people!")
-    #
+    #    # Localizer.get_map()
     #     # finally turn to sound if it was recognized
     #     if SoundLocator.soundFound:
     #         # move to the source of the sound

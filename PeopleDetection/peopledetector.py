@@ -227,6 +227,8 @@ def detect_people(camProxy, sess, H, args, x_in, pred_boxes, pred_confidences):
     for detection in history_detections:
         final_combined_detections.append(detection)
 
+    print("final: " + str(final_combined_detections))
+
     # draw final detections in green
     if show_images:
         for rect in final_combined_detections:
