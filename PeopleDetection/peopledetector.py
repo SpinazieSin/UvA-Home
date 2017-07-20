@@ -258,7 +258,7 @@ def main():
     parser.add_argument('--logdir', default='output')
     parser.add_argument('--iou_threshold', default=0.5, type=float)
     parser.add_argument('--tau', default=0.25, type=float)
-    parser.add_argument('--min_conf', default=0.6, type=float)
+    parser.add_argument('--min_conf', default=0.2, type=float)
     parser.add_argument('--show_suppressed', default=False, type=bool)
     parser.add_argument('--use_dataset', default=0)
     parser.add_argument('--show_images', default=1)
