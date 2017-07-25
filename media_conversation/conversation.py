@@ -144,13 +144,13 @@ class Conversation(object):
     def get_preference(self, article):
         self.chat.speak("What did you think about %s?" % (article.title))
         q = self.chat.listen()
-        sentiment_command = "java -jar ./SentiStrengthCom.jar sentidata ./SentiStrengthData/ text \"" + q + "\""
+        sentiment_command = "java -jar ./sentiment/SentiStrengthCom.jar sentidata ./SentiStrengthData/ text \"" + q + "\""
         proc = subprocess.Popen(sentiment_command, stdout=subprocess.PIPE, shell=True)
         sentiment = proc.stdout.read().strip().split(" ")
+        print(sentiment)
         try: 
             pos_sent = int(sentiment[0])
             neg_sent = int(sentiment[1])
-            
         except:
             self.chat.speak("I am not sure what you meant with that.")
             return "get_preference", [article]

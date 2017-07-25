@@ -59,12 +59,12 @@ class ChatEngine(object):
         self.conv = conversation.Conversation(self, news=news)
         self.opinion_engine = opinionengine.OpinionEngine()
         self.speech_recog = speech_recog
-        if platform.system() == 'Darwin':  # OS X
-            self.speech_recog = False
-            self.say = self.osx_say
-        else: # Assume linux/naoqi
-            import naoqiutils
-            self.say = naoqiutils.speak
+        # if platform.system() == 'Darwin':  # OS X
+        #     self.speech_recog = False
+        #     self.say = self.osx_say
+        # else: # Assume linux/naoqi
+        import naoqiutils
+        self.say = naoqiutils.speak
 
         self.newsprinter = prettynews.PrettyNews(self.conv.searcher, self.mode, self)
         # Commands is a dict of named conversation action scripts
@@ -119,19 +119,32 @@ class ChatEngine(object):
                         self.speak(choice(self.CONTINUE_PHRASES))
         conv.end_conversation()
 
-    def listen(self):
-        q = "" # assume empty string when no asnwer found, migth work for most functions
+    # def listen(self):
+    #     q = "" # assume empty string when no asnwer found, migth work for most functions
+    #     if self.speech_recog:
+    #         tries = 0
+    #         q = ""
+    #         while tries < 4 and q == "":
+    #             q = STT.wait_for_voice()
+    #             if q == "" and tries < 3:
+    #                 self.speak(choice(self.Q_REPEAT_PHRASES))
+    #             tries += 1
+    #     else:
+    #         q = raw_input("> ").lower()
+    #     return q
+
+    # Return recognized speech
+    def listen(self, max_tries = 4):
         if self.speech_recog:
+            print("Recognizing speech...")
             tries = 0
-            q = ""
-            while tries < 4 and q == "":
-                q = STT.wait_for_voice()
-                if q == "" and tries < 3:
-                    self.speak(choice(self.Q_REPEAT_PHRASES))
+            sentence = ""
+            while tries < max_tries and sentence == "":
+                sentence = STT.wait_for_voice()
                 tries += 1
         else:
-            q = raw_input("> ").lower()
-        return q
+            sentence = raw_input("> ").lower()
+        return sentence
 
     def speak(self, phrase):
         if self.mode == "human_speech":

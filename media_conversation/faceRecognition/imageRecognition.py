@@ -32,13 +32,11 @@ WIDTH = 320
 HEIGHT = 240
 THRESHOLD = 0.65
 IMAGECOUNT = 10
-IP = "mio.local"
+IP = "192.168.131.13"
 PORT = 9559
-camProxy = ALProxy("ALVideoDevice", IP, PORT)
 motionProxy = ALProxy("ALMotion", IP, PORT)
 resolution = 2    # VGA
 colorSpace = 11  # RGB
-videoClient = camProxy.subscribe("python_client", resolution, colorSpace, 5)
 
 # def run():
     # # Start recognising
@@ -249,6 +247,7 @@ def getRep(bgrImg, align, net, use_nao):
 
 
 def get_image():
+    videoClient = camProxy.subscribe("python_client", resolution, colorSpace, 5)
     # Get a camera image.
     # image[6] contains the image data passed as an array of ASCII chars.
     naoImage = camProxy.getImageRemote(videoClient)
@@ -258,6 +257,7 @@ def get_image():
     array = naoImage[6]
 
     im = Image.fromstring("RGB", (imageWidth, imageHeight), array)
+    camProxy.unsubscribe(videoClient)
     return im
 
 if __name__ == '__main__':

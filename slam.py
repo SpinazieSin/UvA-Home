@@ -39,7 +39,8 @@ class Localization(object):
 
     # load a map from a given path`
     def load_exploration(self, path):
-        self.map = self.proxy.loadExploration(path)
+        self.proxy.loadExploration(path)
+        self.map = self.proxy.getMetricalMap()
 
     # radius is the size of the exploration area in meters
     def explore(self, radius):
@@ -50,7 +51,7 @@ class Localization(object):
         self.proxy.stopExploration()
         self.save_exploration()
 
-    # target is of format [x, y., theta]
+    # target is of format [x, y, theta]
     def move_to(self, target):
         self.proxy.navigateToInMap(target)
         self.estimate_location = target
@@ -72,8 +73,6 @@ class Localization(object):
     # relocalize in map returns [[x, y, theta], uncertainty]
     def relocalize(self, estimate_target):
         self.estimate_location = self.proxy.relocalizeInMap(estimate_target)[1][0]
-        print(self.estimate_location)
-
 
 # GETTING A MAP
 # Localization_instance.get_map()

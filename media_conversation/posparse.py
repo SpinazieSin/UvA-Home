@@ -1,4 +1,4 @@
-2# -*-coding:utf-8-*-
+# -*-coding:utf-8-*-
 """Part of speech (POS) tagging natural (news) language parser class file for the media understanding 2017 project.
 
 File name: article.py

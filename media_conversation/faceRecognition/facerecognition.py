@@ -32,13 +32,12 @@ WIDTH = 320
 HEIGHT = 240
 THRESHOLD = 0.4
 REQUIRED_TRIALS = 2
-IP = "mio.local"  # change is another robot is used
+IP = "192.168.131.13"  # change is another robot is used
 PORT = 9559
 camProxy = ALProxy("ALVideoDevice", IP, PORT)
 motionProxy = ALProxy("ALMotion", IP, PORT)
 resolution = 2    # VGA
 colorSpace = 11  # RGB
-videoClient = camProxy.subscribe("python_client", resolution, colorSpace, 5)
 
 # def fast_known_face(use_nao=True, timeout=True):
 #     """Check for known face.
@@ -133,7 +132,7 @@ def known_face(use_nao=True, timeout=True):
             if not use_nao:
                 video_capture.release()
                 cv2.destroyAllWindows()
-                camProxy.unsubscribe(videoClient)
+            else:
                 headmotions.stiffnessOff()
             print("found no known person")
             return False, ""
@@ -178,7 +177,6 @@ def known_face(use_nao=True, timeout=True):
                 if not use_nao:
                     video_capture.release()
                     cv2.destroyAllWindows()
-                    camProxy.unsubscribe(videoClient)
                     headmotions.stiffnessOff()
                 return True, test_persons[-1]
         except:
@@ -284,14 +282,14 @@ def getRep(bgrImg, align, net):
 
 def get_image():
     # Get a camera image.
+    videoClient = camProxy.subscribe("python_client", resolution, colorSpace, 5)
     # image[6] contains the image data passed as an array of ASCII chars.
     naoImage = camProxy.getImageRemote(videoClient)
-
     imageWidth = naoImage[0]
     imageHeight = naoImage[1]
     array = naoImage[6]
-
     im = Image.fromstring("RGB", (imageWidth, imageHeight), array)
+    camProxy.unsubscribe(videoClient)
     return im
 
 
