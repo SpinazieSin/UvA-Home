@@ -31,14 +31,14 @@ detectionstack = []
 
 def setup_network():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default="./PeopleDetection/trained_nets/combined_inception_60k/save.ckpt-40000")
+    parser.add_argument('--weights', default="./PeopleDetection/trained_nets/combined_inception_60k/save.ckpt-60000")
     parser.add_argument('--expname', default='')
     parser.add_argument('--test_boxes', default="./data/TUD-Brussels/small/smallnotation.idl")
     parser.add_argument('--gpu', default=0)
     parser.add_argument('--logdir', default='output')
     parser.add_argument('--iou_threshold', default=0.5, type=float)
     parser.add_argument('--tau', default=0.25, type=float)
-    parser.add_argument('--min_conf', default=0.2, type=float)
+    parser.add_argument('--min_conf', default=0.1, type=float)
     parser.add_argument('--show_suppressed', default=False, type=bool)
     parser.add_argument('--use_dataset', default=0)
     parser.add_argument('--show_images', default=1)
@@ -251,14 +251,14 @@ def detect_people(camProxy, sess, H, args, x_in, pred_boxes, pred_confidences):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default="./trained_nets/combined_inception_60k/save.ckpt-40000")
+    parser.add_argument('--weights', default="./trained_nets/combined_inception_60k/save.ckpt-60000")
     parser.add_argument('--expname', default='')
     parser.add_argument('--test_boxes', default="./data/TUD-Brussels/small/smallnotation.idl")
     parser.add_argument('--gpu', default=0)
     parser.add_argument('--logdir', default='output')
     parser.add_argument('--iou_threshold', default=0.5, type=float)
     parser.add_argument('--tau', default=0.25, type=float)
-    parser.add_argument('--min_conf', default=0.2, type=float)
+    parser.add_argument('--min_conf', default=0.5, type=float)
     parser.add_argument('--show_suppressed', default=False, type=bool)
     parser.add_argument('--use_dataset', default=0)
     parser.add_argument('--show_images', default=1)

@@ -23,8 +23,8 @@ from PeopleDetection import peopledetector
 
 # Global variables #
 # IP = "127.0.0.1"
-# IP = "pepper.local"
-IP = "146.50.60.15"
+IP = "pepper.local"
+# IP = "146.50.60.15"
 PORT = 9559
 
 TextToSpeech = None
@@ -161,15 +161,6 @@ def init_localization():
 # Main #
 ########
 
-def turn_to_sound():
-    if SoundLocator.soundFound:
-        # move to the source of the sound
-        print("angle found: " + str(SoundLocator.soundAngle))
-        motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
-        SoundLocator.reset_variables()
-        return True
-    return False
-
 def turn_to_person():
     detectioncounter = 0
     while True:
@@ -199,11 +190,20 @@ def turn_to_person():
                     return peopleList
             else:
                 detectioncounter = 0
-                motionProxy.moveTo(0.0, 0.0, math.radians(30))
+                # motionProxy.moveTo(0.0, 0.0, math.radians(30))
         else:
             detectioncounter = 0
-            motionProxy.moveTo(0.0, 0.0, math.radians(30))
+            # motionProxy.moveTo(0.0, 0.0, math.radians(30))
 
+def turn_to_sound():
+    SoundLocator.reset_variables()
+    while True:
+        if SoundLocator.soundFound:
+            # move to the source of the sound
+            print("angle found: " + str(SoundLocator.soundAngle))
+            motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
+            SoundLocator.reset_variables()
+            break
 
 
 def get_biggest_box_index(boxlist):
@@ -219,31 +219,31 @@ def get_biggest_box_index(boxlist):
     return index
 
 
+def move_forward_until_stuck():
+    pass
+
 def cocktail_party():
     # this function gives an outline of how the cocktail_party function should look
-    init_localization()
-    Localizer.stop_localization()
-    Navigation.loadExploration("/home/nao/.local/share/Explorer/2017-07-20T123155.689Z.explo")
-    Localizer.start_localization()
+    # init_localization()
+    # Localizer.stop_localization()
+    # Navigation.loadExploration("/home/nao/.local/share/Explorer/2017-07-20T123155.689Z.explo")
+    # Localizer.start_localization()
 	# STEP 1: ENTER ROOM
 		# localize to center of room -> done-ish
-    Localizer.move_to([0,0])
+    # Localizer.move_to([0,0])
 
 	# STEP 2: getting called
 	# find a person and approach them
     setup_people_detection()
-    # init_soundLocalization()
+
     # localize using sound
-    # SoundLocator.reset_variables()
-    # while True:
-    #     turned = turn_to_sound()
-    #     if turned:
-    #         break
+    # init_soundLocalization()
+    # turn_to_sound()
 
     # localize using people detection
     peopleList = turn_to_person()
     # move to person
-
+    # move_straight_until_stuck
 
         # person can be calling, waving, or with an arm raised
         # EITHER:
@@ -277,43 +277,18 @@ def cocktail_party():
 def general_purpose_service():
     print("nothing here")
 
-# Main function that is run once upon startup
-def main():
-    lifeProxy = ALProxy("ALAutonomousLife", IP, PORT)
-    # lifeProxy.setState("disabled")
-    print("AutonomousLife: " + lifeProxy.getState())
-    # init_soundLocalization()
-    init_navigation()
-    init_textToSpeech()
-    init_videoDevice()
-    init_motion()
-    init_audioDevice()
-    init_audioRecorder()
-    # init_localization()
-    # setup_people_detection()
 
-    cocktail_party()
+def navigation_things():
+    """this method does nothing except hold the navigation code that I am still
+    working on, but that is not allowed in the main :)."""
     # Localizer.explore(2)
     # Localizer.stop_exploration()
-
-    # test_main.main()
-    # setup_people_detection()
-    # look around for a crowd
-
-    # # find ppl
-    # motionProxy.stopMove()
-    # time.sleep(5)
-
-    # correct head position
-    # currentAngle = motionProxy.getAngles("HeadYaw", True)[0]
-    # motionProxy.setAngles("HeadPitch", currentAngle + 0.08, 0.2)
-    # speech_test()
     # Localizer.explore(1)
     # Localizer.save_exploration()
     # Navigation.stopLocalization()
     # # Localizer.start_localization()
     # # Localizer.load_exploration("/home/nao/.local/share/Explorer/2017-07-19T163238.071Z.explo")
-    Navigation.loadExploration("/home/nao/.local/share/Explorer/2017-07-20T123155.689Z.explo")
+    # Navigation.loadExploration("/home/nao/.local/share/Explorer/2017-07-20T123155.689Z.explo")
     # # Navigation.getMetricalMap()
     # # print("path: " + str(Localizer.map_path))
     # # Localizer.load_exploration("2017-07-20T123155.689Z.explo")
@@ -357,18 +332,41 @@ def main():
     # print("estimate location: " + str(Localizer.get_robot_position()))
     # Localizer.stop_exploration()
 
+
+# Main function that is run once upon startup
+def main():
+    lifeProxy = ALProxy("ALAutonomousLife", IP, PORT)
+    # lifeProxy.setState("disabled")
+    print("AutonomousLife: " + lifeProxy.getState())
+    init_soundLocalization()
+    init_navigation()
+    init_textToSpeech()
+    init_videoDevice()
+    init_motion()
+    init_audioDevice()
+    init_audioRecorder()
+    # init_localization()
+
+    # correct head angle for long distances
+    # currentAngle = motionProxy.getAngles("HeadYaw", True)[0]
+    # motionProxy.setAngles(["HeadPitch"], currentAngle + 0.08, 0.2)
+
+    # not finished
+    cocktail_party()
+
+
     # MAIN WHILE LOOP
-    # while True:
-    #     # do a lot of stuff here
-    #     peopleList = detect_people()
-    #     print("found " + str(len(peopleList)) + " people!")
-    #    # Localizer.get_map()
-    #     # finally turn to sound if it was recognized
-    #     if SoundLocator.soundFound:
-    #         # move to the source of the sound
-    #         print("angle found: " + str(SoundLocator.soundAngle))
-    #         motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
-    #         SoundLocator.reset_variables()
+    while True:
+        # do a lot of stuff here
+        peopleList = detect_people()
+        print("found " + str(len(peopleList)) + " people!")
+       # Localizer.get_map()
+        # finally turn to sound if it was recognized
+        if SoundLocator.soundFound:
+            # move to the source of the sound
+            print("angle found: " + str(SoundLocator.soundAngle))
+            motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
+            SoundLocator.reset_variables()
 
     print("Done")
 
