@@ -396,6 +396,12 @@ class NewsExtractor(object):
         else:
             with open('news.pickle', 'rb') as handle:
                 self.news = pickle.load(handle)
+                new_news = []
+                for article in self.news:
+                    if article.text != "":
+                        article.text =  re.sub(r"Image copyright.*Image caption", "", article.text)
+                        new_news.append(article)
+                self.news = new_news
         if save:
             with open('news.pickle', 'wb') as handle:
                 pickle.dump(self.news, handle)
@@ -404,3 +410,7 @@ class NewsExtractor(object):
         """Print supported newspapers  and total parsed articles."""
         return "<Supported newspapers: " + str(self.supported_news_papers) \
                + ", parsed articles: " + str(self.articles_parsed) + ">"
+
+if __name__ == "__main__":
+    a = NewsExtractor()
+    a.build_all()

@@ -12,7 +12,7 @@ from naoqi import ALProxy
 import vision_definitions
 import PIL.Image as Image
 
-IP = "mio.local"
+IP = "192.168.131.13"
 PORT = 9559
 import sys
 

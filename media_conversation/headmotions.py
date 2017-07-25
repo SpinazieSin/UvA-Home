@@ -2,7 +2,7 @@ import time
 from naoqi import ALProxy
 from math import radians
 
-def move_head(headxpos, headypos, im_width, im_height, ip_addr, motionProxy):
+def move_head(headxpos, headypos, im_width, im_height, IP, motionProxy):
     """INFINITE MAGIC NUMBERS INCOMING."""
     width = im_width
     height = im_height
