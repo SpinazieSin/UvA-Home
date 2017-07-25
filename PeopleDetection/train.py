@@ -105,7 +105,6 @@ def build_forward(H, x, phase, reuse):
     early_feat_channels = H['early_feat_channels']
     early_feat = early_feat[:, :, :, :early_feat_channels]
 
-    print("STUFF 1")
 
     if H['deconv']:
         size = 3
@@ -131,7 +130,6 @@ def build_forward(H, x, phase, reuse):
                               strides=[1, 1, 1, 1], padding='SAME')
         cnn = tf_concat(3, [cnn1, cnn2])
 
-    print(cnn.shape)
     cnn = tf.reshape(cnn,
                      [H['batch_size'] * H['grid_width'] * H['grid_height'], H['later_feat_channels']])
     initializer = tf.random_uniform_initializer(-0.1, 0.1)
