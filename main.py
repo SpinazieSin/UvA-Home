@@ -19,15 +19,16 @@ import facerecognition
 import speech
 import slam
 import questions_answers
-import language_processing
+# import language_processing
+from naoqi import qi
 from Sound import locateSound # jonathans naoqi stuff
 from PeopleDetection import peopledetector
 
 # Global variables #
 # IP = "127.0.0.1"
-# IP = "pepper.local"
+IP = "pepper.local"
 # IP = "146.50.60.15"
-IP = "192.168.131.13"
+# IP = "192.168.131.13"
 PORT = 9559
 
 TextToSpeech = None
@@ -159,6 +160,10 @@ def init_localization():
     global Localizer
     Localizer = slam.Localization(Navigation)
 
+def init_memory():
+    global memory
+    memory = ALProxy("ALMemory", IP, PORT)
+
 
 ########
 # Main #
@@ -226,10 +231,30 @@ def move_forward_until_stuck():
     pass
 
 
+def door_waiter():
+    sonar = ALProxy("ALSonar", IP, PORT)
+    sonar.subscribe("python_client")
+    robot_say("Waiting for door to open.")
+    while True:
+        front = memory.getData("Device/SubDeviceList/Platform/Front/Sonar/Sensor/Value")
+
+        print("distance to wall: " + str(front))
+        # print("right: " + str(right))
+        if front > 2:
+            print("Door opened!")
+            break
+
+    # Unsubscribe from sonars, this will stop sonars (at hardware level)
+    sonar.unsubscribe("python_client")
+
+
 def speech_and_person():
     # wait for door to open
+    # door_waiter
 
     # move forward to middle of room
+    # load Localization
+
     # Localizer.move_to([0,0])
 
     robot_say("I want to play a riddle game")
@@ -296,18 +321,18 @@ def cocktail_party():
         # move towards person, -> need distance measure
 
         # learn person     -> face recognition done
-        robot_say(qa.ask_for_name())
-        sentence = speech_recognition()
-        if len(sentence) > 0:
+    robot_say(qa.ask_for_name())
+    sentence = speech_recognition()
+    if len(sentence) > 0:
         person_index = 0
-        face_list = make_face_database(True)
-        label_list = []
-        for face in face_list:
-            label_list.append(person_index)
-        # If a recognizer exists, use that recognizer
-        recognizer = train_recognize_faces(face_list, label_list)
-        robot_say("I learned your face!")
-        #                -> guide person in face recognition
+    face_list = make_face_database(True)
+    label_list = []
+    for face in face_list:
+        label_list.append(person_index)
+    # If a recognizer exists, use that recognizer
+    recognizer = train_recognize_faces(face_list, label_list)
+    robot_say("I learned your face!")
+    #                -> guide person in face recognition
 
     # STEP 3: taking the order
     robot_say(qa.ask_for_drink())
@@ -342,7 +367,7 @@ def general_purpose_service():
 def navigation_things():
     """this method does nothing except hold the navigation code that I am still
     working on, but that is not allowed in the main :)."""
-    Localizer.explore(1)
+    Localizer.explore(4)
     Localizer.save_exploration()
     result_map = Navigation.getMetricalMap()
     map_width = result_map[1]
@@ -403,6 +428,7 @@ def navigation_things():
 
 # Main function that is run once upon startup
 def main():
+
     lifeProxy = ALProxy("ALAutonomousLife", IP, PORT)
     # lifeProxy.setState("disabled")
     print("AutonomousLife: " + lifeProxy.getState())
@@ -413,30 +439,35 @@ def main():
     init_motion()
     init_audioDevice()
     init_audioRecorder()
-    # init_localization()
-
-    # correct head angle for long distances
-    # currentAngle = motionProxy.getAngles("HeadYaw", True)[0]
-    # motionProxy.setAngles(["HeadPitch"], currentAngle + 0.08, 0.2)
-
-    # not finished
-    cocktail_party()
-
-
-    # MAIN WHILE LOOP
-    while True:
-        # do a lot of stuff here
-        peopleList = detect_people()
-        print("found " + str(len(peopleList)) + " people!")
-       # Localizer.get_map()
-        # finally turn to sound if it was recognized
-        if SoundLocator.soundFound:
-            # move to the source of the sound
-            print("angle found: " + str(SoundLocator.soundAngle))
-            motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
-            SoundLocator.reset_variables()
-
-    print("Done")
+    init_memory()
+    init_localization()
+    # navigation_things()
+    door_waiter()
+    robot_say("door opened!")
+    motionProxy.moveTo(1.0, 0.0, 0)
+    #
+    # # correct head angle for long distances
+    # # currentAngle = motionProxy.getAngles("HeadYaw", True)[0]
+    # # motionProxy.setAngles(["HeadPitch"], currentAngle + 0.08, 0.2)
+    #
+    # # not finished
+    # cocktail_party()
+    #
+    #
+    # # MAIN WHILE LOOP
+    # while True:
+    #     # do a lot of stuff here
+    #     peopleList = detect_people()
+    #     print("found " + str(len(peopleList)) + " people!")
+    #    # Localizer.get_map()
+    #     # finally turn to sound if it was recognized
+    #     if SoundLocator.soundFound:
+    #         # move to the source of the sound
+    #         print("angle found: " + str(SoundLocator.soundAngle))
+    #         motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
+    #         SoundLocator.reset_variables()
+    #
+    # print("Done")
 
 
 # Use the main function
