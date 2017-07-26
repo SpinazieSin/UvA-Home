@@ -15,16 +15,19 @@ import threading
 import time
 from timeout import timeout
 from naoqi import ALProxy
+global recording_counter
+recording_counter = 0
+IP = "127.0.0.1"
 
 def wait_for_voice(mic, audioproxy):
     """Wait for voice."""
     # obtain audio from microphone, perhaps this should be changed for pepper
     r = sr.Recognizer()
-    try:
-        audio = get_audio(r, mic, audioproxy)
-    except:
-        print("Something went wrong while retrieving audio")
-        return ""
+    # try:
+    audio = get_audio(r, mic, audioproxy)
+    # except:
+    #     print("Something went wrong while retrieving audio")
+    #     return ""
 
     print("Heard...")
     # recognize speech using Google Speech Recognition
@@ -47,12 +50,14 @@ def wait_for_voice(mic, audioproxy):
         return ""
 
 
-@timeout(8)
+# @timeout(12)
 def get_audio(recognizer, mic, audioproxy):
     """Get audio from microphone, time out after 8 seconds."""
+    global recording_counter
     audioproxy.enableEnergyComputation()
     # Start recording
-    mic.startMicrophonesRecording("/home/nao/recent_recording.wav", "wav", 16000, (0,0,1,0))
+    start_time = time.time()
+    mic.startMicrophonesRecording("/home/nao/recordings/speech_recording_" + str(recording_counter) +".wav", "wav", 16000, (0,0,1,0))
     print("Listening...")
     time.sleep(2)
     while True:
@@ -62,12 +67,23 @@ def get_audio(recognizer, mic, audioproxy):
         time.sleep(0.5)
         final_energy = (energy+audioproxy.getFrontMicEnergy())/3
         print(final_energy)
-        if final_energy < 800.0:
+        if final_energy < 1500.0:
             print("Done listening...")
+            break
+        if time.time()-start_time > 10.0:
+            print(time.time()-start_time)
+            print("break")
             break
     mic.stopMicrophonesRecording()
     # initial audio value
     audio = None
-    with sr.WavFile("/home/nao/recent_recording.wav") as source:
+    with sr.WavFile("/home/nao/recordings/speech_recording_" + str(recording_counter) +".wav") as source:
         audio = recognizer.record(source)
+    recording_counter += 1
     return audio
+
+if __name__ == "__main__":
+    AudioRecorder = ALProxy("ALAudioRecorder", IP, 9559)
+    AudioDevice = ALProxy("ALAudioDevice", IP, 9559)
+    for i in range(4):
+        wait_for_voice(AudioRecorder, AudioDevice)

@@ -17,11 +17,12 @@ def label_sentence(sentence):
 # also checks the second definition of the tree
 def check_if_drink(word):
     synsets = wn.synsets(word[0])
-    print(synsets)
     if len(synsets) == 0:
         return False
     elif len(synsets) == 1:
         synset = synsets[0]
+        if is_drink(synset.lemma_names()[0]):
+            return True
         while True:
             hypernyms = synset.hypernyms()
             if len(hypernyms) < 1:
@@ -36,6 +37,8 @@ def check_if_drink(word):
     else:
         for i in range(2):
             synset = synsets[i]
+            if is_drink(synset.lemma_names()[0]):
+                return True
             while True:
                 hypernyms = synset.hypernyms()
                 if len(hypernyms) < 1:
@@ -51,7 +54,7 @@ def check_if_drink(word):
 # Database for drink aliases
 def is_drink(synset_name):
     if (synset_name == "alcohol" or synset_name == "beverage" or synset_name == "drink" or 
-        synset_name == "liquid" or synset_name == "cocktail"):
+        synset_name == "liquid" or synset_name == "cocktail" or synset_name == "juice"):
         return True
     else:
         return False
@@ -85,12 +88,14 @@ def get_all_drinks(sentence):
     return drinks
 
 
-print("STARTING")
-import time
-sentence = "martini cola parrot cocktail vodka beer water nothing monkey chair john"
-sentence = "hit me with your best beverage"
-# print(get_drink(sentence))
-print(get_all_drinks(sentence))
-a = time.time()
-print(get_all_drinks(sentence))
-print(time.time()-a)
+if __name__ == "__main__":
+    print("STARTING")
+    import time
+    sentence = "martini cola parrot cocktail vodka beer water nothing monkey chair john lemon juice"
+    # sentence = "hit me with your best beverage"
+    a = time.time()
+    print(get_all_drinks(sentence))
+    print(time.time()-a)
+    a = time.time()
+    print(get_all_drinks(sentence))
+    print(time.time()-a)
