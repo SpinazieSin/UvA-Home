@@ -228,9 +228,10 @@ def speech_and_person():
 
     # move forward to middle of room
 
-    speech_test("I want to play a riddle game")
+    robot_say("I want to play a riddle game")
     time.sleep(10)
     motionProxy.moveTo(0.0, 0.0, math.radians(180))
+
 
 
 def cocktail_party():
