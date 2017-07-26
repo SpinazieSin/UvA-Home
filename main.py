@@ -222,6 +222,17 @@ def get_biggest_box_index(boxlist):
 def move_forward_until_stuck():
     pass
 
+
+def speech_and_person():
+    # wait for door to open
+
+    # move forward to middle of room
+
+    speech_test("I want to play a riddle game")
+    time.sleep(10)
+    motionProxy.moveTo(0.0, 0.0, math.radians(180))
+
+
 def cocktail_party():
     # this function gives an outline of how the cocktail_party function should look
     # init_localization()
@@ -281,10 +292,17 @@ def general_purpose_service():
 def navigation_things():
     """this method does nothing except hold the navigation code that I am still
     working on, but that is not allowed in the main :)."""
-    # Localizer.explore(2)
+    Localizer.explore(1)
+    Localizer.save_exploration()
+    result_map = Navigation.getMetricalMap()
+    map_width = result_map[1]
+    map_height = result_map[2]
+    img = numpy.array(result_map[4]).reshape(map_width, map_height)
+    img = (100 - img) * 2.55 # from 0..100 to 255..0
+    img = numpy.array(img, numpy.uint8)
+    cv2.imwrite("robocup-nagoya.png", img)
     # Localizer.stop_exploration()
     # Localizer.explore(1)
-    # Localizer.save_exploration()
     # Navigation.stopLocalization()
     # # Localizer.start_localization()
     # # Localizer.load_exploration("/home/nao/.local/share/Explorer/2017-07-19T163238.071Z.explo")
