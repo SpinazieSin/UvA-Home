@@ -20,7 +20,6 @@ import speech
 import slam
 import questions_answers
 # import language_processing
-from naoqi import qi
 from Sound import locateSound # jonathans naoqi stuff
 from PeopleDetection import peopledetector
 
@@ -227,20 +226,19 @@ def get_biggest_box_index(boxlist):
     return index
 
 
-def move_forward_until_stuck():
-    pass
-
-
 def door_waiter():
     sonar = ALProxy("ALSonar", IP, PORT)
     sonar.subscribe("python_client")
     robot_say("Waiting for door to open.")
     while True:
-        front = memory.getData("Device/SubDeviceList/Platform/Front/Sonar/Sensor/Value")
+        # front = memory.getData("Device/SubDeviceList/Platform/Front/Sonar/Sensor/Value")
+        fronthorizontal7x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg07/X/Sensor/Value")
+        fronthorizontal8x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg08/X/Sensor/Value")
 
-        print("distance to wall: " + str(front))
+        print("distance to wall 1: " + str(fronthorizontal7x))
+        print("distance to wall 2: " + str(fronthorizontal8x))
         # print("right: " + str(right))
-        if front > 2:
+        if fronthorizontal7x > 2.0 and fronthorizontal8x > 2.0:
             print("Door opened!")
             break
 
@@ -287,6 +285,57 @@ def speech_and_person():
     robot_say("I am done answering questions, I will try to leave the arena now")
     # Leave arena
     # Localizer.move_to([1,1])
+
+
+def move_straight_until_stuck():
+    """Move until you are stuck and then find a free zone."""
+    x     = 0.5
+    y     = 0.0
+    theta = 0.0
+    fronthorizontal7x = 2.0
+    fronthorizontal8x = 2.0
+
+    print("first loop")
+    count1 = 0
+    while True:
+        print("==in first loop==")
+        fronthorizontal7x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg07/X/Sensor/Value")
+        fronthorizontal8x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg08/X/Sensor/Value")
+
+        print("distance to wall 1: " + str(fronthorizontal7x))
+        print("distance to wall 2: " + str(fronthorizontal8x))
+        if fronthorizontal7x > 1.0 or fronthorizontal8x > 1.0:
+            motionProxy.moveTo(x, y, theta)
+        else:
+            count1 += 1
+            if count1 > 10:
+                break
+
+    print("turning!")
+    motionProxy.moveTo(0.0, 0.0, math.radians(45))
+
+    time.sleep(2)
+    fronthorizontal7x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg07/X/Sensor/Value")
+    fronthorizontal8x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg08/X/Sensor/Value")
+
+    count2 = 0
+    while True:
+        print("==in second loop==")
+        fronthorizontal7x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg07/X/Sensor/Value")
+        fronthorizontal8x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg08/X/Sensor/Value")
+
+        print("distance to wall 1: " + str(fronthorizontal7x))
+        print("distance to wall 2: " + str(fronthorizontal8x))
+        if fronthorizontal7x > 1.0 or fronthorizontal8x > 1.0:
+            motionProxy.moveTo(x, y, theta)
+        else:
+            count1 += 1
+            if count2 > 10:
+                break
+
+    robot_say("Im done!")
+
+    # Navigation.findFreeZone(2.0, 4.0)
 
 
 def cocktail_party():
@@ -444,7 +493,7 @@ def main():
     # navigation_things()
     door_waiter()
     robot_say("door opened!")
-    motionProxy.moveTo(1.0, 0.0, 0)
+    move_straight_until_stuck()
     #
     # # correct head angle for long distances
     # # currentAngle = motionProxy.getAngles("HeadYaw", True)[0]
