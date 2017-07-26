@@ -101,7 +101,7 @@ def robot_say(text="Hi human"):
     TextToSpeech.say(text)
 
 # Return recognized speech
-def speech_recognition(max_tries = 4):
+def speech_recognition(max_tries=4):
     global AudioRecorder
     global AudioDevice
     print("Recognizing speech...")
@@ -230,11 +230,38 @@ def speech_and_person():
     # wait for door to open
 
     # move forward to middle of room
+    # Localizer.move_to([0,0])
 
     robot_say("I want to play a riddle game")
     time.sleep(10)
     motionProxy.moveTo(0.0, 0.0, math.radians(180))
+    turn_to_person()
+    face_list, image = detect_faces()
+    robot_say("I found " + str(len(face_list)) + "people ")
+    time.sleep(1)
+    robot_say("I am not very good at faces yet, so I don't know your genders")
+    time.sleep(1)
+    robot_say("now. Who wants to play riddles with me?")
+    for i in range(5):
+        robot_say("question " + str(i) + " please.")
+        sentence = speech_recognition(max_tries=1)
+        if sentence != "":
+            robot_say("You said.")
+            time.sleep(1)
+            robot.say(sentence)
 
+    robot_say("I am done playing riddles")
+    for i in range(5):
+        turn_to_sound()
+        robot-say("could you repeat the question?")
+        sentence = speech_recognition(max_tries=1)
+        if sentence != "":
+            robot_say("You said.")
+            time.sleep(1)
+            robot.say(sentence)
+    robot_say("I am done answering questions, I will try to leave the arena now")
+    # Leave arena
+    # Localizer.move_to([1,1])
 
 
 def cocktail_party():
