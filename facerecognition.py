@@ -48,7 +48,6 @@ class FaceRecognizer(object):
             # Get the image size and pixel array.subscribe
             imageWidth = image[0]
             imageHeight = image[1]
-            array = image[6]
             image_string = str(bytearray(array))
             # Create a PIL Image from our pixel array.
             im = Image.frombytes("RGB", (imageWidth, imageHeight), image_string)

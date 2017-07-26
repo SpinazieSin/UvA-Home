@@ -19,10 +19,10 @@ import facerecognition
 import speech
 import slam
 import questions_answers
-# import language_processing
+import language_processing
 from naoqi import qi
 from Sound import locateSound # jonathans naoqi stuff
-from PeopleDetection import peopledetector
+# from PeopleDetection import peopledetector
 
 # Global variables #
 # IP = "127.0.0.1"
@@ -260,13 +260,17 @@ def speech_and_person():
     robot_say("I want to play a riddle game")
     time.sleep(10)
     motionProxy.moveTo(0.0, 0.0, math.radians(180))
-    turn_to_person()
-    face_list, image = detect_faces()
+    # turn_to_person()
+    face_list = []
+    while face_list == []:
+        face_list, image = detect_faces()
     robot_say("I found " + str(len(face_list)) + "people ")
     time.sleep(1)
     robot_say("I am not very good at faces yet, so I don't know your genders")
     time.sleep(1)
     robot_say("now. Who wants to play riddles with me?")
+    # wait for crowd to surround the robot
+    time.sleep(10)
     for i in range(5):
         robot_say("question " + str(i) + " please.")
         sentence = speech_recognition(max_tries=1)
@@ -274,19 +278,89 @@ def speech_and_person():
             robot_say("You said.")
             time.sleep(1)
             robot.say(sentence)
+        else:
+            robot_say("I did not understand the question.")
+        time.sleep(2)
 
     robot_say("I am done playing riddles")
-    for i in range(5):
-        turn_to_sound()
-        robot-say("could you repeat the question?")
-        sentence = speech_recognition(max_tries=1)
-        if sentence != "":
-            robot_say("You said.")
-            time.sleep(1)
-            robot.say(sentence)
-    robot_say("I am done answering questions, I will try to leave the arena now")
+    # for i in range(5):
+    #     turn_to_sound()
+    #     robot-say("could you repeat the question?")
+    #     sentence = speech_recognition(max_tries=1)
+    #     if sentence != "":
+    #         robot_say("You said.")
+    #         time.sleep(1)
+    #         robot.say(sentence)
+    # robot_say("I am done answering questions, I will try to leave the arena now")
     # Leave arena
     # Localizer.move_to([1,1])
+
+
+def get_order(person_index, recognizer):
+    qa = questions_answers.QA()
+    while True:
+        faces, image = detect_faces()
+        if len(faces) > 0:
+            break
+    name = ""
+    name_timeout = time.time()
+    while name == "" and time.time()-name_timeout < 30.0:
+        robot_say(qa.ask_for_name())
+        name = speech_recognition(max_tries=1)
+    time.sleep(1)
+    name = language_processing.get_name(name)
+    if name != "noname":
+        robot_say(str("Hi " + name))
+    else:
+        robot_say("I did not understand your name so now you are noname")
+    robot_say("I am going to try to learn your face")
+    time.sleep(1)
+    robot_say("Please look straight at me")
+    face_list = make_face_database(True)
+    label_list = []
+    for face in face_list:
+        label_list.append(person_index)
+    # If a recognizer exists, use that recognizer
+    recognizer = train_recognize_faces(face_list, label_list, recognizer)
+    robot_say("I learned your face!")
+    #                -> guide person in face recognition
+    time.sleep(1)
+    # STEP 3: taking the order
+    drink_list = ["water"]
+    drink_timeout = time.time()
+    while time.time()-drink_timeout < 30.0:
+        robot_say(qa.ask_for_drink())
+        sentence = speech_recognition(max_tries=1)
+        candidate_drink_list = language_processing.get_all_drinks(sentence)
+        if len(candidate_drink_list) > 0:
+            drink_list = candidate_drink_list
+            break
+        else:
+            robot_say("I was unable to understand your order")
+            time.sleep(0.5)
+    time.sleep(1)
+    robot_say("I will order ")
+    for drink in drink_list:
+        time.sleep(0.5)
+        robot_say(str(drink))
+    time.sleep(0.3)
+    robot_say("for you")
+    time.sleep(0.5)
+    robot_say("Thank you for you order")
+    time.sleep(1)
+    return [name, drink_list, recognizer] 
+
+def repeat_orders(person_info_list):
+    face_list = []
+    while face_list == []:
+        face_list, image = detect_faces()
+    robot_say("Hi bartender")
+    for person_info in person_info_list:
+        time.sleep(1)
+        robot_say(str(person_info[0] + " wants to order"))
+        for drink in person_info[1]:
+            time.sleep(0.5)
+            robot_say(str(drink))
 
 
 def cocktail_party():
@@ -302,14 +376,14 @@ def cocktail_party():
 
 	# STEP 2: getting called
 	# find a person and approach them
-    setup_people_detection()
+    # setup_people_detection()
 
     # localize using sound
     # init_soundLocalization()
     # turn_to_sound()
 
     # localize using people detection
-    peopleList = turn_to_person()
+    # peopleList = turn_to_person()
     # move to person
     # move_straight_until_stuck
 
@@ -321,43 +395,33 @@ def cocktail_party():
         # move towards person, -> need distance measure
 
         # learn person     -> face recognition done
-    robot_say(qa.ask_for_name())
-    sentence = speech_recognition()
-    if len(sentence) > 0:
-        person_index = 0
-    face_list = make_face_database(True)
-    label_list = []
-    for face in face_list:
-        label_list.append(person_index)
-    # If a recognizer exists, use that recognizer
-    recognizer = train_recognize_faces(face_list, label_list)
-    robot_say("I learned your face!")
-    #                -> guide person in face recognition
+    test = language_processing.get_all_drinks("martini cola water")
+    recognizer = None
+    person_list = []
+    robot_say("Can the first person please walk up to me?")
+    # time.sleep(5)
+    person_info = get_order(0, recognizer)
+    person_list.append([person_info[0], person_info[1]])
+    recognizer = person_info[2]
+    robot_say("Can the second person please walk up to me?")
+    time.sleep(5)
+    person_info = get_order(1, recognizer)
+    person_list.append([person_info[0], person_info[1]])
+    recognizer = person_info[2]
+    robot_say("Can the third person please walk up to me?")
+    time.sleep(5)
+    person_info = get_order(2, recognizer)
+    person_list.append([person_info[0], person_info[1]])
+    recognizer = person_info[2]
 
-    # STEP 3: taking the order
-    robot_say(qa.ask_for_drink())
-    sentence = speech_recognition()
-    if len(sentence) > 0:
-        candidate_drink_list = language_processing.get_all_drinks(sentence)
-        if len(candidate_drink_list) > 0:
-            drink_list = candidate_drink_list
-
-    # place the order
-
-        # take additional orders from customers
-        # FKIN NOPE
-    # STEP 4: sitting person
-
-        # do the same stuff as 2 but for a sitting person that does not call
-        # for help
-        # sitting people detector: --> filter on shape of detections
-        # NOPE
-
-    # STEP 5: placing orders
-        # repeat drink, name and person description
-
+    time.sleep(5)
+    robot_say("Can the bartender please come to me?")
+    time.sleep(5)
+    repeat_orders(person_list)
+    time.sleep(3)
     # STEP 6,7,8: we are skipping these
-    print("nothing here")
+    robot_say("I am done")
+    print("Done with cocktail party")
 
 
 def general_purpose_service():
@@ -442,16 +506,18 @@ def main():
     init_memory()
     init_localization()
     # navigation_things()
-    door_waiter()
-    robot_say("door opened!")
-    motionProxy.moveTo(1.0, 0.0, 0)
-    #
+    # door_waiter()
+    # robot_say("door opened!")
+    # motionProxy.moveTo(1.0, 0.0, 0)
+    # sound_break = time.time()
+    # while time.time()-sound_break < 60.0:
+    #     turn_to_sound()
     # # correct head angle for long distances
     # # currentAngle = motionProxy.getAngles("HeadYaw", True)[0]
     # # motionProxy.setAngles(["HeadPitch"], currentAngle + 0.08, 0.2)
     #
     # # not finished
-    # cocktail_party()
+    cocktail_party()
     #
     #
     # # MAIN WHILE LOOP
@@ -467,7 +533,7 @@ def main():
     #         motionProxy.moveTo(0.0, 0.0, math.radians(SoundLocator.soundAngle))
     #         SoundLocator.reset_variables()
     #
-    # print("Done")
+    print("Done")
 
 
 # Use the main function
