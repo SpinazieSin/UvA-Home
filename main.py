@@ -18,13 +18,16 @@ import facedetection
 import facerecognition
 import speech
 import slam
+import questions_answers
+import language_processing
 from Sound import locateSound # jonathans naoqi stuff
 from PeopleDetection import peopledetector
 
 # Global variables #
 # IP = "127.0.0.1"
-IP = "pepper.local"
+# IP = "pepper.local"
 # IP = "146.50.60.15"
+IP = "192.168.131.13"
 PORT = 9559
 
 TextToSpeech = None
@@ -93,7 +96,7 @@ def recognize_faces(recognizer):
     return recognized_faces
 
 # Testing speech synthesis
-def speech_test(text="Hi human"):
+def robot_say(text="Hi human"):
     global TextToSpeech
     TextToSpeech.say(text)
 
@@ -186,7 +189,7 @@ def turn_to_person():
                 print("angle: " + str(turn))
                 motionProxy.moveTo(0.0, 0.0, turn)
                 if detectioncounter > 3:
-                    speech_test("found you!")
+                    robot_say("found you!")
                     return peopleList
             else:
                 detectioncounter = 0
@@ -223,6 +226,7 @@ def move_forward_until_stuck():
     pass
 
 def cocktail_party():
+    qa = questions_answers.QA()
     # this function gives an outline of how the cocktail_party function should look
     # init_localization()
     # Localizer.stop_localization()
@@ -253,12 +257,30 @@ def cocktail_party():
         # move towards person, -> need distance measure
 
         # learn person     -> face recognition done
+        robot_say(qa.ask_for_name())
+        sentence = speech_recognition()
+        if len(sentence) > 0:
+        person_index = 0
+        face_list = make_face_database(True)
+        label_list = []
+        for face in face_list:
+            label_list.append(person_index)
+        # If a recognizer exists, use that recognizer
+        recognizer = train_recognize_faces(face_list, label_list)
+        robot_say("I learned your face!")
         #                -> guide person in face recognition
 
     # STEP 3: taking the order
+    robot_say(qa.ask_for_drink())
+    sentence = speech_recognition()
+    if len(sentence) > 0:
+        candidate_drink_list = language_processing.get_all_drinks(sentence)
+        if len(candidate_drink_list) > 0:
+            drink_list = candidate_drink_list
+
     # place the order
 
-        # tak additional orders from customers
+        # take additional orders from customers
         # FKIN NOPE
     # STEP 4: sitting person
 
