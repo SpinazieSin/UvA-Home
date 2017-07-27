@@ -330,9 +330,10 @@ def question_database(sentence):
 def get_order(person_index, recognizer):
 
     qa = questions_answers.QA()
+    face_detection_start_time = time.time()
     while True:
         faces, image = detect_faces()
-        if len(faces) > 0:
+        if len(faces) > 0 or face_detection_start_time-time.time() > 30.0:
             break
     name = ""
     name_timeout = time.time()
@@ -355,7 +356,8 @@ def get_order(person_index, recognizer):
     for face in face_list:
         label_list.append(person_index)
     # If a recognizer exists, use that recognizer
-    recognizer = train_recognize_faces(face_list, label_list, recognizer)
+    if len(face_list) > 0: 
+        recognizer = train_recognize_faces(face_list, label_list, recognizer)
     robot_say("I learned your face!")
     #                -> guide person in face recognition
     time.sleep(1)
@@ -481,8 +483,12 @@ def cocktail_party():
         # learn person     -> face recognition done
     # Set head straight
     speed = 0.2
-    defaultyaw = motionProxy.getAngles("HeadYaw", True)[0]
-    defaultpitch = motionProxy.getAngles("HeadPitch", True)[0]
+    defaultyaw = 0.0
+    defaultpitch = -0.6
+    
+    motionProxy.setAngles("HeadPitch", defaultpitch, speed)
+    motionProxy.setAngles("HeadYaw", defaultyaw, speed)
+
     print("Initializers")
     language_processing.get_all_drinks("water")
     recognizer = None
@@ -495,8 +501,8 @@ def cocktail_party():
     person_list.append([person_info[0], person_info[1]])
     recognizer = person_info[2]
     # reset head positions
-    motionProxy.setAngles("HeadPitch", defaultyaw, speed)
-    motionProxy.setAngles("HeadYaw", defaultpitch, speed)
+    motionProxy.setAngles("HeadPitch", defaultpitch, speed)
+    motionProxy.setAngles("HeadYaw", defaultyaw, speed)
 
     robot_say("Can the second person please walk up to me?")
     time.sleep(5)
@@ -504,8 +510,8 @@ def cocktail_party():
     person_list.append([person_info[0], person_info[1]])
     recognizer = person_info[2]
     # reset head positions
-    motionProxy.setAngles("HeadPitch", defaultyaw, speed)
-    motionProxy.setAngles("HeadYaw", defaultpitch, speed)
+    motionProxy.setAngles("HeadPitch", defaultpitch, speed)
+    motionProxy.setAngles("HeadYaw", defaultyaw, speed)
 
     robot_say("Can the third person please walk up to me?")
     time.sleep(5)
@@ -513,8 +519,8 @@ def cocktail_party():
     person_list.append([person_info[0], person_info[1]])
     recognizer = person_info[2]
     # reset head positions
-    motionProxy.setAngles("HeadPitch", defaultyaw, speed)
-    motionProxy.setAngles("HeadYaw", defaultpitch, speed)
+    motionProxy.setAngles("HeadPitch", defaultpitch, speed)
+    motionProxy.setAngles("HeadYaw", defaultyaw, speed)
 
     time.sleep(5)
     robot_say("Can the bartender please come to me?")

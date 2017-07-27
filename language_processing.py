@@ -70,7 +70,7 @@ def get_name(unicode_sentence):
         return(labels[0][0])
     elif (labels[label_length-2][1] == "VBP" or labels[label_length-2][1] == "VBZ") and (labels[label_length-1][1] == "NN" or labels[label_length-1][1] == "JJ" or labels[label_length-1][1] == "NNP"):
         return str(labels[label_length-1][0])
-    elif (labels[label_length-1][1] == "NN" or labels[label_length-1][1] == "JJ") and (labels[label_length-2][1] == "NN" or labels[label_length-2][1] == "JJ" or labels[label_length-2][1] == "NNP"):
+    elif (labels[label_length-1][1] == "NN" or labels[label_length-1][1] == "JJ" or labels[label_length-1][1] == "NNP") and (labels[label_length-2][1] == "NN" or labels[label_length-2][1] == "JJ" or labels[label_length-2][1] == "NNP"):
         return str(labels[label_length-2][0] + " " + labels[label_length-1][0])
     else:
         return "noname"

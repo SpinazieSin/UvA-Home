@@ -57,7 +57,7 @@ def collect_faces(video_service, motionProxy=None):
     recognized_faces = []
     start_time = time.time()
     current_time = 0.0
-    while current_time < 8.0:
+    while current_time < 20.0:
         # Get image
         try:
             image = video_service.getImageRemote(video_client)
@@ -82,10 +82,10 @@ def collect_faces(video_service, motionProxy=None):
             for (x, y, w, h) in faces:
                 if w > 95 and w < 350:
                     recognized_faces.append(predict_image[y: y + h, x: x + w])
-                    current_time = time.time() - start_time
                     if floor(current_time)%2 == 0.0 and motionProxy != None and (x, y, w, h) != (0, 0, 0, 0):
                         tracking.track_face_with_head(x, y, w, h, imageWidth, imageHeight, motionProxy)
-
+        current_time = time.time() - start_time
+    
     # Close video session
     video_service.unsubscribe(video_client)
 

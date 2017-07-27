@@ -36,7 +36,7 @@ class FaceRecognizer(object):
         video_service.setParam(vision_definitions.kCameraSelectID, cameraID)
         break_index = 0
         recognized = []
-        while len(recognized) == 0 and break_index < 20:
+        while len(recognized) == 0 and break_index < 15:
             break_index += 1
             try:
                 image = video_service.getImageRemote(video_client)
