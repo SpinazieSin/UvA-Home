@@ -328,6 +328,7 @@ def question_database(sentence):
     return sentence
 
 def get_order(person_index, recognizer):
+
     qa = questions_answers.QA()
     while True:
         faces, image = detect_faces()
@@ -478,24 +479,42 @@ def cocktail_party():
         # move towards person, -> need distance measure
 
         # learn person     -> face recognition done
+    # Set head straight
+    speed = 0.2
+    defaultyaw = motionProxy.getAngles("HeadYaw", True)[0]
+    defaultpitch = motionProxy.getAngles("HeadPitch", True)[0]
+    print("Initializers")
     language_processing.get_all_drinks("water")
     recognizer = None
     person_list = []
+    time.sleep(1)
+
     robot_say("Can the first person please walk up to me?")
     time.sleep(5)
     person_info = get_order(0, recognizer)
     person_list.append([person_info[0], person_info[1]])
     recognizer = person_info[2]
+    # reset head positions
+    motionProxy.setAngles("HeadPitch", defaultyaw, speed)
+    motionProxy.setAngles("HeadYaw", defaultpitch, speed)
+
     robot_say("Can the second person please walk up to me?")
     time.sleep(5)
     person_info = get_order(1, recognizer)
     person_list.append([person_info[0], person_info[1]])
     recognizer = person_info[2]
+    # reset head positions
+    motionProxy.setAngles("HeadPitch", defaultyaw, speed)
+    motionProxy.setAngles("HeadYaw", defaultpitch, speed)
+
     robot_say("Can the third person please walk up to me?")
     time.sleep(5)
     person_info = get_order(2, recognizer)
     person_list.append([person_info[0], person_info[1]])
     recognizer = person_info[2]
+    # reset head positions
+    motionProxy.setAngles("HeadPitch", defaultyaw, speed)
+    motionProxy.setAngles("HeadYaw", defaultpitch, speed)
 
     time.sleep(5)
     robot_say("Can the bartender please come to me?")

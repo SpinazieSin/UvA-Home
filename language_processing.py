@@ -54,7 +54,7 @@ def check_if_drink(word):
 # Database for drink aliases
 def is_drink(synset_name):
     if (synset_name == "alcohol" or synset_name == "beverage" or synset_name == "drink" or 
-        synset_name == "liquid" or synset_name == "cocktail" or synset_name == "juice"):
+        synset_name == "liquid" or synset_name == "cocktail" or synset_name == "juice" or synset_name == "fairy"):
         return True
     else:
         return False
@@ -95,12 +95,12 @@ def get_all_drinks(sentence):
 if __name__ == "__main__":
     print("STARTING")
     import time
-    # sentence = "martini cola parrot cocktail vodka beer water nothing monkey chair john lemon juice"
+    sentence = "martini cola parrot cocktail vodka beer water nothing monkey chair john lemon juice sprite"
     # sentence = "hit me with your best beverage"
-    sentence="Peter"
-    print(get_name(sentence))
+    # sentence="Peter"
+    # print(get_name(sentence))
     # a = time.time()
-    # print(get_all_drinks(sentence))
+    print(get_all_drinks(sentence))
     # print(time.time()-a)
     # a = time.time()
     # print(get_all_drinks(sentence))
