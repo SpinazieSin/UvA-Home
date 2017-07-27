@@ -21,7 +21,7 @@ import slam
 import questions_answers
 # import language_processing
 from Sound import locateSound # jonathans naoqi stuff
-from PeopleDetection import peopledetector
+# from PeopleDetection import peopledetector
 
 # Global variables #
 # IP = "127.0.0.1"
@@ -298,6 +298,7 @@ def move_straight_until_stuck():
     print("first loop")
     count1 = 0
     while True:
+        # time.sleep(1)
         print("==in first loop==")
         fronthorizontal7x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg07/X/Sensor/Value")
         fronthorizontal8x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg08/X/Sensor/Value")
@@ -306,13 +307,14 @@ def move_straight_until_stuck():
         print("distance to wall 2: " + str(fronthorizontal8x))
         if fronthorizontal7x > 1.0 or fronthorizontal8x > 1.0:
             motionProxy.moveTo(x, y, theta)
+            # time.sleep(1)
         else:
             count1 += 1
             if count1 > 10:
                 break
 
     print("turning!")
-    motionProxy.moveTo(0.0, 0.0, math.radians(45))
+    # motionProxy.moveTo(0.0, 0.0, math.radians(45))
 
     time.sleep(2)
     fronthorizontal7x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg07/X/Sensor/Value")
@@ -320,6 +322,7 @@ def move_straight_until_stuck():
 
     count2 = 0
     while True:
+        # time.sleep(1)
         print("==in second loop==")
         fronthorizontal7x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg07/X/Sensor/Value")
         fronthorizontal8x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg08/X/Sensor/Value")
@@ -328,8 +331,9 @@ def move_straight_until_stuck():
         print("distance to wall 2: " + str(fronthorizontal8x))
         if fronthorizontal7x > 1.0 or fronthorizontal8x > 1.0:
             motionProxy.moveTo(x, y, theta)
+            # time.sleep(1)
         else:
-            count1 += 1
+            count2 += 1
             if count2 > 10:
                 break
 
