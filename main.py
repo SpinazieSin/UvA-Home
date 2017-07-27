@@ -477,6 +477,11 @@ def cocktail_party():
         # move towards person, -> need distance measure
 
         # learn person     -> face recognition done
+    # get standard head positions
+    speed = 0.2
+    defaultyaw = motionProxy.getAngles("HeadYaw", True)[0]
+    defaultpitch = motionProxy.getAngles("HeadPitch", True)[0]
+
     recognizer = None
     person_list = []
     robot_say("Can the first person please walk up to me?")
@@ -484,11 +489,19 @@ def cocktail_party():
     person_info = get_order(0, recognizer)
     person_list.append([person_info[0], person_info[1]])
     recognizer = person_info[2]
+
+    # reset head positions
+    motionProxy.setAngles("HeadPitch", defaultyaw, speed)
+    motionProxy.setAngles("HeadYaw", defaultpitch, speed)
     robot_say("Can the second person please walk up to me?")
     time.sleep(5)
     person_info = get_order(1, recognizer)
     person_list.append([person_info[0], person_info[1]])
     recognizer = person_info[2]
+
+    # reset head positions
+    motionProxy.setAngles("HeadPitch", defaultyaw, speed)
+    motionProxy.setAngles("HeadYaw", defaultpitch, speed)
     robot_say("Can the third person please walk up to me?")
     time.sleep(5)
     person_info = get_order(2, recognizer)
