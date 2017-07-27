@@ -67,7 +67,7 @@ def get_audio(recognizer, mic, audioproxy):
         time.sleep(0.5)
         final_energy = (energy+audioproxy.getFrontMicEnergy())/3
         print(final_energy)
-        if final_energy < 1500.0:
+        if final_energy < 2000.0:
             print("Done listening...")
             break
         if time.time()-start_time > 10.0:
