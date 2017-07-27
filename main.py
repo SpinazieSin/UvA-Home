@@ -606,6 +606,7 @@ def main():
     # door_waiter()
     # robot_say("door opened!")
     # move_straight_until_stuck()
+
     # time.sleep(3)
 
     # COCKTAIL PARTY ==================================
