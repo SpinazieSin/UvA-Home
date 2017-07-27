@@ -25,8 +25,8 @@ from Sound import locateSound # jonathans naoqi stuff
 # from PeopleDetection import peopledetector
 
 # Global variables #
-# IP = "127.0.0.1"
-IP = "pepper.local"
+IP = "127.0.0.1"
+# IP = "pepper.local"
 # IP = "146.50.60.15"
 # IP = "192.168.131.13"
 PORT = 9559
@@ -263,37 +263,66 @@ def speech_and_person():
     face_list = []
     while face_list == []:
         face_list, image = detect_faces()
-    robot_say("I found " + str(len(face_list)) + "people ")
+    robot_say(str("I found " + str(len(face_list)) + " people"))
     time.sleep(1)
     robot_say("I am not very good at faces yet, so I don't know your genders")
     time.sleep(1)
     robot_say("now. Who wants to play riddles with me?")
     # wait for crowd to surround the robot
-    time.sleep(10)
+    time.sleep(5)
     for i in range(5):
-        robot_say("question " + str(i) + " please.")
+        robot_say(str("question " + str(i+1) + " please."))
         sentence = speech_recognition(max_tries=1)
         if sentence != "":
             robot_say("You said.")
             time.sleep(1)
-            robot.say(sentence)
+            print(sentence)
+            robot_say(str(sentence))
         else:
             robot_say("I did not understand the question.")
         time.sleep(2)
 
     robot_say("I am done playing riddles")
-    # for i in range(5):
-    #     turn_to_sound()
-    #     robot-say("could you repeat the question?")
-    #     sentence = speech_recognition(max_tries=1)
-    #     if sentence != "":
-    #         robot_say("You said.")
-    #         time.sleep(1)
-    #         robot.say(sentence)
-    # robot_say("I am done answering questions, I will try to leave the arena now")
-    # Leave arena
-    # Localizer.move_to([1,1])
+    time.sleep(1)
+    robot_say("Now we play the blind mans bluff game")
+    time.sleep(10)
+    for i in range(5):
+        robot_say(str("question " + str(i+1) + " please."))
+        turn_to_sound()
+        robot_say("could you repeat the question?")
+        sentence = speech_recognition(max_tries=1)
+        if sentence != "":
+            robot_say("")
+            time.sleep(1)
+            robot.say(str(sentence))
+            time.sleep(2)
+        else:
+            robot_say("I could not understand it, moving on.")
+            time.slee(1)
+    robot_say("I am done answering questions.")
 
+def question_database(sentence):
+    if sentence in "":
+        return ""
+    if sentence in "":
+        return ""
+    if sentence in "":
+        return ""
+    if sentence in "":
+        return ""
+    if sentence in "":
+        return ""
+    if sentence in "":
+        return ""
+    if sentence in "":
+        return ""
+    if sentence in "":
+        return ""
+    if sentence in "":
+        return ""
+    if sentence in "":
+        return ""
+    return sentence
 
 def get_order(person_index, recognizer):
     qa = questions_answers.QA()
@@ -555,9 +584,9 @@ def main():
     init_localization()
 
     # ROBOT INSPECTION ================================
-    # door_waiter()
-    # robot_say("door opened!")
-    # move_straight_until_stuck()
+    door_waiter()
+    robot_say("door opened!")
+    move_straight_until_stuck()
 
 
     # COCKTAIL PARTY ==================================
@@ -565,7 +594,7 @@ def main():
 
 
     # SPEECH AND PERSON RECOGNITION ===================
-    # speech_and_person()
+    speech_and_person()
 
 
 
