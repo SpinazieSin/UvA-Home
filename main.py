@@ -367,6 +367,7 @@ def get_order(person_index, recognizer):
         candidate_drink_list = language_processing.get_all_drinks(sentence)
         if len(candidate_drink_list) > 0:
             drink_list = candidate_drink_list
+            print("Found drinks", drink_list)
             break
         else:
             robot_say("I was unable to understand your order")
@@ -477,6 +478,7 @@ def cocktail_party():
         # move towards person, -> need distance measure
 
         # learn person     -> face recognition done
+    language_processing.get_all_drinks("water")
     recognizer = None
     person_list = []
     robot_say("Can the first person please walk up to me?")
