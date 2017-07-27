@@ -587,10 +587,10 @@ def main():
     init_localization()
 
     # ROBOT INSPECTION ================================
-    door_waiter()
-    robot_say("door opened!")
-    move_straight_until_stuck()
-    time.sleep(5)
+    # door_waiter()
+    # robot_say("door opened!")
+    # move_straight_until_stuck()
+    # time.sleep(5)
 
     # COCKTAIL PARTY ==================================
     cocktail_party()
