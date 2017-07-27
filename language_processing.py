@@ -59,14 +59,18 @@ def is_drink(synset_name):
     else:
         return False
 
-def get_name(sentence):
+def get_name(unicode_sentence):
+    sentence = unicode_sentence.encode('ascii', 'ignore')
+    if sentence == "":
+        return "noname"
     labels = label_sentence(sentence)
+    print(labels)
     label_length = len(labels)
-    if label_length == 1 and labels[0][1] == "NN":
+    if label_length == 1 and labels[0][1] == "NN" or labels[0][1] == "JJ" or labels[0][1] == "NNP":
         return(labels[0][0])
-    elif label_length == 2 and labels[0][1] == "NN" and labels[1][1] == "NN":
-        return(sentence)
-    elif labels[label_length-1][1] == "NN" and labels[label_length-2][1] == "NN":
+    elif (labels[label_length-2][1] == "VBP" or labels[label_length-2][1] == "VBZ") and (labels[label_length-1][1] == "NN" or labels[label_length-1][1] == "JJ" or labels[label_length-1][1] == "NNP"):
+        return str(labels[label_length-1][0])
+    elif (labels[label_length-1][1] == "NN" or labels[label_length-1][1] == "JJ") and (labels[label_length-2][1] == "NN" or labels[label_length-2][1] == "JJ" or labels[label_length-2][1] == "NNP"):
         return str(labels[label_length-2][0] + " " + labels[label_length-1][0])
     else:
         return "noname"
@@ -91,11 +95,13 @@ def get_all_drinks(sentence):
 if __name__ == "__main__":
     print("STARTING")
     import time
-    sentence = "martini cola parrot cocktail vodka beer water nothing monkey chair john lemon juice"
+    # sentence = "martini cola parrot cocktail vodka beer water nothing monkey chair john lemon juice"
     # sentence = "hit me with your best beverage"
-    a = time.time()
-    print(get_all_drinks(sentence))
-    print(time.time()-a)
-    a = time.time()
-    print(get_all_drinks(sentence))
-    print(time.time()-a)
+    sentence="Peter"
+    print(get_name(sentence))
+    # a = time.time()
+    # print(get_all_drinks(sentence))
+    # print(time.time()-a)
+    # a = time.time()
+    # print(get_all_drinks(sentence))
+    # print(time.time()-a)

@@ -57,7 +57,6 @@ def collect_faces(video_service, motionProxy=None):
     recognized_faces = []
     start_time = time.time()
     current_time = 0.0
-    (px, py, pw, ph) = (0, 0, 0, 0)
     while current_time < 8.0:
         # Get image
         try:
@@ -81,11 +80,12 @@ def collect_faces(video_service, motionProxy=None):
         faces = faceCascade.detectMultiScale(predict_image)
         if len(faces) > 0:
             for (x, y, w, h) in faces:
-                recognized_faces.append(predict_image[y: y + h, x: x + w])
-                (px, py, pw, ph) = (x, y, w, h)
-        current_time = time.time() - start_time
-        if floor(current_time)%2 == 0.0 and motionProxy != None and (px, py, pw, ph) != (0, 0, 0, 0):
-            tracking.track_face_with_head(px, py, pw, ph, imageWidth, imageHeight, motionProxy)
+                if w > 95 and w < 350:
+                    recognized_faces.append(predict_image[y: y + h, x: x + w])
+                    current_time = time.time() - start_time
+                    if floor(current_time)%2 == 0.0 and motionProxy != None and (x, y, w, h) != (0, 0, 0, 0):
+                        tracking.track_face_with_head(x, y, w, h, imageWidth, imageHeight, motionProxy)
+
     # Close video session
     video_service.unsubscribe(video_client)
 
@@ -114,7 +114,7 @@ def detect_once(video_service):
     array = image[6]
     image_string = str(bytearray(array))
     # Create a PIL Image from our pixel array.
-    im = Image.fromstring("RGB", (imageWidth, imageHeight), image_string)
+    im = Image.frombytes("RGB", (imageWidth, imageHeight), image_string)
     predict_image_pil = im.convert("L")
     predict_image = np.array(predict_image_pil, "uint8")
     # Faces contains and array with the coordinates of recognized faces in the original image
