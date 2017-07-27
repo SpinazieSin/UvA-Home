@@ -254,11 +254,12 @@ def speech_and_person():
     # move forward to middle of room
     # load Localization
 
-    # Localizer.move_to([0,0])
+    # Localizer.moveTo_to([0,0])
 
     robot_say("I want to play a riddle game")
-    time.sleep(10)
+    time.sleep(5)
     motionProxy.moveTo(0.0, 0.0, math.radians(180))
+    time.sleep(2)
     # turn_to_person()
     face_list = []
     while face_list == []:
@@ -285,21 +286,23 @@ def speech_and_person():
     robot_say("I am done playing riddles")
     time.sleep(1)
     robot_say("Now we play the blind mans bluff game")
-    time.sleep(10)
+    time.sleep(5)
     for i in range(5):
         robot_say(str("question " + str(i+1) + " please."))
-        turn_to_sound()
-        robot_say("could you repeat the question?")
-        sentence = speech_recognition(max_tries=1)
-        if sentence != "":
-            robot_say("")
-            time.sleep(1)
-            robot.say(str(sentence))
-            time.sleep(2)
-        else:
-            robot_say("I could not understand it, moving on.")
-            time.slee(1)
+        for _ in range(2):
+            sentence = speech_recognition(max_tries=1)
+            turn_to_sound()
+            if sentence != "":
+                robot_say("You said")
+                time.sleep(1)
+                robot_say(str(sentence))
+                time.sleep(1)
+                break
+            else:
+                robot_say("I could not understand it, could you repeat it once more?")
     robot_say("I am done answering questions.")
+    time.sleep(1)
+    robot_say("Thank you all for playing!")
 
 def question_database(sentence):
     if sentence in "":
@@ -378,7 +381,7 @@ def get_order(person_index, recognizer):
     time.sleep(1)
     robot_say("Thank you for you order")
     time.sleep(1)
-    return [name, drink_list, recognizer] 
+    return [name, drink_list, recognizer]
 
 def repeat_orders(person_info_list):
     face_list = []
@@ -404,6 +407,7 @@ def move_straight_until_stuck():
     print("first loop")
     count1 = 0
     while True:
+        # time.sleep(1)
         print("==in first loop==")
         fronthorizontal7x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg07/X/Sensor/Value")
         fronthorizontal8x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg08/X/Sensor/Value")
@@ -412,13 +416,12 @@ def move_straight_until_stuck():
         print("distance to wall 2: " + str(fronthorizontal8x))
         if fronthorizontal7x > 1.0 or fronthorizontal8x > 1.0:
             motionProxy.moveTo(x, y, theta)
+            # time.sleep(1)
         else:
-            count1 += 1
-            if count1 > 10:
-                break
+            break
 
     print("turning!")
-    motionProxy.moveTo(0.0, 0.0, math.radians(45))
+    # motionProxy.moveTo(0.0, 0.0, math.radians(45))
 
     time.sleep(2)
     fronthorizontal7x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg07/X/Sensor/Value")
@@ -426,6 +429,7 @@ def move_straight_until_stuck():
 
     count2 = 0
     while True:
+        # time.sleep(1)
         print("==in second loop==")
         fronthorizontal7x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg07/X/Sensor/Value")
         fronthorizontal8x = memory.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg08/X/Sensor/Value")
@@ -434,10 +438,9 @@ def move_straight_until_stuck():
         print("distance to wall 2: " + str(fronthorizontal8x))
         if fronthorizontal7x > 1.0 or fronthorizontal8x > 1.0:
             motionProxy.moveTo(x, y, theta)
+            # time.sleep(1)
         else:
-            count1 += 1
-            if count2 > 10:
-                break
+            break
     robot_say("Im done!")
     # Navigation.findFreeZone(2.0, 4.0)
 
@@ -451,7 +454,7 @@ def cocktail_party():
     # Localizer.start_localization()
 	# STEP 1: ENTER ROOM
 		# localize to center of room -> done-ish
-    # Localizer.move_to([0,0])
+    # Localizer.moveTo_to([0,0])
 
 	# STEP 2: getting called
 	# find a person and approach them
@@ -565,7 +568,7 @@ def navigation_things():
     # Localizer.start_localization()
     # Localizer.relocalize([0.,0.])
     # print("path: " + str(Localizer.map_path))
-    # # Localizer.move_to([-1., -1.])
+    # # Localizer.moveTo_to([-1., -1.])
     # print("estimate location: " + str(Localizer.get_robot_position()))
     # Localizer.stop_exploration()
 
@@ -590,7 +593,8 @@ def main():
     # door_waiter()
     # robot_say("door opened!")
     # move_straight_until_stuck()
-    # time.sleep(5)
+
+    # time.sleep(3)
 
     # COCKTAIL PARTY ==================================
     cocktail_party()
