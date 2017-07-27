@@ -343,7 +343,9 @@ def get_order(person_index, recognizer):
     if name != "noname":
         robot_say(str("Hi " + name))
     else:
-        robot_say("I did not understand your name so now you are noname")
+        robot_say(str("I did not understand your name so now you are person"+str(person_index+1)))
+        name = str("person"+str(person_index+1))
+    time.sleep(1)
     robot_say("I am going to try to learn your face")
     time.sleep(1)
     robot_say("Please look straight at me")
@@ -376,7 +378,7 @@ def get_order(person_index, recognizer):
         robot_say(str(drink))
     time.sleep(0.3)
     robot_say("for you")
-    time.sleep(0.5)
+    time.sleep(1)
     robot_say("Thank you for you order")
     time.sleep(1)
     return [name, drink_list, recognizer]
@@ -475,11 +477,10 @@ def cocktail_party():
         # move towards person, -> need distance measure
 
         # learn person     -> face recognition done
-    test = language_processing.get_all_drinks("martini cola water")
     recognizer = None
     person_list = []
     robot_say("Can the first person please walk up to me?")
-    # time.sleep(5)
+    time.sleep(5)
     person_info = get_order(0, recognizer)
     person_list.append([person_info[0], person_info[1]])
     recognizer = person_info[2]
@@ -501,6 +502,8 @@ def cocktail_party():
     time.sleep(3)
     # STEP 6,7,8: we are skipping these
     robot_say("I am done")
+    time.sleep(1)
+    robot_say("Thank you all")
     print("Done with cocktail party")
 
 
@@ -593,11 +596,11 @@ def main():
     # time.sleep(3)
 
     # COCKTAIL PARTY ==================================
-    # cocktail_party()
+    cocktail_party()
 
 
     # SPEECH AND PERSON RECOGNITION ===================
-    speech_and_person()
+    # speech_and_person()
 
 
 
