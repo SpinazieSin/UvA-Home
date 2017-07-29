@@ -356,7 +356,7 @@ def get_order(person_index, recognizer):
     for face in face_list:
         label_list.append(person_index)
     # If a recognizer exists, use that recognizer
-    if len(face_list) > 0: 
+    if len(face_list) > 0:
         recognizer = train_recognize_faces(face_list, label_list, recognizer)
     robot_say("I learned your face!")
     #                -> guide person in face recognition
@@ -485,7 +485,7 @@ def cocktail_party():
     speed = 0.2
     defaultyaw = 0.0
     defaultpitch = -0.6
-    
+
     motionProxy.setAngles("HeadPitch", defaultpitch, speed)
     motionProxy.setAngles("HeadYaw", defaultyaw, speed)
 
