@@ -151,7 +151,7 @@ class Conversation(object):
         proc = subprocess.Popen(sentiment_command, stdout=subprocess.PIPE, shell=True)
         sentiment = proc.stdout.read().strip().split(" ")
         print(sentiment)
-        try: 
+        try:
             pos_sent = int(sentiment[0])
             neg_sent = int(sentiment[1])
         except:
@@ -205,9 +205,17 @@ class Conversation(object):
             return "speak", ["Oops! Didn't quite get you there."]
 
         self.chat.speak("I will display this article.")
-        # ==================== #
-        # DISPLAY ARTICLE HERE #
-        # ==================== #
+
+        # change static html in index
+        tablet_html.index_changer(article.title, article.text)
+
+        # get a random port
+        randport = randint(1001, 8999)
+
+        # display updated html on robot
+        tablet_html.showpage(randport)
+
+
         print(article.text)
         time.sleep(1)
         self.chat.speak("Do you want me to read it for you?")
