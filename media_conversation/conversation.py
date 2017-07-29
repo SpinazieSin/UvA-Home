@@ -14,7 +14,7 @@ import article
 import subprocess
 import articlesearch
 import keywords
-
+import time
 class Conversation(object):
 
     def __init__(self, chat, art_history=8, news=None):
@@ -67,10 +67,10 @@ class Conversation(object):
             self.chat.speak("Okay, I will read you '%s'. %s" % (article.title, lines))
             # either present an opinion or ask the user about preferences
             if randrange(0,2):
-                if randrange(0,1) < preference_chance:
+                if randrange(0,2):
                     return "get_preference", [article]
             else:
-                if randrange(0,1) < opinion_chance:
+                if randrange(0,2):
                     return "present_opinion_article", [article]
             return None, [None]
         else:
@@ -80,6 +80,9 @@ class Conversation(object):
         second_end = randint(start_lines, ((len(lines)-start_lines)//2)+3)
         second_part = ".".join(lines[start_lines:second_end])
         third_part = ".".join(lines[second_end:])
+        # ========================================================================================================
+        # THIS READS THE ARTICLE
+        # ========================================================================================================
         self.chat.speak("Okay, I will read you '%s'. %s" % (article.title, ".".join(first_lines)))
         self.chat.speak("Do you want me to continue reading?")
         q = self.chat.listen()
@@ -89,10 +92,10 @@ class Conversation(object):
             self.chat.speak(second_part)
         if "no" in q:
             if randrange(0,2):
-                if randrange(0,1) < preference_chance:
+                if randrange(0,2):
                     return "get_preference", [article]
             else:
-                if randrange(0,1) < opinion_chance:
+                if randrange(0,2):
                     return "present_opinion_article", [article]
             return None, [None]
 
@@ -101,12 +104,12 @@ class Conversation(object):
         self.chat.speak(choice(self.AFFIRMATIVE))
         if "yes" in q:
             self.chat.speak(third_part)
+        if randrange(0,2):
             if randrange(0,2):
-                if randrange(0,1) < preference_chance:
-                    return "get_preference", [article]
-            else:
-                if randrange(0,1) < opinion_chance:
-                    return "present_opinion_article", [article]
+                return "get_preference", [article]
+        else:
+            if randrange(0,2):
+                return "present_opinion_article", [article]
         return None, [None]
 
     def read_text(self, text):
@@ -195,14 +198,30 @@ class Conversation(object):
             if article is not None: # found
                 break
             else:
-                self.chat.speak("Please refer to the article you want me to read.")
+                self.chat.speak("Please refer to the article you want me to show.")
                 tries -= 1
 
         if tries == 0:
             return "speak", ["Oops! Didn't quite get you there."]
 
-        return "read_article", [article] # Read article should sometimes randomly asks a users opinion
-                                       # to construct preferences
+        self.chat.speak("I will display this article.")
+        # ==================== #
+        # DISPLAY ARTICLE HERE #
+        # ==================== #
+        print(article.text)
+        time.sleep(1)
+        self.chat.speak("Do you want me to read it for you?")
+        q = self.chat.listen()
+        if any(a in q for a in ["yes", "y", "yeah"]):
+            return "read_article", [article] # Read article should sometimes randomly asks a users opinion to construct preferences
+        if randrange(0,2):
+            if randrange(0,2):
+                return "get_preference", [article]
+        else:
+            if randrange(0,2):
+                return "present_opinion_article", [article]
+        return None, [None]
+
 
     def remove_non_ascii(self, string):
         new_string = ''.join([i if ord(i) < 128 else ' ' for i in string])
