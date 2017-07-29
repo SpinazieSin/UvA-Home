@@ -38,6 +38,9 @@ class Conversation(object):
         interest_thresh = 0.5
         relevance_thresh = 0.1
         user_interest = [k for k,v in self.chat.user.interests.items() if v > interest_thresh]
+        length = len(self.chat.user.keywords)
+
+        self.chat.user.keywords = self.chat.user.keywords[:-1]
         usr_keys = set(self.chat.user.keywords)
         while tries:
             cat = choice(user_interest)
@@ -268,7 +271,6 @@ class Conversation(object):
                         stemmed_titles[idx][stem] += 1
                     else:
                         stemmed_titles[idx][w] += 1
-
         parse = posparser.parser.annotate(q, properties={
         'annotators': 'parse',
         'outputFormat': 'json'
