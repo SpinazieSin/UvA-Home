@@ -72,7 +72,7 @@ class PrettyNews(object):
         if len(fave_articles) == 1 or fave_articles[0][1] > fave_articles[1][1]:
             a = fave_articles[0][0]
             prefered_articles.append(a)
-            phrase = "Do you want me to read: '%s'?" % (a.title)
+            phrase = "Do you want me to show: '%s'?" % (a.title)
         elif len(fave_articles) == 2 or fave_articles[1][1] > fave_articles[2][1]:
             a1 = fave_articles[0][0]
             prefered_articles.append(a1)
@@ -84,7 +84,7 @@ class PrettyNews(object):
             for a in fave_articles:
                 prefered_articles.append(a[0])
                 phrase += "'%s'\n" % (a[0].title)
-            phrase += "Do you want me to read any of them?"
+            phrase += "Do you want me to show any of them?"
 
         self.chat.speak(phrase)
         return "ir_answer", [prefered_articles]

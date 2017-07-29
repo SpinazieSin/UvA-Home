@@ -26,10 +26,10 @@ import platform
 import conversation
 # import profilegetter
 import userprofile
+import time
 from speechRecognition import speech as STT
 from random import choice
 from sentiment import opinionengine
-
 class ChatEngine(object):
     """
     Base class for recieving and communicating messages between classes.
@@ -98,6 +98,12 @@ class ChatEngine(object):
             self.speak(conv.start_conversation())
         while True:
             q = self.listen()
+            if (("stop" in q or "quit" in q or "done" in q) and "conv" in q) or q == "stop" or q == "quit":
+                break
+            if (("stop" in q or "sleep" in q or "break") and ("another" in q or "a bit" in q or "now" in q or "a while" in q or "a second" in q or "me" in q or "i want" in q or "talking" in q)) or ("shut up" in q):
+                time.sleep(30)
+                self.speak("My break is over")
+                continue
             if q is None:
                 self.speak("I assume you just want another article, don't you? Here is something.")
                 # currently if no question is found after 3 tries, random news
