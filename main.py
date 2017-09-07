@@ -32,6 +32,7 @@ IP = "127.0.0.1"
 PORT = 9559
 
 TextToSpeech = None
+AnimatedSpeech = None
 VideoDevice = None
 AudioRecorder = None
 AudioDevice = None
@@ -96,10 +97,15 @@ def recognize_faces(recognizer):
     recognized_faces = recognizer.recognize(VideoDevice)
     return recognized_faces
 
-# Testing speech synthesis
+# Make the robot say something
 def robot_say(text="Hi human"):
     global TextToSpeech
     TextToSpeech.say(text)
+
+# Say something and make some movement
+def robot_animated_say(text="Hi human"):
+    global AnimatedSpeech
+    AnimatedSpeech.say(text, {"bodyLanguageMode":"contextual"})
 
 # Return recognized speech
 def speech_recognition(max_tries=4):
@@ -123,6 +129,10 @@ def speech_recognition(max_tries=4):
 def init_textToSpeech():
     global TextToSpeech
     TextToSpeech = ALProxy("ALTextToSpeech", IP, 9559)
+
+def init_animatedSpeech():
+    global AnimatedSpeech
+    AnimatedSpeech = ALProxy("ALAnimatedSpeech", IP, 9559)
 
 # Soundlocator is for locating sound
 def init_soundLocalization():
@@ -203,6 +213,7 @@ def turn_to_person():
             detectioncounter = 0
             # motionProxy.moveTo(0.0, 0.0, math.radians(30))
 
+# Turn the robot torwards the loudest sound
 def turn_to_sound():
     SoundLocator.reset_variables()
     while True:
@@ -227,6 +238,7 @@ def get_biggest_box_index(boxlist):
     return index
 
 
+# Wait for a door to open
 def door_waiter():
     sonar = ALProxy("ALSonar", IP, PORT)
     sonar.subscribe("python_client")
@@ -304,39 +316,20 @@ def speech_and_person():
     time.sleep(1)
     robot_say("Thank you all for playing!")
 
-def question_database(sentence):
-    if sentence in "":
-        return ""
-    if sentence in "":
-        return ""
-    if sentence in "":
-        return ""
-    if sentence in "":
-        return ""
-    if sentence in "":
-        return ""
-    if sentence in "":
-        return ""
-    if sentence in "":
-        return ""
-    if sentence in "":
-        return ""
-    if sentence in "":
-        return ""
-    if sentence in "":
-        return ""
-    return sentence
-
+# Get the drink order from a single person
 def get_order(person_index, recognizer):
 
     qa = questions_answers.QA()
     face_detection_start_time = time.time()
+    # Check if person is standing in front of the camera
     while True:
         faces, image = detect_faces()
+        # Break after 30 seconds
         if len(faces) > 0 or face_detection_start_time-time.time() > 30.0:
             break
     name = ""
     name_timeout = time.time()
+    # Try and ask for the name for 30 seconds
     while name == "" and time.time()-name_timeout < 30.0:
         robot_say(qa.ask_for_name())
         name = speech_recognition(max_tries=1)
@@ -351,17 +344,17 @@ def get_order(person_index, recognizer):
     robot_say("I am going to try to learn your face")
     time.sleep(1)
     robot_say("Please look straight at me")
+    # Run the facedetection
     face_list = make_face_database(True)
     label_list = []
     for face in face_list:
         label_list.append(person_index)
-    # If a recognizer exists, use that recognizer
+    # If a recognizer already exists, use that recognizer
     if len(face_list) > 0:
         recognizer = train_recognize_faces(face_list, label_list, recognizer)
     robot_say("I learned your face!")
-    #                -> guide person in face recognition
     time.sleep(1)
-    # STEP 3: taking the order
+    # Taking the order
     drink_list = ["water"]
     drink_timeout = time.time()
     while time.time()-drink_timeout < 30.0:
@@ -449,38 +442,10 @@ def move_straight_until_stuck():
     # Navigation.findFreeZone(2.0, 4.0)
 
 
+# Run the cocktail party challenge
 def cocktail_party():
     qa = questions_answers.QA()
-    # this function gives an outline of how the cocktail_party function should look
-    # init_localization()
-    # Localizer.stop_localization()
-    # Navigation.loadExploration("/home/nao/.local/share/Explorer/2017-07-20T123155.689Z.explo")
-    # Localizer.start_localization()
-	# STEP 1: ENTER ROOM
-		# localize to center of room -> done-ish
-    # Localizer.moveTo_to([0,0])
 
-	# STEP 2: getting called
-	# find a person and approach them
-    # setup_people_detection()
-
-    # localize using sound
-    # init_soundLocalization()
-    # turn_to_sound()
-
-    # localize using people detection
-    # peopleList = turn_to_person()
-    # move to person
-    # move_straight_until_stuck
-
-        # person can be calling, waving, or with an arm raised
-        # EITHER:
-            # sound localize correct person --> done
-            # detect random person in room --> done
-
-        # move towards person, -> need distance measure
-
-        # learn person     -> face recognition done
     # Set head straight
     speed = 0.2
     defaultyaw = 0.0
@@ -490,10 +455,10 @@ def cocktail_party():
     motionProxy.setAngles("HeadYaw", defaultyaw, speed)
 
     print("Initializers")
+    # get_all_drinks is ran once so that nltk is loaded
     language_processing.get_all_drinks("water")
     recognizer = None
     person_list = []
-    time.sleep(1)
 
     robot_say("Can the first person please walk up to me?")
     time.sleep(5)
@@ -532,10 +497,6 @@ def cocktail_party():
     time.sleep(1)
     robot_say("Thank you all")
     print("Done with cocktail party")
-
-
-def general_purpose_service():
-    print("nothing here")
 
 
 def navigation_things():
@@ -609,12 +570,13 @@ def main():
     init_soundLocalization()
     init_navigation()
     init_textToSpeech()
+    init_animatedSpeech()
     init_videoDevice()
     init_motion()
     init_audioDevice()
     init_audioRecorder()
     init_memory()
-    init_localization()
+    # init_localization()
 
     # ROBOT INSPECTION ================================
     # door_waiter()
@@ -624,14 +586,14 @@ def main():
     # time.sleep(3)
 
     # COCKTAIL PARTY ==================================
-    cocktail_party()
+    # cocktail_party()
 
 
     # SPEECH AND PERSON RECOGNITION ===================
     # speech_and_person()
 
-
-
+    # TESTING =========================================
+    robot_animated_say("Can the first person please walk up to me?")
 
 
     # OTHER STUFF --------------------------------
