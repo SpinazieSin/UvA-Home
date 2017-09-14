@@ -93,3 +93,4 @@ faceRecognition/training-images/*
 faceRecognition/aligned-images/*
 faceRecognition/models/*
 PeopleDetection/trained_nets/combined_inception_60k/save.ckpt-40000.data-00000-of-00001
+testmain.py
