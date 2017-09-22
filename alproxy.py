@@ -48,7 +48,7 @@ class ALProxy:
         return self.session.service("ALMemory")
     
 
-    def test_all():
+    def test_all(self):
         print("Testing All...")
         print("TextToSpeech...")
         self.TextToSpeech()
@@ -73,4 +73,4 @@ class ALProxy:
         print("Memory...")
         self.Memory()
 
-proxy = ALProxy()
+#proxy = ALProxy()

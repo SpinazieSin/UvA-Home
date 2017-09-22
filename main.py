@@ -1,16 +1,48 @@
+import argparse
 import alproxy
+import time
+import sys
+
+from behaviour.posture import Posture
+
+# Global variables #
+DEFAULT_IP = "pepper.local"
+DEFAULT_PORT = 9559
 
 class Main:
     def __init__(self):
-        self.ALProxy = None
+        self.ALProxy = alproxy.ALProxy(
+                "tcp://{}:9559".format(args.ip if args.ip else DEFAULT_IP))
+        self.posture = Posture(self.ALProxy.app.session)
 
-    def main(self):
-        self.ALProxy = alproxy.ALProxy("146.50.60.19")
+    def main(self, args):
         self.ALProxy.test_all()
 
+    def shutdown(self):
+        self.posture.sleep()
 
-# Use the main function
+
 if __name__ == "__main__":
-    main = Main()
-    main.main()
-    print("Done...")
+    parser = argparse.ArgumentParser(description='UvA-Home 2018.')
+    parser.add_argument("--testbehaviour", help="Starts the tests for the behaviour class."
+                        , action="store_true")
+    parser.add_argument("--ip", help="NAOqi's IP, defaults to pepper.local.")
+
+
+    args = parser.parse_args()
+
+    try:
+        main = Main()
+
+        if args.testbehaviour:
+            main.posture.resume()
+            while(True):
+                time.sleep(2)
+        else:
+            main.main(args)
+            print("Done...")
+
+    except KeyboardInterrupt:
+        print "Interrupted by user, shutting down"
+        main.shutdown()
+        sys.exit(0)
