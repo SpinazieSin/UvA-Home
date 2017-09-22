@@ -11,8 +11,9 @@ class Posture:
         self.motion.wakeUp()
         self.basic_awareness.startAwareness()
         self.basic_awareness.setEngagementMode("FullyEngaged")
-        print("Hello.")
+        self.posture.goToPosture("Stand", 1.0)
 
+        print("Hello.")
 
     def sleep(self):
         print("Going to sleep")

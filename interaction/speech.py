@@ -19,13 +19,16 @@ class Speech:
                 "^start(animations/Stand/Gestures/YouKnowWhat_5)"]
 
 
-
     # sets the volume to a default value
     def __init__(self, session):
         self.animated_speech = session.service("ALAnimatedSpeech")
+        self.posture = session.service("ALRobotPosture")
+
+
 
     def say(self, sentence, animations=[]):
         for i in animations:
             sentence = sentence.format(self.gestures[i])
         self.animated_speech.say(sentence)
+        self.posture.goToPosture("Stand", 1.0)
         

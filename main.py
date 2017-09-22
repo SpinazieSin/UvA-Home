@@ -26,11 +26,12 @@ class Main:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='UvA-Home 2018.')
+
+    # Optional arguments
     parser.add_argument("--testbehaviour", help="Starts the tests for the behaviour class.",
                         action="store_true")
     parser.add_argument("--nosleep", help="Don't set the robot to sleep mode after termination.",
                         action="store_true")
-
     parser.add_argument("--ip", help="NAOqi's IP, defaults to pepper.local.")
 
 
