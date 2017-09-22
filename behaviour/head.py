@@ -2,34 +2,21 @@ import time
 from math import radians
 
 class HeadMotion:
-    def move_head(headxpos, headypos, im_width, im_height, motionProxy):
-        """INFINITE MAGIC NUMBERS INCOMING."""
+    def move_head(self, headxpos, headypos, im_width, im_height, motion_proxy):
         width = im_width
         height = im_height
         dwidth = im_width/55.20
         dheight = im_height/44.30
 
-        # for yaw:
-        # 640 = pixel width using kVGA
-        # camera angle is 60.97
-        # 1 degree = 10.49 pixel difference
-        # for pitch:
-        # 480 = pixel heigth using kVGA
-        # angle is 47.64
-        # 1 degree = 10.075 pixel diff
-        # Yaw is turning , left is positive, right is negative.
-
         # get current angles of the head
-        currentAngle = motionProxy.getAngles("HeadYaw", True)[0]
+        currentAngle = motion_proxy.getAngles("HeadYaw", True)[0]
+        self.stiffness_on(motion_proxy)
+
         # MOVE HEAD LEFT
         if headxpos < (width/2 - 5):
             pdiff = abs((width/2 - 5) - headxpos)
             turn = radians(pdiff / dwidth)
-            speed = abs(0.6 * turn*2)
-            if speed > 0.6:
-                speed = 0.6
-            if speed < 0.2:
-                speed = 0.2
+            speed = self.calculate_speed(turn)
             if currentAngle < 1.95:
                 motionProxy.setAngles("HeadYaw", currentAngle + turn, speed)
 
@@ -37,11 +24,7 @@ class HeadMotion:
         if headxpos > (width/2 + 5):
             pdiff = abs((width/2 + 5) - headxpos)
             turn = radians(pdiff / dwidth)
-            speed = abs(0.6 * turn*2)
-            if speed > 0.6:
-                speed = 0.6
-            if speed < 0.2:
-                speed = 0.2
+            speed = self.calculate_speed(turn)
             if currentAngle > -1.95:
                 motionProxy.setAngles("HeadYaw", currentAngle - turn, speed)
 
@@ -50,11 +33,7 @@ class HeadMotion:
         if headypos > (height/2 - 5):
             pdiff = abs((height/2 - 5) - headypos)
             turn = radians(pdiff / dheight)
-            speed = abs(0.6 * turn*2)
-            if speed > 0.6:
-                speed = 0.6
-            if speed < 0.2:
-                speed = 0.2
+            speed = self.calculate_speed(turn)
             if currentAngle < 0.51:
                 motionProxy.setAngles("HeadPitch", currentAngle + turn, speed)
 
@@ -62,27 +41,33 @@ class HeadMotion:
         if headypos < (height/2 + 5):
             pdiff = abs((height/2 - 5) - headypos)
             turn = radians(pdiff / dheight)
-            speed = abs(0.6 * turn*2)
-            if speed > 0.6:
-                speed = 0.6
-            if speed < 0.2:
-                speed = 0.2
+            speed = self.calculate_speed(turn)
             if currentAngle > -0.65:
                 motionProxy.setAngles("HeadPitch", currentAngle - turn, speed)
 
-        StiffnessOn(motionProxy)
-        # motionProxy.stiffnessInterpolation("Head", 0.5, 2.0)
-        # motionProxy.stopMove()
+    def reset_head(self, motion_proxy, speed=0.1, yaw=0.0, pitch=-0.6):
+        motion_proxy.setAngles("HeadPitch", pitch, speed)
+        motion_proxy.setAngles("HeadYaw", yaw, speed)
 
-    def StiffnessOn(proxy):
+    # calculate the speed at which the head is moved
+    def calculate_speed(self, turn):
+        speed = abs(0.15 * turn*1.5)
+        if speed > 0.15:
+            speed = 0.15
+        if speed < 0.1:
+            speed = 0.1
+        return speed
+
+    # execute a move by turning the stifness on
+    def stiffness_on(self, motion_proxy):
         # We use the "Body" name to signify the collection of all joints
         pNames = "Head"
-        pStiffnessLists = 1.0
+        pStiffnessLists = 0.8
         pTimeLists = 1.0
-        proxy.stiffnessInterpolation(pNames, pStiffnessLists, pTimeLists)
+        motion_proxy.stiffnessInterpolation(pNames, pStiffnessLists, pTimeLists)
 
-    def stiffnessOff(proxy):
+    def stiffnessOff(self, motion_proxy):
         pNames = "Body"
         pStiffnessLists = 0.0
         pTimeLists = 1.0
-        proxy.stiffnessInterpolation(pNames, pStiffnessLists, pTimeLists)
+        motion_proxy.stiffnessInterpolation(pNames, pStiffnessLists, pTimeLists)
