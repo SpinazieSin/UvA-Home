@@ -4,6 +4,7 @@ import time
 import sys
 
 from behaviour.posture import Posture
+from interaction.speech import Speech
 
 # Global variables #
 DEFAULT_IP = "pepper.local"
@@ -14,6 +15,7 @@ class Main:
         self.ALProxy = alproxy.ALProxy(
                 "tcp://{}:9559".format(args.ip if args.ip else DEFAULT_IP))
         self.posture = Posture(self.ALProxy.app.session)
+        self.speech = Speech(self.ALProxy.app.session)
 
     def main(self, args):
         self.ALProxy.test_all()
@@ -24,8 +26,11 @@ class Main:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='UvA-Home 2018.')
-    parser.add_argument("--testbehaviour", help="Starts the tests for the behaviour class."
-                        , action="store_true")
+    parser.add_argument("--testbehaviour", help="Starts the tests for the behaviour class.",
+                        action="store_true")
+    parser.add_argument("--nosleep", help="Don't set the robot to sleep mode after termination.",
+                        action="store_true")
+
     parser.add_argument("--ip", help="NAOqi's IP, defaults to pepper.local.")
 
 
@@ -36,13 +41,15 @@ if __name__ == "__main__":
 
         if args.testbehaviour:
             main.posture.resume()
+            main.speech.say("{} Hey there!", animations=[0])
             while(True):
-                time.sleep(2)
+                time.sleep(5)
         else:
             main.main(args)
             print("Done...")
 
     except KeyboardInterrupt:
         print "Interrupted by user, shutting down"
-        main.shutdown()
+        if not args.nosleep:
+            main.shutdown()
         sys.exit(0)
