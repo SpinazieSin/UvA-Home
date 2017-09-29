@@ -8,6 +8,7 @@ from behaviour.awareness import Awareness
 from interaction.speech import Speech
 from interaction.hearing import Hearing
 from tests.behaviour import BehaviourTest
+from open_day_uva.roster_presenter import RosterPresenter
 
 # Global variables #
 DEFAULT_IP = "pepper.local"
@@ -59,9 +60,8 @@ if __name__ == "__main__":
         main = Main()
 
         if args.testbehaviour:
-            speech_recognition = SpeechRecognition(main._naoqi)
-            sentence = speech_recognition.recognize()
-            print(sentence)
+            presenter = RosterPresenter(main._naoqi)
+            presenter.present()
             print("Done...")
         else:
             main.main(args)

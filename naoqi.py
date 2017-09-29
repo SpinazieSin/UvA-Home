@@ -77,5 +77,3 @@ class Naoqi:
         # self.Localization()
         print("Memory...")
         self.Memory()
-
-#proxy = ALProxy()
