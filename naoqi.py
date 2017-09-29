@@ -1,6 +1,6 @@
 import qi
 
-class ALProxy:
+class Naoqi:
     # url format is: "tcp://IP:PORT"
     def __init__(self, url="tcp://127.0.0.1:9559"):
         self.url = url
