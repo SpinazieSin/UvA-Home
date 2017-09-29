@@ -63,6 +63,14 @@ def get_events_age(age, eventlist):
     return result_list
 
 
+def get_events():
+    with open('opendagdata.csv', 'r') as csvfile:
+        timetablereader = csv.reader(csvfile, delimiter=';')
+        eventlist = []
+        for row in timetablereader:
+            eventlist.append(row)
+    return eventlist
+
 def remove_duplicates(eventlist):
     """Removes duplicate events, takes the earliest version of the event in list."""
     event_dict = {}
