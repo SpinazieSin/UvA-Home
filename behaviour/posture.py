@@ -7,16 +7,10 @@ class Posture:
         self.basic_awareness = session.service("ALBasicAwareness")
 
     def resume(self):
-        print("Waking up.")
+        print("Posture on")
         self.motion.wakeUp()
-        self.basic_awareness.startAwareness()
-        self.basic_awareness.setEngagementMode("FullyEngaged")
         self.posture.goToPosture("Stand", 1.0)
 
-        print("Hello.")
-
-    def sleep(self):
-        print("Going to sleep")
-        self.basic_awareness.stopAwareness()
+    def stop(self):
+        print("Posture off")
         self.motion.rest()
-        print("Goodnight")
