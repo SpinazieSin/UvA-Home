@@ -16,8 +16,9 @@ class RosterPresenter:
         eventlist = opendag_IR.remove_duplicates(eventlist)
         eventlist = opendag_IR.get_events_subject("chemistry", eventlist)
         EVENT = eventlist[0][0]
+        TYPE = eventlist[0][4]
         TIME = eventlist[0][1]
-        sentence = "The next event is {} at {}".format(EVENT, TIME)
+        sentence = "The next event is a {} called {}, at {}".format(TYPE, EVENT, TIME)
         self.speech.say(sentence)
         while True:
             sentence = self.hearing.recognize()
