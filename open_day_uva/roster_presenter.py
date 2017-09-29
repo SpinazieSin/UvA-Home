@@ -12,12 +12,13 @@ class RosterPresenter:
 
     def present(self):
         self.speech.say("Hi everyone!")
-        eventlist = opendag_IR.get_events('open_day_uva/pendagdata.csv')
+        eventlist = opendag_IR.get_events('./open_day_uva/opendagdata.csv')
         eventlist = opendag_IR.remove_duplicates(eventlist)
         eventlist = opendag_IR.get_events_subject("chemistry", eventlist)
         EVENT = eventlist[0][0]
         TIME = eventlist[0][1]
         sentence = "The next event is {} at {}".format(EVENT, TIME)
+        self.speech.say(sentence)
         while True:
             sentence = self.hearing.recognize()
             print("Found: " + sentence)
