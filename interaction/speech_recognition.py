@@ -25,13 +25,13 @@ class SpeechRecognition:
 
     def recognize(self):
         """Attempt to record and recognize speech, returns the audio recognized or an error"""
-        # obtain audio from microphone, perhaps this should be changed for pepper
-        audio = self.record_audio()
 
+        audio = self.record_audio()
         if audio == None:
             print("Failed...")
             return "-timeout error-"
         print("Heard...")
+
         # recognize speech using Google Speech Recognition
         try:
             # to use another API key,
@@ -50,8 +50,8 @@ class SpeechRecognition:
 
     def record_audio(self):
         """Record audio using the robot microphone, time out after 10.0 seconds."""
-
         AudioDevice.enableEnergyComputation()
+
         # Start recordingaudio
         start_time = time.time()
         AudioRecorder.startMicrophonesRecording("/home/nao/recordings/speech_recording.wav", "wav", 16000, (0,0,1,0))
