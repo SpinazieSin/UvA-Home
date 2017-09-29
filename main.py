@@ -1,5 +1,5 @@
 import argparse
-import alproxy
+from naoqi import Naoqi
 import time
 import sys
 
@@ -15,19 +15,17 @@ DEFAULT_PORT = 9559
 
 class Main:
     def __init__(self):
-        self.ALProxy = alproxy.ALProxy(
+        self.naoqi = Naoqi(
                 "tcp://{}:{}".format(
                     args.ip if args.ip else DEFAULT_IP,
                     args.port if args.port else DEFAULT_PORT))
 
-        session = self.ALProxy.app.session
-
-        self.posture = Posture(session)
-        self.speech = Speech(session)
-        self.awareness = Awareness(session)
+        self.posture = Posture(self.naoqi)
+        self.speech = Speech(self.naoqi)
+        self.awareness = Awareness(self.naoqi)
 
     def main(self, args):
-        self.ALProxy.test_all()
+        self.naoqi.test_all()
         self.posture.resume()
         self.awareness.resume()
 

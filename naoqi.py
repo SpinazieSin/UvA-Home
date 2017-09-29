@@ -46,7 +46,9 @@ class Naoqi:
     #
     def Memory(self):
         return self.session.service("ALMemory")
-    
+
+    def BasicAwareness(self):
+        return self.session.service("ALBasicAwareness")   
 
     def test_all(self):
         print("Testing All...")

@@ -1,8 +1,8 @@
 class Awareness:
 
     # sets the volume to a default value
-    def __init__(self, session):
-        self.basic_awareness = session.service("ALBasicAwareness")
+    def __init__(self, naoqi):
+        self.basic_awareness = naoqi.BasicAwareness()
         self.basic_awareness.setEngagementMode("FullyEngaged")
 
     def resume(self):

@@ -20,11 +20,9 @@ class Speech:
 
 
     # sets the volume to a default value
-    def __init__(self, session):
-        self.animated_speech = session.service("ALAnimatedSpeech")
-        self.posture = session.service("ALRobotPosture")
-
-
+    def __init__(self, naoqi):
+        self.animated_speech =  naoqi.AnimatedSpeech()
+        self.posture = naoqi.RobotPosture() 
 
     def say(self, sentence, animations=[]):
         for i in animations:
