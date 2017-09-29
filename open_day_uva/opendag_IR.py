@@ -47,7 +47,7 @@ def get_next_event(eventlist):
 def get_events_after(eventlist, currenttime):
     result_list = []
     for event in eventlist:
-        if earlier(event[1], currenttime):
+        if earlier_time(event[1], currenttime):
             continue
         else:
             result_list.append(event)
