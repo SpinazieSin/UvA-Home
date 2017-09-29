@@ -34,6 +34,25 @@ def main(filename):
 #         if current_time < event_start_time:
 
 
+def get_next_event(eventlist):
+    earliest_event = eventlist[0]
+
+    for event in eventlist:
+        found_starttime = event[1]
+        if earlier_time(found_starttime, earliest_event[1]):
+            earliest_event = event
+    return earliest_event
+
+
+def get_events_after(eventlist, currenttime):
+    result_list = []
+    for event in eventlist:
+        if earlier(event[1], currenttime):
+            continue
+        else:
+            result_list.append(event)
+    return result_list
+
 def get_events_between(begin_time, time_distance, eventlist):
     """Return all events between begin_time and begin_time + time_distance."""
     result_list = []
