@@ -48,7 +48,6 @@ class Hearing:
     def record_audio(self):
         """Record audio using the robot microphone, time out after 10.0 seconds."""
         self.AudioDevice.enableEnergyComputation()
-
         # Start recordingaudio
         start_time = time.time()
         self.AudioRecorder.startMicrophonesRecording("/home/nao/recordings/speech_recording.wav", "wav", 16000, (0,0,1,0))
@@ -65,6 +64,7 @@ class Hearing:
                 print("Done listening...")
                 break
             if time.time()-start_time > self.timeout:
+                self.AudioRecorder.stopMicrophonesRecording()
                 print(time.time()-start_time)
                 return None
         self.AudioRecorder.stopMicrophonesRecording()
