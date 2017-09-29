@@ -3,8 +3,8 @@ import datetime
 
 current_time = datetime.datetime.now()
 
-def main():
-    with open('opendagdata.csv', 'r') as csvfile:
+def main(filename):
+    with open(filename, 'r') as csvfile:
         timetablereader = csv.reader(csvfile, delimiter=';')
         eventlist = []
         for row in timetablereader:
@@ -63,8 +63,8 @@ def get_events_age(age, eventlist):
     return result_list
 
 
-def get_events():
-    with open('opendagdata.csv', 'r') as csvfile:
+def get_events(filename):
+    with open(filename, 'r') as csvfile:
         timetablereader = csv.reader(csvfile, delimiter=';')
         eventlist = []
         for row in timetablereader:
