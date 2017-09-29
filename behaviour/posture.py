@@ -8,7 +8,7 @@ class Posture:
     def resume(self):
         print("Posture on")
         self.motion.wakeUp()
-        self.posture.goToPosture("Stand", 1.0)
+#        self.posture.goToPosture("Stand", 1.0)
 
     def stop(self):
         print("Posture off")

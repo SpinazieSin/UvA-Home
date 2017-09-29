@@ -50,6 +50,9 @@ class Naoqi:
     def BasicAwareness(self):
         return self.session.service("ALBasicAwareness")   
 
+    def Tablet(self):
+        return self.session.service("ALTabletService")
+
     def test_all(self):
         print("Testing All...")
         print("TextToSpeech...")
