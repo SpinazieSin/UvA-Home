@@ -11,7 +11,7 @@ Python Version: 3.4
 import speech_recognition as sr
 import time
 
-class SpeechRecognition:
+class Hearing:
     def __init__(self, naoqi):
         self.naoqi = naoqi
         self.AudioDevice = self.naoqi.AudioDevice()
