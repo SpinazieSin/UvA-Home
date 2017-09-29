@@ -15,17 +15,17 @@ DEFAULT_PORT = 9559
 
 class Main:
     def __init__(self):
-        self.naoqi = Naoqi(
+        self._naoqi = Naoqi(
                 "tcp://{}:{}".format(
                     args.ip if args.ip else DEFAULT_IP,
                     args.port if args.port else DEFAULT_PORT))
 
-        self.posture = Posture(self.naoqi)
-        self.speech = Speech(self.naoqi)
-        self.awareness = Awareness(self.naoqi)
+        self.posture = Posture(self._naoqi)
+        self.speech = Speech(self._naoqi)
+        self.awareness = Awareness(self._naoqi)
 
     def main(self, args):
-        self.naoqi.test_all()
+        self._naoqi.test_all()
         self.posture.resume()
         self.awareness.resume()
 
