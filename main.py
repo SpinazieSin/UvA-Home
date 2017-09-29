@@ -6,7 +6,7 @@ import sys
 from behaviour.posture import Posture
 from behaviour.awareness import Awareness
 from interaction.speech import Speech
-
+from interaction.hearing import Hearing
 from tests.behaviour import BehaviourTest
 
 # Global variables #
@@ -55,8 +55,10 @@ if __name__ == "__main__":
         main = Main()
 
         if args.testbehaviour:
-            behaviour_test = BehaviourTest(main)
-            behaviour_test.test()
+            speech_recognition = SpeechRecognition(main._naoqi)
+            sentence = speech_recognition.recognize()
+            print(sentence)
+            print("Done...")
         else:
             main.main(args)
             print("Done...")
