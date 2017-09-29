@@ -18,10 +18,10 @@ class RosterPresenter:
         eventlist = opendag_IR.get_events('./open_day_uva/opendagdata.csv')
         eventlist = opendag_IR.remove_duplicates(eventlist)
         eventlist = opendag_IR.get_events_after(eventlist, "14:00")
-        eventlist = opendag_IR.get_next_event(eventlist)
-        EVENT = eventlist[0][0]
-        TYPE = eventlist[0][4]
-        TIME = eventlist[0][1]
+        next_event = opendag_IR.get_next_event(eventlist)
+        EVENT = next_event[0]
+        TYPE = next_event[4]
+        TIME = next_event[1]
         sentence = "The next event is a {}, called {}, at {}".format(TYPE, EVENT, TIME)
         self.speech.say(sentence)
         while True:

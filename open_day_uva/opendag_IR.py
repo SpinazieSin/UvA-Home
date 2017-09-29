@@ -35,6 +35,7 @@ def main(filename):
 
 
 def get_next_event(eventlist):
+    """Return the earliest event in the list."""
     earliest_event = eventlist[0]
 
     for event in eventlist:
