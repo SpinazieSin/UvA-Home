@@ -4,7 +4,10 @@ import time
 import sys
 
 from behaviour.posture import Posture
+from behaviour.awareness import Awareness
 from interaction.speech import Speech
+
+from tests.behaviour import BehaviourTest
 
 # Global variables #
 DEFAULT_IP = "pepper.local"
@@ -13,27 +16,40 @@ DEFAULT_PORT = 9559
 class Main:
     def __init__(self):
         self.ALProxy = alproxy.ALProxy(
-                "tcp://{}:9559".format(args.ip if args.ip else DEFAULT_IP))
-        self.posture = Posture(self.ALProxy.app.session)
-        self.speech = Speech(self.ALProxy.app.session)
+                "tcp://{}:{}".format(
+                    args.ip if args.ip else DEFAULT_IP,
+                    args.port if args.port else DEFAULT_PORT))
+
+        session = self.ALProxy.app.session
+
+        self.posture = Posture(session)
+        self.speech = Speech(session)
+        self.awareness = Awareness(session)
 
     def main(self, args):
         self.ALProxy.test_all()
+        self.posture.resume()
+        self.awareness.resume()
 
     def shutdown(self):
-        self.posture.sleep()
+        self.posture.stop()
+        self.awareness.stop()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='UvA-Home 2018.')
 
     # Optional arguments
-    parser.add_argument("--testbehaviour", help="Starts the tests for the behaviour class.",
+    parser.add_argument("--testbehaviour", 
+                        help="Starts the tests for the behaviour class.",
                         action="store_true")
-    parser.add_argument("--nosleep", help="Don't set the robot to sleep mode after termination.",
+    parser.add_argument("--nosleep", 
+                        help="Don't set the robot to sleep mode after termination.",
                         action="store_true")
-    parser.add_argument("--ip", help="NAOqi's IP, defaults to pepper.local.")
-
+    parser.add_argument("--ip", 
+                        help="NAOqi's IP, defaults to pepper.local.")
+    parser.add_argument("--port", 
+                        help="NAOqi's Port, defaults to 9559.")
 
     args = parser.parse_args()
 
@@ -41,10 +57,8 @@ if __name__ == "__main__":
         main = Main()
 
         if args.testbehaviour:
-            main.posture.resume()
-            main.speech.say("{} Hey there!", animations=[0])
-            while(True):
-                time.sleep(5)
+            behaviour_test = BehaviourTest(main)
+            behaviour_test.test()
         else:
             main.main(args)
             print("Done...")
