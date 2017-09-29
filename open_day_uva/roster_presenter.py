@@ -14,7 +14,7 @@ class RosterPresenter:
     def present(self):
         self.speech.say("Hi everyone!")
         current_time = datetime.datetime.now().strftime('%H:%M')
-        self.speech.say("It is now {}").format(current_time)
+        self.speech.say("It is now {}").format(str(current_time))
         eventlist = opendag_IR.get_events('./open_day_uva/opendagdata.csv')
         eventlist = opendag_IR.remove_duplicates(eventlist)
         eventlist = get_events_after(eventlist, "14:00")
