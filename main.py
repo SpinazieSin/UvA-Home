@@ -14,6 +14,7 @@ DEFAULT_IP = "pepper.local"
 DEFAULT_PORT = 9559
 
 class Main:
+
     def __init__(self):
         self._naoqi = Naoqi(
                 "tcp://{}:{}".format(
@@ -23,6 +24,9 @@ class Main:
         self.posture = Posture(self._naoqi)
         self.speech = Speech(self._naoqi)
         self.awareness = Awareness(self._naoqi)
+
+        tablet = self._naoqi.Tablet()
+        tablet.showImage("https://i.imgur.com/AGI08lq.png")
 
     def main(self, args):
         self._naoqi.test_all()

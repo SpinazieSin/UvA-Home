@@ -4,6 +4,7 @@ from random import randint
 class Speech:
 
     current_name = None
+
     gestures = ["^start(animations/Stand/Gestures/You_1)",
                 "^start(animations/Stand/Gestures/Explain_1)",
                 "^start(animations/Stand/Gestures/Explain_2)",
@@ -18,10 +19,9 @@ class Speech:
                 "^start(animations/Stand/Gestures/YouKnowWhat_1)",
                 "^start(animations/Stand/Gestures/YouKnowWhat_5)"]
 
-
     # sets the volume to a default value
     def __init__(self, naoqi):
-        self.animated_speech =  naoqi.AnimatedSpeech()
+        self.animated_speech = naoqi.AnimatedSpeech()
         self.posture = naoqi.RobotPosture() 
 
     def say(self, sentence, animations=[]):
