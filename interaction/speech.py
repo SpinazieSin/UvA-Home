@@ -22,11 +22,10 @@ class Speech:
     # sets the volume to a default value
     def __init__(self, naoqi):
         self.animated_speech = naoqi.AnimatedSpeech()
-        self.posture = naoqi.RobotPosture() 
+        self.posture = naoqi.RobotPosture()
 
     def say(self, sentence, animations=[]):
         for i in animations:
             sentence = sentence.format(self.gestures[i])
         self.animated_speech.say(sentence)
-        self.posture.goToPosture("Stand", 1.0)
-        
+        # self.posture.goToPosture("Stand", 1.0) # make parallel so it doesn't halt further execution

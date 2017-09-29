@@ -35,11 +35,11 @@ class Naoqi:
     def Navigation(self):
         return self.session.service("ALNavigation")
 
-    # 
+    #
     def Motion(self):
         return self.session.service("ALMotion")
-    
-    #  
+
+    #
     def RobotPosture(self):
         return self.session.service("ALRobotPosture")
 
@@ -48,7 +48,7 @@ class Naoqi:
         return self.session.service("ALMemory")
 
     def BasicAwareness(self):
-        return self.session.service("ALBasicAwareness")   
+        return self.session.service("ALBasicAwareness")
 
     def Tablet(self):
         return self.session.service("ALTabletService")

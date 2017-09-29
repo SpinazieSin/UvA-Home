@@ -50,6 +50,7 @@ class Hearing:
         self.AudioDevice.enableEnergyComputation()
         # Start recordingaudio
         start_time = time.time()
+        self.AudioDevice.playSine(1500, 30, 0, 0.5)
         self.AudioRecorder.startMicrophonesRecording("/home/nao/recordings/speech_recording.wav", "wav", 16000, (0,0,1,0))
         print("Listening...")
         time.sleep(2)
@@ -68,6 +69,7 @@ class Hearing:
                 print(time.time()-start_time)
                 return None
         self.AudioRecorder.stopMicrophonesRecording()
+        self.AudioDevice.playSine(1000, 30, 0, 0.5)
         audio = self.get_recording()
         return audio
 
