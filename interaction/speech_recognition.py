@@ -10,9 +10,6 @@ Python Version: 3.4
 
 import speech_recognition as sr
 import time
-global recording_counter
-recording_counter = 0
-IP = "127.0.0.1"
 
 class SpeechRecognition:
     def __init__(self, naoqi):
