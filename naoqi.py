@@ -2,7 +2,7 @@ import qi
 
 class Naoqi:
     # url format is: "tcp://IP:PORT"
-    def __init__(self, url="tcp://127.0.0.1:9559"):
+    def __init__(self, url):
         self.url = url
         self.app = qi.Application(url=url)
         self.app.start()
