@@ -25,6 +25,25 @@ class OpendagIR:
                 self.eventlist.append(row)
         self.filtered_events = self.remove_duplicates()
 
+    def get_next_event(self):
+        """Return the earliest event in the list."""
+        earliest_event = self.eventlist[0]
+
+        for event in self.eventlist:
+            found_starttime = event[1]
+            if earlier_time(found_starttime, earliest_event[1]):
+                earliest_event = event
+        return earliest_event
+
+    def get_events_after(self, currenttime):
+        result_list = []
+        for event in self.eventlist:
+            if earlier_time(event[1], currenttime):
+                continue
+            else:
+                result_list.append(event)
+        return result_list
+
     def get_events_between(self, begin_time, time_distance):
         """Return all events between begin_time and begin_time + time_distance."""
         result_list = []
@@ -66,11 +85,10 @@ class OpendagIR:
                     event_dict[event[0]] = event
             else:
                 event_dict[event[0]] = event
+    for event in event_dict.values():
+        result_list.append(event)
 
-        for event in event_dict.values():
-            result_list.append(event)
-
-        return result_list
+    return result_list
 
     def earlier_time(self, time_a, time_b):
         """Returns true if a is earlier than b"""
@@ -89,7 +107,6 @@ class OpendagIR:
 
 def main():
     ir = OpendagIR()
-
     # filtered_events = get_events_between(current_time, time_distance, eventlist)
     # get all chemistry events
     # filtered_events = get_events_subject("chemistry", eventlist)
