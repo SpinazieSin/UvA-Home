@@ -20,7 +20,7 @@ class RosterPresenter:
         current_time = datetime.datetime.now().strftime('%H:%M')
         self.speech.say("It is now {}".format(str(current_time)))
         event_list = self.ir.get_events_after("14:00")
-        next_event = self.ir.get_next_event(eventlist)
+        next_event = self.ir.get_next_event(event_list)
         [EVENT, TYPE, TIME] = [next_event[0], next_event[4], next_event[1]]
         sentence = "The next event is a {}, called {}, at {}".format(TYPE, EVENT, TIME)
         self.speech.say(sentence)
