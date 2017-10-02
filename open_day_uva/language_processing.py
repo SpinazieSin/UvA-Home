@@ -1,7 +1,10 @@
 
+from opendag_IR import OpendagIR
+
 class LanguageProcessing:
     def __init__(self):
-        pass
+        # For local testing use OpendagIR("opendagdata.csv")
+        self.ir = OpendagIR()
 
     def is_break(self, q):
         if (("stop" in q or "sleep" in q or "break") and ("another" in q or "a bit" in q or "now" in q or "a while" in q or "a second" in q or "me" in q or "i want" in q or "talking" in q)) or ("shut up" in q):
@@ -18,6 +21,13 @@ class LanguageProcessing:
 
     # Analyzes a sentence to extract some kind of instruction
     def get_command(self, q):
+        word_list = q.split(" ")
+        event_list = []
+        for word in word_list:
+            event_list.append(self.ir.get_events_subject(word))
+        return event_list
 
-        command = {}
-        return command
+if __name__ == "__main__":
+    nlp = LanguageProcessing()
+    event_list = nlp.get_command("tour")
+    print(event_list)
