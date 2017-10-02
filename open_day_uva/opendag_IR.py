@@ -17,9 +17,9 @@ import datetime
 #         if current_time < event_start_time:
 
 class OpendagIR:
-    def __init__(self, data_file="opendagdata.csv"):
+    def __init__(self, data_file="~/uva-home-2018/open_day_uva/opendagdata.csv"):
         self.eventlist = []
-        with open('opendagdata.csv', 'r') as csvfile:
+        with open(data_file, 'r') as csvfile:
             timetablereader = csv.reader(csvfile, delimiter=';')
             for row in timetablereader:
                 self.eventlist.append(row)
