@@ -31,14 +31,14 @@ class OpendagIR:
 
         for event in eventlist:
             found_starttime = event[1]
-            if earlier_time(found_starttime, earliest_event[1]):
+            if self.earlier_time(found_starttime, earliest_event[1]):
                 earliest_event = event
         return earliest_event
 
     def get_events_after(self, currenttime):
         result_list = []
         for event in self.eventlist:
-            if earlier_time(event[1], currenttime):
+            if self.earlier_time(event[1], currenttime):
                 continue
             else:
                 result_list.append(event)
