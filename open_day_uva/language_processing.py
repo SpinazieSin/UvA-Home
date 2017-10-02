@@ -8,7 +8,7 @@ class LanguageProcessing:
             return True
         return False
 
-    def is_quit(self, q)
+    def is_quit(self, q):
         if (("stop" in q or "quit" in q or "done" in q) and "conv" in q) or q == "stop" or q == "quit":
             return True
 
