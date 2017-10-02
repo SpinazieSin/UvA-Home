@@ -27,7 +27,6 @@ class RosterPresenter:
 
         while True:
             sentence = self.hearing.recognize().lower()
-            print(type(sentence))
             print("Found: " + sentence)
             if self.nlp.is_greeting(sentence):
                 self.speech.say("I greet you human")
