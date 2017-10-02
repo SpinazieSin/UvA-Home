@@ -25,11 +25,11 @@ class OpendagIR:
                 self.eventlist.append(row)
         self.filtered_events = self.remove_duplicates()
 
-    def get_next_event(self):
-        """Return the earliest event in the list."""
-        earliest_event = self.eventlist[0]
+    def get_next_event(self, eventlist):
+        """Return the earliest event in a given list."""
+        earliest_event = eventlist[0]
 
-        for event in self.eventlist:
+        for event in eventlist:
             found_starttime = event[1]
             if earlier_time(found_starttime, earliest_event[1]):
                 earliest_event = event
@@ -85,10 +85,9 @@ class OpendagIR:
                     event_dict[event[0]] = event
             else:
                 event_dict[event[0]] = event
-    for event in event_dict.values():
-        result_list.append(event)
-
-    return result_list
+        for event in event_dict.values():
+            result_list.append(event)
+        return result_list
 
     def earlier_time(self, time_a, time_b):
         """Returns true if a is earlier than b"""
