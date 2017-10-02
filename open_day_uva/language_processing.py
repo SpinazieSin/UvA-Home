@@ -4,9 +4,7 @@ class LanguageProcessing:
         pass
 
     def is_break(self, q):
-        if (("stop" in q or "sleep" in q or "break")
-            and ("another" in q or "a bit" in q or "now" in q or "a while" in q or "a second" in q or "me" in q or "i want" in q or "talking" in q))
-            or ("shut up" in q):
+        if (("stop" in q or "sleep" in q or "break") and ("another" in q or "a bit" in q or "now" in q or "a while" in q or "a second" in q or "me" in q or "i want" in q or "talking" in q)) or ("shut up" in q):
             return True
         return False
 
