@@ -45,7 +45,7 @@ class OpendagIR:
         return result_list
 
 
-    def get_events_between(,self, begin_time, time_distance):
+    def get_events_between(self, begin_time, time_distance):
         """Return all events between begin_time and begin_time + time_distance."""
         result_list = []
         begin_hour = int(begin_time[0:2]);
