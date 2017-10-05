@@ -44,9 +44,45 @@ class OpendagIR:
                 result_list.append(event)
         return result_list
 
-    def get_events_between(self, begin_time, time_distance):
+
+    def get_events_between(,self, begin_time, time_distance):
         """Return all events between begin_time and begin_time + time_distance."""
         result_list = []
+        begin_hour = int(begin_time[0:2]);
+        begin_minute = int(begin_time[3:5]);
+
+        check = begin_minute + time_distance;
+        overflow = False;
+
+        if (check > 59):
+            end_minutes = check % 60;
+            end_hour = begin_hour + (check // 60);
+            overflow = True;
+
+        for event in self.eventlist:
+            event_start_time = event[1];
+            event_start_hour = int(event_start_time[0:2]);
+            event_start_minutes = int(event_start_time[3:5]);
+
+            if overflow:
+                for i in range(begin_hour,end_hour+1):
+                    if i == begin_hour:
+                        if (event_start_hour == i) and (event_start_minutes > begin_minute):
+                            result_list.append(event);
+                            break;
+
+                    elif i == end_hour:
+                        if (event_start_hour == i) and (event_start_minutes <= end_minutes):
+                            result_list.append(event);
+                            break;
+                    else:
+                        if event_start_hour == i:
+                            result_list.append(event);
+                            break;
+
+            elif (event_start_hour == begin_hour) and (event_start_minutes > begin_minute):
+                    result_list.append(event);
+
         return result_list
 
 
