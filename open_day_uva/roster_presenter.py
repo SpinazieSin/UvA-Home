@@ -1,4 +1,3 @@
-
 from interaction.hearing import Hearing
 from interaction.speech import Speech
 from opendag_IR import OpendagIR
@@ -19,7 +18,7 @@ class RosterPresenter:
         self.speech.say("Hi!")
 
         while True:
-            sentence = self.hearing.recognize().lower()
+            sentence = str(self.hearing.recognize()).lower()
             print("Sentence: " + sentence)
             command = self.nlp.get_command(sentence)
             if command:
