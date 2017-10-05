@@ -1,5 +1,8 @@
 
 from opendag_IR import OpendagIR
+from random import randint
+from sets import Set
+import datetime
 
 class LanguageProcessing:
     def __init__(self):
@@ -14,48 +17,190 @@ class LanguageProcessing:
     def is_quit(self, q):
         if (("stop" in q or "quit" in q or "done" in q) and "conv" in q) or q == "stop" or q == "quit":
             return True
+        return False
 
     def is_greeting(self, q):
-        if ("hello" in q or "greeting" in q or "hi" in q or "nice to" in q) and ("mikey" in q):
+        if ("hello" in q or "greeting" in q or "hi" in q or "nice to" in q) and ("ginger" in q or "pepper" in q or "robot" in q):
             return True
+        elif ("hello" == q or "hi" == q or "nice to meet you" == q):
+            return True
+        return False
 
     def is_goodbye(self, q):
-        if ("bye" in q or "goodbye" in q) and ("mikey" in q):
+        if ("bye" in q or "goodbye" in q) and ("ginger" in q):
             return True
+        return False
+
     def whats_your_name(self, q):
-        if ("name" in q and "what" in q) or ("who" in q and "are" in q):
+        if ("called" in q and "what" in q) or ("who" in q and "are" in q) or ("you" in q and "name" in q):
             return True
+        return False
+
+    def how_are_you(self, q):
+        if ("how" in q and "are" in q and "you" in q):
+            return True
+        return False
+
+    def good_ginger(self, q):
+        if "good ginger" == q:
+            return True
+        return False
+
+    def when_next_event(self, q):
+        if ("next" in q and "when" in q) or ("what" in q and "coming up" in q) or ("what" in q and "is" in q and "next" in q):
+            return True
+        return False
+
+    def when_ongoing_event(self, q):
+        if ("what" in q or "is" in q) and ("ongoing" in q or "going on" in q or "happening" in q):
+            return True
+        return False
 
     # Analyzes a sentence to extract some kind of instruction
     def get_command(self, q):
         word_list = q.split(" ")
+
+        event_list = self.get_events(word_list)
+
+        if self.is_greeting(q):
+            answers = ["Greetings human!", "Hi there!", "Hi!", "Nice to meet you!"]
+            
+        elif self.how_are_you(q):
+            answers = ["I'm new but I am doing my best!", "I'm fine thank you!", "Good!"]
+        elif self.is_goodbye(q):
+            answers = ["Goodbye and enjoy your day!", "See you later!", "Goodbye!", "Later, sucker!", "Please don't leave me here with all these people!", "Cheers mate!", "Please don't go!"]
+        elif self.whats_your_name(q):
+            answers = ["My name is Ginger", "I am Ginger", "Hello, I am GInger"]
+        elif self.good_ginger(q):
+            answers = ["Is this Arnoud?"]
+        elif self.when_next_event(q):
+            answers = self.formulate_next_event(word_list)
+        elif self.when_ongoing_event(q):
+            answers = self.formulate_ongoing_event(word_list)
+        else:
+            answers = ["Error, I don't understand", "I'm sorry but I do not understand you"]
+        return answers[randint(0,len(answers)-1)]
+
+
+    def formulate_next_event(self, word_list):
+        event_list = self.get_events(word_list, True)
+        current_time = datetime.datetime.now().strftime('%H:%M')
+        current_time = "15:00"
+        next_event_list = self.ir.get_events_after(current_time, event_list)
+        if next_event_list:
+            return self.specific_next_event_sentence(next_event_list)
+        elif event_list:
+            return ["There is no events related to that subject after {}".format(current_time)]
+        else:
+            return self.next_event_sentence()
+
+    def formulate_ongoing_event(self, word_list):
+        event_list = self.get_events(word_list, True)
+        current_time = datetime.datetime.now().strftime('%H:%M')
+        current_time = "15:00"
+        next_event_list = self.ir.get_ongoing_events(current_time, event_list)
+        if next_event_list:
+            return self.specific_ongoing_event(next_event_list)
+        elif event_list:
+            return ["There is no events related to that subject going on now."]
+        else:
+            return self.current_ongoing_event()
+
+    def get_events(self, word_list, all_events=False):
         event_list = []
         for word in word_list:
-            events = self.ir.get_events_subject(word)
-            if events:
-                event_list.append(events)
-        command = event_list
-        if self.is_greeting(q):
-            command = ["greeting", None]
-        elif self.is_goodbye(q):
-            command = ["goodbye", None]
-        elif "when" in word_list:
-            command = ["when", event_list]
-        elif self.whats_your_name(q):
-            command = ["robot_name", None]
-        return command
+            # Extreme metaphysical nihilism is commenly defined as the belief that nothing exists as a correspondent component of the self-efficient world.
+            if word != "in" and word != "the" and word != "university" and word != "for" and word != "only" and word != "together" and word != "and" and word != "go" and word != "do" and word != "is" and word != "on" and word != "to":
+                if all_events:
+                    found_events = self.ir.get_all_events_subject(word)
+                else:
+                    found_events = self.ir.get_events_subject(word)
+                if found_events:
+                    for event in found_events:
+                        event_list.append(event)
+        return event_list
 
+    def remove_duplicate_event_names(self, event_list):
+        name_list = Set()
+        return_list = []
+        for event in event_list:
+            if event[0] not in name_list:
+                return_list.append(event)
+                name_list.add(event[0])
+        return return_list
+
+    def specific_next_event_sentence(self, event_list):
+        next_events = self.ir.get_next_events(event_list)
+        next_events = self.remove_duplicate_event_names(next_events)
+        if len(next_events) > 1:
+            sentence = "The next events are "
+            for event_index in range(len(next_events)):
+                if event_index == len(next_events)-1:
+                    sentence += "and finally , "
+                [EVENT, TYPE] = [next_events[event_index][0], next_events[event_index][4]]
+                sentence += "a {}, called {}, ".format(TYPE, EVENT)
+            sentence += "... which are all at {}".format(next_events[0][1])
+        else:
+            [EVENT, TYPE, TIME] = [next_events[0][0], next_events[0][4], next_events[0][1]]
+            sentence = "The next event is a {}, called {}, at {}".format(TYPE, EVENT, TIME)
+
+        return [sentence]
 
     def next_event_sentence(self):
         current_time = datetime.datetime.now().strftime('%H:%M')
-        self.speech.say("It is now {}".format(str(current_time)))
-        event_list = self.ir.get_events_after("14:00")
-        next_event = self.ir.get_next_event(event_list)
-        [EVENT, TYPE, TIME] = [next_event[0], next_event[4], next_event[1]]
-        sentence = "The next event is a {}, called {}, at {}".format(TYPE, EVENT, TIME)
-        return sentence
+        current_time = "15:00"
+        event_list = self.ir.get_events_after(current_time)
+        next_events = self.ir.get_next_events(event_list)
+        next_events = self.remove_duplicate_event_names(next_events)
+        if len(next_events) > 1:
+            sentence = "The next events are "
+            for event_index in range(len(next_events)):
+                if event_index == len(next_events)-1:
+                    sentence += "and finally , "
+                [EVENT, TYPE] = [next_events[event_index][0], next_events[event_index][4]]
+                sentence += "a {}, called {}, ".format(TYPE, EVENT)
+            sentence += "... which are all at {}".format(next_events[0][1])
+        else:
+            [EVENT, TYPE, TIME] = [next_events[0][0], next_events[0][4], next_events[0][1]]
+            sentence = "The next event is a {}, called {}, at {}".format(TYPE, EVENT, TIME)
+        return [sentence]
+
+    def specific_ongoing_event(self, event_list):
+        current_time = datetime.datetime.now().strftime('%H:%M')
+        current_time = "15:00"
+        ongoing_events = self.ir.get_ongoing_events(current_time, event_list)
+        next_events = self.remove_duplicate_event_names(ongoing_events)
+        if len(next_events) > 1:
+            sentence = "The current ongoing events are "
+            for event_index in range(len(next_events)):
+                if event_index == len(next_events)-1:
+                    sentence += "and finally , "
+                [EVENT, TYPE] = [next_events[event_index][0], next_events[event_index][4]]
+                sentence += "a {}, called {}, ".format(TYPE, EVENT)
+        else:
+            [EVENT, TYPE, TIME] = [next_events[0][0], next_events[0][4], next_events[0][2]]
+            sentence = "There is one ongoing event which is a {}, called {}, it ends at {}".format(TYPE, EVENT, TIME)
+        return [sentence]
+
+    def current_ongoing_event(self):
+        current_time = datetime.datetime.now().strftime('%H:%M')
+        current_time = "15:00"
+        ongoing_events = self.ir.get_ongoing_events(current_time)
+        next_events = self.remove_duplicate_event_names(ongoing_events)
+        if len(next_events) > 1:
+            sentence = "The current ongoing events are "
+            for event_index in range(len(next_events)):
+                if event_index == len(next_events)-1:
+                    sentence += "and finally , "
+                [EVENT, TYPE] = [next_events[event_index][0], next_events[event_index][4]]
+                sentence += "a {}, called {}, ".format(TYPE, EVENT)
+        else:
+            [EVENT, TYPE, TIME] = [next_events[0][0], next_events[0][4], next_events[0][2]]
+            sentence = "There is one ongoing event which is a {}, called {}, it ends at {}".format(TYPE, EVENT, TIME)
+        return [sentence]
 
 if __name__ == "__main__":
     nlp = LanguageProcessing()
-    command = nlp.get_command("hello is beth")
+    # KILL MEEEEEEEEE
+    command = nlp.get_command("what event is ongoing related to chemistry")
     print(command)
