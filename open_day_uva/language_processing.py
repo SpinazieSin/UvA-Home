@@ -3,8 +3,8 @@ from opendag_IR import OpendagIR
 
 class LanguageProcessing:
     def __init__(self):
-        # For local testing use 
-        self.ir = OpendagIR("opendagdata.csv")
+        # For local testing use - self.ir = OpendagIR("opendagdata.csv")
+        self.ir = OpendagIR()
 
     def is_break(self, q):
         if (("stop" in q or "sleep" in q or "break") and ("another" in q or "a bit" in q or "now" in q or "a while" in q or "a second" in q or "me" in q or "i want" in q or "talking" in q)) or ("shut up" in q):
