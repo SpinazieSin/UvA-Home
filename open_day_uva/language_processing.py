@@ -19,6 +19,14 @@ class LanguageProcessing:
         if ("hello" in q or "greeting" or "hi" or "nice to") and ("beth" in q):
             return True
 
+    def whats_your_name(self, q):
+        if (("name" in q and "what" in q) or ("who" in q and "are" in q):
+            return True
+
+
+
+
+
     # Analyzes a sentence to extract some kind of instruction
     def get_command(self, q):
         word_list = q.split(" ")
@@ -32,6 +40,8 @@ class LanguageProcessing:
             command = ["greeting", None]
         elif "when" in word_list:
             command = ["when", event_list]
+        elif self.whats_your_name(q):
+            command = ["robot_name", None]
         return command
 
 

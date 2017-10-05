@@ -24,5 +24,11 @@ class RosterPresenter:
             if command:
                 if command[0] == "greeting":
                     self.speech.say("Greetings human!")
+                elif command[0] == "break":
+                    self.speech.say("I won't be listening for a vew seconds")
+                elif command[0] == "robot_name":
+                    self.speech.say("My name is Mickey")
+
+
             break
         print("Done")
