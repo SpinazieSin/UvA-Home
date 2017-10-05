@@ -17,8 +17,10 @@ class Hearing:
         self.AudioDevice = self.naoqi.AudioDevice()
         self.AudioRecorder = self.naoqi.AudioRecorder()
         self.recognizer = sr.Recognizer()
-        self.energy_breakpoint = 2000.0
-        self.timeout = 10.0
+        self.energy_breakpoint = 1600.0
+        self.minimum_energy = 600.0
+        self.timeout = 6.0
+        self.hard_timeout = 30.0
 
     def recognize(self):
         """Attempt to record and recognize speech, returns the audio recognized or an error"""
@@ -34,7 +36,7 @@ class Hearing:
             # to use another API key,
             # use 'r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")'
             # instead of 'r.recognize_google(audio)'
-            result = self.recognizer.recognize_google(audio)
+            result = str(self.recognizer.recognize_google(audio))
             print("Found text: " + result)
             return result
         except sr.UnknownValueError:
@@ -46,34 +48,52 @@ class Hearing:
         return "-fatal error-"
 
     def record_audio(self):
-        """Record audio using the robot microphone, time out after 10.0 seconds."""
+        """Record audio using the robot microphone, time out after self.timeout seconds."""
         self.AudioDevice.enableEnergyComputation()
         # Start recordingaudio
         start_time = time.time()
+        hard_timeout_start_time = start_time
 
         self.AudioDevice.playSine(1500, 30, 0, 0.5)
         time.sleep(0.5)
 
+        minimum_breakpoint = False
         self.AudioRecorder.startMicrophonesRecording("/home/nao/recordings/speech_recording.wav", "wav", 16000, (0,0,1,0))
         print("Listening...")
         time.sleep(2)
         while True:
             energy = self.AudioDevice.getFrontMicEnergy()
-            time.sleep(0.5)
-            energy += self.AudioDevice.getFrontMicEnergy()
-            time.sleep(0.5)
-            final_energy = (energy+self.AudioDevice.getFrontMicEnergy())/3
-            print("Front mic energy level: " + str(final_energy))
-            if final_energy < self.energy_breakpoint:
-                print("Done listening...")
-                break
-            if time.time()-start_time > self.timeout:
-                self.AudioRecorder.stopMicrophonesRecording()
-                print(time.time()-start_time)
-                return None
-        self.AudioRecorder.stopMicrophonesRecording()
+            print("ENERGY = " + str(energy)) ########################################################################
 
-        self.AudioDevice.playSine(1000, 30, 0, 0.5)
+            if energy > minimum_breakpoint:
+                print("Detected something...")
+                time.sleep(0.5)
+                energy += self.AudioDevice.getFrontMicEnergy()
+                time.sleep(0.5)
+                final_energy = (energy+self.AudioDevice.getFrontMicEnergy())/3
+                print("Front mic energy level: " + str(final_energy))
+                if final_energy < self.energy_breakpoint:
+                    self.AudioDevice.playSine(1000, 30, 0, 0.5)
+                    print("Done listening...")
+                    break
+                if time.time()-start_time > self.timeout:
+                    self.AudioRecorder.stopMicrophonesRecording()
+                    print(time.time()-start_time)
+                    return None
+            else:
+                time.sleep(0.2)
+                if time.time()-hard_timeout_start_time > self.hard_timeout:
+                    print("No voice activity...")
+                    self.AudioRecorder.stopMicrophonesRecording()
+                    return None
+                if time.time()-start_time > self.timeout:
+                    print("Nothing heard, listening again...")
+                    start_time = time.time()
+                    self.AudioRecorder.stopMicrophonesRecording()
+                    time.sleep(0.1)
+                    self.AudioRecorder.startMicrophonesRecording("/home/nao/recordings/speech_recording.wav", "wav", 16000, (0,0,1,0))
+
+        self.AudioRecorder.stopMicrophonesRecording()
         audio = self.get_recording()
         return audio
 

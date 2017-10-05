@@ -3,8 +3,8 @@ from opendag_IR import OpendagIR
 
 class LanguageProcessing:
     def __init__(self):
-        # For local testing use OpendagIR("opendagdata.csv")
-        self.ir = OpendagIR()
+        # For local testing use 
+        self.ir = OpendagIR("opendagdata.csv")
 
     def is_break(self, q):
         if (("stop" in q or "sleep" in q or "break") and ("another" in q or "a bit" in q or "now" in q or "a while" in q or "a second" in q or "me" in q or "i want" in q or "talking" in q)) or ("shut up" in q):
@@ -24,10 +24,27 @@ class LanguageProcessing:
         word_list = q.split(" ")
         event_list = []
         for word in word_list:
-            event_list.append(self.ir.get_events_subject(word))
-        return event_list
+            events = self.ir.get_events_subject(word)
+            if events:
+                event_list.append(events)
+        command = event_list
+        if self.is_greeting(q):
+            command = ["greeting", None]
+        elif "when" in word_list:
+            command = ["when", event_list]
+        return command
+
+
+    def next_event_sentence(self):
+        current_time = datetime.datetime.now().strftime('%H:%M')
+        self.speech.say("It is now {}".format(str(current_time)))
+        event_list = self.ir.get_events_after("14:00")
+        next_event = self.ir.get_next_event(event_list)
+        [EVENT, TYPE, TIME] = [next_event[0], next_event[4], next_event[1]]
+        sentence = "The next event is a {}, called {}, at {}".format(TYPE, EVENT, TIME)
+        return sentence
 
 if __name__ == "__main__":
     nlp = LanguageProcessing()
-    event_list = nlp.get_command("tour")
-    print(event_list)
+    command = nlp.get_command("hello is beth")
+    print(command)
