@@ -5,6 +5,7 @@ from opendag_IR import OpendagIR
 from language_processing import LanguageProcessing
 from naoqi import Naoqi
 import datetime
+from random import randint
 
 class RosterPresenter:
     def __init__(self, naoqi):
@@ -24,5 +25,15 @@ class RosterPresenter:
             if command:
                 if command[0] == "greeting":
                     self.speech.say("Greetings human!")
+                    q = ["Greetings human!", "Hi there!", "Hi!"]
+                    answer = q[randint(0,len(q)-1)]
+                elif command[0] == "break":
+                    self.speech.say("I won't be listening for a while")
+                elif command[0] == "robot_name":
+                    self.speech.say("My name is Mickey")
+                elif command[0] == "goodbye":
+                    q = ["Goodbye and enjoy your day!", "See you later!", "Goodbye!", "Later, sucker!", "Please don't leave me here with all these people!", "Cheers mate!", "Please don't go!"]
+                    answer = q[randint(0,len(q)-1)]
+                    self.speech.say(answer)
             break
         print("Done")
