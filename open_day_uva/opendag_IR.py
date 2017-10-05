@@ -53,7 +53,7 @@ class OpendagIR:
     def get_events_subject(self, subject):
         """Return all events on given subject."""
         result_list = []
-        for event in self.eventlist:
+        for event in self.filtered_events:
             if subject in event[0].lower() or subject in event[4].lower() or subject in event[5].lower():
                 result_list.append(event)
         return result_list
