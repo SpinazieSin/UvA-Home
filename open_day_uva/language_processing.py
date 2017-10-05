@@ -16,11 +16,11 @@ class LanguageProcessing:
             return True
 
     def is_greeting(self, q):
-        if ("hello" in q or "greeting" in q or "hi" in q or "nice to" in q) and ("beth" in q):
+        if ("hello" in q or "greeting" in q or "hi" in q or "nice to" in q) and ("mikey" in q):
             return True
 
     def is_goodbye(self, q):
-        if ("bye" in q or "goodbye" in q) and ("beth" in q):
+        if ("bye" in q or "goodbye" in q) and ("mikey" in q):
             return True
 
 
