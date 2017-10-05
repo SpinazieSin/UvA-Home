@@ -21,7 +21,8 @@ class RosterPresenter:
             sentence = self.hearing.recognize().lower()
             print("Sentence: " + sentence)
             command = self.nlp.get_command(sentence)
-            if command[0] == "greeting":
-                self.speech.say("Greetings human!")
+            if command:
+                if command[0] == "greeting":
+                    self.speech.say("Greetings human!")
             break
         print("Done")

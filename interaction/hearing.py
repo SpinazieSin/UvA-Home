@@ -17,7 +17,7 @@ class Hearing:
         self.AudioDevice = self.naoqi.AudioDevice()
         self.AudioRecorder = self.naoqi.AudioRecorder()
         self.recognizer = sr.Recognizer()
-        self.energy_breakpoint = 1600.0
+        self.energy_breakpoint = 1500.0
         self.minimum_energy = 600.0
         self.timeout = 6.0
         self.hard_timeout = 30.0
@@ -57,7 +57,6 @@ class Hearing:
         self.AudioDevice.playSine(1500, 30, 0, 0.5)
         time.sleep(0.5)
 
-        minimum_breakpoint = False
         self.AudioRecorder.startMicrophonesRecording("/home/nao/recordings/speech_recording.wav", "wav", 16000, (0,0,1,0))
         print("Listening...")
         time.sleep(2)
@@ -65,7 +64,7 @@ class Hearing:
             energy = self.AudioDevice.getFrontMicEnergy()
             print("ENERGY = " + str(energy)) ########################################################################
 
-            if energy > minimum_breakpoint:
+            if energy > self.minimum_energy:
                 print("Detected something...")
                 time.sleep(0.5)
                 energy += self.AudioDevice.getFrontMicEnergy()
