@@ -76,6 +76,8 @@ class LanguageProcessing:
             answers = self.formulate_next_event(word_list)
         elif self.when_ongoing_event(q):
             answers = self.formulate_ongoing_event(word_list)
+        elif self.age_requirement(q):
+            answers = self.formulate_age_requirement(event_list)
         else:
             answers = ["Error, I do not understand", "I am sorry but I do not understand you"]
         return answers[randint(0,len(answers)-1)]
@@ -104,6 +106,23 @@ class LanguageProcessing:
             return ["There is no events related to that subject going on now."]
         else:
             return self.current_ongoing_event()
+
+    def formulate_age_requirement(self, event_list):
+        if len(event_list) == 1:
+            sentence = "There is one relevant event,"
+        else:
+            sentence = "There are " + len(event_list) + " relevant events,"
+        for event_index in range(len(event_list)):
+            if event_index == len(event_index)-1:
+                sentence += "and, "
+            event_name = event[event_index][0]
+            event_type = event[event_index][4]
+            event_age = event[event_index][3]
+            if event[3] == "all":
+                sentence += "the {} called {} is for all ages,".format(event_type, event_name)
+            else:
+                sentence += "for the {} called {} you need to be at least {} years old,".format(event_type, event_name, event_age)
+        return [sentence]
 
     def get_events(self, word_list, all_events=False):
         event_list = []
@@ -139,10 +158,11 @@ class LanguageProcessing:
                 [EVENT, TYPE] = [next_events[event_index][0], next_events[event_index][4]]
                 sentence += "a {}, called {}, ".format(TYPE, EVENT)
             sentence += "... which are all at {}".format(next_events[0][1])
-        else:
+        elif len(next_events) == 1:
             [EVENT, TYPE, TIME] = [next_events[0][0], next_events[0][4], next_events[0][1]]
             sentence = "The next event is a {}, called {}, at {}".format(TYPE, EVENT, TIME)
-
+        else:
+            sentence = "There are no events happenig next related to that subject"
         return [sentence]
 
     def next_event_sentence(self):
@@ -159,9 +179,11 @@ class LanguageProcessing:
                 [EVENT, TYPE] = [next_events[event_index][0], next_events[event_index][4]]
                 sentence += "a {}, called {}, ".format(TYPE, EVENT)
             sentence += "... which are all at {}".format(next_events[0][1])
-        else:
+        elif len(next_events) == 1:
             [EVENT, TYPE, TIME] = [next_events[0][0], next_events[0][4], next_events[0][1]]
             sentence = "The next event is a {}, called {}, at {}".format(TYPE, EVENT, TIME)
+        else:
+            sentence = "There are no events happenig next"
         return [sentence]
 
     def specific_ongoing_event(self, event_list):
@@ -176,9 +198,11 @@ class LanguageProcessing:
                     sentence += "and finally , "
                 [EVENT, TYPE] = [next_events[event_index][0], next_events[event_index][4]]
                 sentence += "a {}, called {}, ".format(TYPE, EVENT)
-        else:
+        elif len(next_events) == 1:
             [EVENT, TYPE, TIME] = [next_events[0][0], next_events[0][4], next_events[0][2]]
             sentence = "There is one ongoing event which is a {}, called {}, it ends at {}".format(TYPE, EVENT, TIME)
+        else:
+            sentence = "There are no ongoing events related to that subject"
         return [sentence]
 
     def current_ongoing_event(self):
@@ -193,9 +217,11 @@ class LanguageProcessing:
                     sentence += "and finally , "
                 [EVENT, TYPE] = [next_events[event_index][0], next_events[event_index][4]]
                 sentence += "a {}, called {}, ".format(TYPE, EVENT)
-        else:
+        elif len(next_events) == 1:
             [EVENT, TYPE, TIME] = [next_events[0][0], next_events[0][4], next_events[0][2]]
             sentence = "There is one ongoing event which is a {}, called {}, it ends at {}".format(TYPE, EVENT, TIME)
+        else:
+            sentence = "There are no ongoing events"
         return [sentence]
 
 if __name__ == "__main__":
