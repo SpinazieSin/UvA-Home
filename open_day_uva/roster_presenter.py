@@ -26,8 +26,7 @@ class RosterPresenter:
             broke_up_answer = answer.split(",")
             for part_answer in broke_up_answer:
                 self.speech.say(part_answer)
-                time.sleep(0.5)
-
+                time.sleep(0.4)
             if break_count > 4:
                 break
             break_count += 1

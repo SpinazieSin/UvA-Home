@@ -7,7 +7,7 @@ import datetime
 class LanguageProcessing:
     def __init__(self):
         # For local testing use - self.ir = OpendagIR("opendagdata.csv")
-        self.ir = OpendagIR("opendagdata.csv")
+        self.ir = OpendagIR()
 
     def is_break(self, q):
         if (("stop" in q or "sleep" in q or "break") and ("another" in q or "a bit" in q or "now" in q or "a while" in q or "a second" in q or "me" in q or "i want" in q or "talking" in q)) or ("shut up" in q):
@@ -27,7 +27,7 @@ class LanguageProcessing:
         return False
 
     def is_goodbye(self, q):
-        if ("bye" in q or "goodbye" in q) and ("ginger" in q):
+        if ("bye" in q or "goodbye" in q):
             return True
         return False
 
@@ -64,9 +64,7 @@ class LanguageProcessing:
     # Analyzes a sentence to extract some kind of instruction
     def get_command(self, q):
         word_list = q.split(" ")
-
         event_list = self.get_events(word_list)
-
         if self.is_greeting(q):
             answers = ["Greetings human!", "Hi there!", "Hi!", "Nice to meet you!"]
         elif self.how_are_you(q):
@@ -81,7 +79,7 @@ class LanguageProcessing:
             answers = self.formulate_next_event(word_list)
         elif self.when_ongoing_event(q):
             answers = self.formulate_ongoing_event(word_list)
-        elif self.age_requirement(q):
+        elif self.age_requirement(q) and event_list:
             answers = self.formulate_age_requirement(event_list)
         else:
             answers = ["Error, I do not understand", "I am sorry but I do not understand you"]
@@ -113,17 +111,18 @@ class LanguageProcessing:
             return self.current_ongoing_event()
 
     def formulate_age_requirement(self, event_list):
+        event_list = self.remove_duplicate_event_names(event_list)
         if len(event_list) == 1:
             sentence = "There is one relevant event,"
         else:
-            sentence = "There are " + len(event_list) + " relevant events,"
+            sentence = "There are {} relevant events,".format(len(event_list))
         for event_index in range(len(event_list)):
-            if event_index == len(event_index)-1:
+            if event_index == len(event_list)-1:
                 sentence += "and, "
-            event_name = event[event_index][0]
-            event_type = event[event_index][4]
-            event_age = event[event_index][3]
-            if event[3] == "all":
+            event_name = event_list[event_index][0]
+            event_type = event_list[event_index][4]
+            event_age = event_list[event_index][3]
+            if event_list[event_index][3] == "all":
                 sentence += "the {} called {} is for all ages,".format(event_type, event_name)
             else:
                 sentence += "for the {} called {} you need to be at least {} years old,".format(event_type, event_name, event_age)
@@ -232,5 +231,5 @@ class LanguageProcessing:
 if __name__ == "__main__":
     nlp = LanguageProcessing()
     # KILL MEEEEEEEEE
-    command = nlp.get_command("whats happening next related to chemistry")
+    command = nlp.get_command("what is the next event")
     print(command)
