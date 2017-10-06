@@ -47,12 +47,12 @@ class LanguageProcessing:
         return False
 
     def when_next_event(self, q):
-        if ("next" in q and "when" in q) or ("what" in q and "coming up" in q) or ("what" in q and "is" in q and "next" in q):
+        if ("next" in q and "when" in q) or ("what" in q and "coming up" in q) or ("what" in q and "is" in q and "next" in q) or ("happening" in q and "next" in q):
             return True
         return False
 
     def when_ongoing_event(self, q):
-        if ("what" in q or "is" in q) and ("ongoing" in q or "going on" in q or "happening" in q):
+        if ("what" in q or "is" in q) and ("ongoing" in q or "going on" in q) or ("happening" in q and "now" in q):
             return True
         return False
 
@@ -201,5 +201,5 @@ class LanguageProcessing:
 if __name__ == "__main__":
     nlp = LanguageProcessing()
     # KILL MEEEEEEEEE
-    command = nlp.get_command("anything going on related to chemistry")
+    command = nlp.get_command("whats happening next related to chemistry")
     print(command)
