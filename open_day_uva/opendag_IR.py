@@ -26,8 +26,7 @@ class OpendagIR:
         self.templist = self.eventlist
         self.filtered_events = self.remove_duplicates()
 
-
-    def get_next_event(self, eventlist):
+    def get_next_events(self, eventlist):
         """Return the earliest event in a given list."""
         earliest_event = eventlist[0]
 
@@ -35,16 +34,33 @@ class OpendagIR:
             found_starttime = event[1]
             if self.earlier_time(found_starttime, earliest_event[1]):
                 earliest_event = event
-        return earliest_event
+        earliest_event_list = []
+        for event in eventlist:
+            if self.same_time(event[1], earliest_event[1]):
+                earliest_event_list.append(event)
+        return earliest_event_list
 
-    def get_events_after(self, currenttime):
+    def get_events_after(self, currenttime, eventlist=None):
+        if eventlist == None:
+            eventlist = self.eventlist
         result_list = []
-        for event in self.templist:
+        for event in eventlist:
             if self.earlier_time(event[1], currenttime):
                 continue
             else:
                 result_list.append(event)
         self.templist = result_list
+
+
+    def get_ongoing_events(self, currenttime, eventlist=None):
+        if eventlist == None:
+            eventlist = self.eventlist
+        result_list = []
+        for event in eventlist:
+            if self.earlier_time(currenttime, event[2]) and self.earlier_time(event[1], currenttime):
+                result_list.append(event)
+        return result_list
+
 
 
     def get_events_between(self, begin_time, time_distance):
@@ -96,6 +112,14 @@ class OpendagIR:
                 result_list.append(event)
         self.templist = result_list
 
+    def get_all_events_subject(self, subject):
+        """Return all events on given subject."""
+        result_list = []
+        for event in self.eventlist:
+            if subject in event[0].lower() or subject in event[4].lower() or subject in event[5].lower():
+                result_list.append(event)
+        return result_list
+
 
     def get_events_age(self, age):
         """Return all events for given age and up."""
@@ -138,6 +162,16 @@ class OpendagIR:
         elif hour_a == hour_b:
             if minutes_a < minutes_b:
                 return True
+        return False
+
+    def same_time(self, time_a, time_b):
+        """Returns true if a is earlier than b"""
+        hour_a = int(time_a[0:2])
+        hour_b = int(time_b[0:2])
+        minutes_a = int(time_a[3:5])
+        minutes_b = int(time_b[3:5])
+        if hour_a == hour_b and minutes_a == minutes_b:
+            return True
         return False
 
 

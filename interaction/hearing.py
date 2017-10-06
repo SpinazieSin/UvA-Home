@@ -17,9 +17,9 @@ class Hearing:
         self.AudioDevice = self.naoqi.AudioDevice()
         self.AudioRecorder = self.naoqi.AudioRecorder()
         self.recognizer = sr.Recognizer()
-        self.energy_breakpoint = 1500.0
-        self.minimum_energy = 600.0
-        self.timeout = 6.0
+        self.energy_breakpoint = 1000.0
+        self.minimum_energy = 1200.0
+        self.timeout = 5.0
         self.hard_timeout = 30.0
 
     def recognize(self):
@@ -55,44 +55,54 @@ class Hearing:
         hard_timeout_start_time = start_time
 
         self.AudioDevice.playSine(1500, 30, 0, 0.5)
-        time.sleep(0.5)
+        time.sleep(1.0)
 
         self.AudioRecorder.startMicrophonesRecording("/home/nao/recordings/speech_recording.wav", "wav", 16000, (0,0,1,0))
         print("Listening...")
-        time.sleep(2)
+
         while True:
             energy = self.AudioDevice.getFrontMicEnergy()
             print("ENERGY = " + str(energy)) ########################################################################
 
             if energy > self.minimum_energy:
-                print("Detected something...")
-                time.sleep(0.5)
-                energy += self.AudioDevice.getFrontMicEnergy()
-                time.sleep(0.5)
-                final_energy = (energy+self.AudioDevice.getFrontMicEnergy())/3
-                print("Front mic energy level: " + str(final_energy))
-                if final_energy < self.energy_breakpoint:
-                    self.AudioDevice.playSine(1000, 30, 0, 0.5)
-                    print("Done listening...")
-                    break
-                if time.time()-start_time > self.timeout:
-                    self.AudioRecorder.stopMicrophonesRecording()
-                    print(time.time()-start_time)
-                    return None
-            else:
-                time.sleep(0.2)
-                if time.time()-hard_timeout_start_time > self.hard_timeout:
-                    print("No voice activity...")
-                    self.AudioRecorder.stopMicrophonesRecording()
-                    return None
-                if time.time()-start_time > self.timeout:
-                    print("Nothing heard, listening again...")
+                while True:
                     start_time = time.time()
-                    self.AudioRecorder.stopMicrophonesRecording()
+                    print("Detected something...")
                     time.sleep(0.1)
-                    self.AudioRecorder.startMicrophonesRecording("/home/nao/recordings/speech_recording.wav", "wav", 16000, (0,0,1,0))
-
+                    energy = self.AudioDevice.getFrontMicEnergy()
+                    time.sleep(0.5)
+                    energy += self.AudioDevice.getFrontMicEnergy()
+                    time.sleep(0.5)
+                    final_energy = (energy+self.AudioDevice.getFrontMicEnergy())/3
+                    print("Front mic energy level: " + str(final_energy))
+                    if final_energy < self.minimum_energy:
+                        print("Done listening...")
+                        self.AudioRecorder.stopMicrophonesRecording()
+                        self.AudioDevice.playSine(1000, 30, 0, 0.5)
+                        audio = self.get_recording()
+                        return audio
+                    if time.time()-start_time > self.timeout:
+                        print("Activity timeout...")
+                        self.minimum_energy += self.minimum_energy*0.1
+                        self.AudioRecorder.stopMicrophonesRecording()
+                        time.sleep(0.1)
+                        self.AudioRecorder.startMicrophonesRecording("/home/nao/recordings/speech_recording.wav", "wav", 16000, (0,0,1,0))
+                        break
+            time.sleep(0.5)
+            if time.time()-hard_timeout_start_time > self.hard_timeout:
+                print("No voice activity...")
+                self.AudioRecorder.stopMicrophonesRecording()
+                return None
+            if time.time()-start_time > self.timeout:
+                print("Nothing heard, listening again...")
+                if self.minimum_energy > self.energy_breakpoint:
+                    self.minimum_energy -= self.minimum_energy*0.05
+                start_time = time.time()
+                self.AudioRecorder.stopMicrophonesRecording()
+                time.sleep(0.1)
+                self.AudioRecorder.startMicrophonesRecording("/home/nao/recordings/speech_recording.wav", "wav", 16000, (0,0,1,0))
         self.AudioRecorder.stopMicrophonesRecording()
+        self.AudioDevice.playSine(1000, 30, 0, 0.5)
         audio = self.get_recording()
         return audio
 
