@@ -23,13 +23,14 @@ class OpendagIR:
             timetablereader = csv.reader(csvfile, delimiter=';')
             for row in timetablereader:
                 self.eventlist.append(row)
+        self.templist = self.eventlist
         self.filtered_events = self.remove_duplicates()
 
     def get_next_events(self, eventlist):
         """Return the earliest event in a given list."""
         earliest_event = eventlist[0]
 
-        for event in eventlist:
+        for event in self.templist:
             found_starttime = event[1]
             if self.earlier_time(found_starttime, earliest_event[1]):
                 earliest_event = event
@@ -48,7 +49,7 @@ class OpendagIR:
                 continue
             else:
                 result_list.append(event)
-        return result_list
+        self.templist = result_list
 
 
     def get_ongoing_events(self, currenttime, eventlist=None):
@@ -76,7 +77,7 @@ class OpendagIR:
             end_hour = begin_hour + (check // 60)
             overflow = True
 
-        for event in self.eventlist:
+        for event in self.templist:
             event_start_time = event[1]
             event_start_hour = int(event_start_time[0:2])
             event_start_minutes = int(event_start_time[3:5])
@@ -100,16 +101,16 @@ class OpendagIR:
             elif (event_start_hour == begin_hour) and (event_start_minutes > begin_minute):
                     result_list.append(event)
 
-        return result_list
+        self.templist = result_list
 
 
     def get_events_subject(self, subject):
         """Return all events on given subject."""
         result_list = []
-        for event in self.filtered_events:
+        for event in self.templist:
             if subject in event[0].lower() or subject in event[4].lower() or subject in event[5].lower():
                 result_list.append(event)
-        return result_list
+        self.templist = result_list
 
     def get_all_events_subject(self, subject):
         """Return all events on given subject."""
@@ -124,21 +125,21 @@ class OpendagIR:
         """Return all events for given age and up."""
         result_list = []
 
-        for event in self.filtered_events:
+        for event in self.templist:
             if event[3] == "all":
                 result_list.append(event)
                 continue
             if int(event[3]) <= age:
                 result_list.append(event)
 
-        return result_list
+        self.templist = result_list
 
 
     def remove_duplicates(self):
         """Removes duplicate events, takes the earliest version of the event in list."""
         event_dict = {}
         result_list = []
-        for event in self.eventlist:
+        for event in self.templist:
             if event[0] in event_dict.keys():
                 saved_starttime = event_dict[event[0]][1]
                 found_starttime = event[1]
@@ -148,7 +149,7 @@ class OpendagIR:
                 event_dict[event[0]] = event
         for event in event_dict.values():
             result_list.append(event)
-        return result_list
+        self.templist = result_list
 
     def earlier_time(self, time_a, time_b):
         """Returns true if a is earlier than b"""
