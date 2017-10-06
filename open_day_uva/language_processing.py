@@ -66,7 +66,7 @@ class LanguageProcessing:
             answers = ["Greetings human!", "Hi there!", "Hi!", "Nice to meet you!"]
             
         elif self.how_are_you(q):
-            answers = ["I'm new but I am doing my best!", "I'm fine thank you!", "Good!"]
+            answers = ["I'm new but I am doing my best!", "I'm fine thank you!", "I'm Good!"]
         elif self.is_goodbye(q):
             answers = ["Goodbye and enjoy your day!", "See you later!", "Goodbye!", "Later, sucker!", "Please don't leave me here with all these people!", "Cheers mate!", "Please don't go!"]
         elif self.whats_your_name(q):
