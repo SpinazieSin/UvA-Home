@@ -56,6 +56,11 @@ class LanguageProcessing:
             return True
         return False
 
+    def age_requirement(self, q):
+        if ("child" in q or "kids" in q) or ("year" in q or "age" in q or "old" in q):
+            return True
+        return False
+
     # Analyzes a sentence to extract some kind of instruction
     def get_command(self, q):
         word_list = q.split(" ")
