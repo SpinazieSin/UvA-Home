@@ -25,10 +25,10 @@ class RosterPresenter:
             answer = self.nlp.get_command(sentence)
             broke_up_answer = answer.split(",")
             for part_answer in broke_up_answer:
-                self.speech.say(answer)
+                self.speech.say(part_answer)
                 time.sleep(0.5)
 
-            if break_count > 5:
+            if break_count > 4:
                 break
             break_count += 1
         print("Done")

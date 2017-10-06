@@ -7,7 +7,7 @@ import datetime
 class LanguageProcessing:
     def __init__(self):
         # For local testing use - self.ir = OpendagIR("opendagdata.csv")
-        self.ir = OpendagIR()
+        self.ir = OpendagIR("opendagdata.csv")
 
     def is_break(self, q):
         if (("stop" in q or "sleep" in q or "break") and ("another" in q or "a bit" in q or "now" in q or "a while" in q or "a second" in q or "me" in q or "i want" in q or "talking" in q)) or ("shut up" in q):
@@ -64,13 +64,12 @@ class LanguageProcessing:
 
         if self.is_greeting(q):
             answers = ["Greetings human!", "Hi there!", "Hi!", "Nice to meet you!"]
-            
         elif self.how_are_you(q):
-            answers = ["I'm new but I am doing my best!", "I'm fine thank you!", "I'm Good!"]
+            answers = ["I am new but I am doing my best!", "I am fine thank you!", "I am Good!"]
         elif self.is_goodbye(q):
-            answers = ["Goodbye and enjoy your day!", "See you later!", "Goodbye!", "Later, sucker!", "Please don't leave me here with all these people!", "Cheers mate!", "Please don't go!"]
+            answers = ["Goodbye and enjoy your day!", "See you later!", "Goodbye!", "Later, sucker!", "Please do not leave me here with all these people!", "Cheers mate!", "Please do not go!"]
         elif self.whats_your_name(q):
-            answers = ["My name is Ginger", "I am Ginger", "Hello, I am GInger"]
+            answers = ["My name is Ginger", "I am Ginger", "Hello, I am Ginger"]
         elif self.good_ginger(q):
             answers = ["Is this Arnoud?"]
         elif self.when_next_event(q):
@@ -78,7 +77,7 @@ class LanguageProcessing:
         elif self.when_ongoing_event(q):
             answers = self.formulate_ongoing_event(word_list)
         else:
-            answers = ["Error, I don't understand", "I'm sorry but I do not understand you"]
+            answers = ["Error, I do not understand", "I am sorry but I do not understand you"]
         return answers[randint(0,len(answers)-1)]
 
 
@@ -202,5 +201,5 @@ class LanguageProcessing:
 if __name__ == "__main__":
     nlp = LanguageProcessing()
     # KILL MEEEEEEEEE
-    command = nlp.get_command("what event is ongoing related to chemistry")
+    command = nlp.get_command("anything going on related to chemistry")
     print(command)
